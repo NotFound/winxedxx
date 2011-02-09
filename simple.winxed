@@ -13,6 +13,9 @@ function main()
     s = '"world"!';
     i = 42;
     say(', ', s);
+    var v;
+    v = -42;
+    say(v);
 again:
     say(i);
     --i;

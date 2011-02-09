@@ -124,6 +124,12 @@ function emit_exprst(out, exprst)
     emit_expr(out, expr);
 }
 
+function emit_varstatement(out, st)
+{
+    out.print("WinxedxxObjectPtr ");
+    out.print(st.name);
+}
+
 function emit_intstatement(out, st)
 {
     out.print("int ");
@@ -174,6 +180,8 @@ function emit_statement(out, st)
         emit_intstatement(out, st);
     else if (st instanceof StringStatement)
         emit_stringstatement(out, st);
+    else if (st instanceof VarStatement)
+        emit_varstatement(out, st);
     else if (st instanceof LabelStatement)
         emit_labelstatement(out, st);
     else if (st instanceof GotoStatement)
