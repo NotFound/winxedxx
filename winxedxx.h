@@ -84,6 +84,7 @@ static WinxedxxObjectPtr winxedxxnull = WinxedxxObjectPtr();
 int wxx_print(int i) { std::cout << i; return 0; }
 int wxx_print(const char *s) { std::cout << s; return 0; }
 int wxx_print(const std::string &s) { std::cout << s; return 0; }
+int wxx_print(double n) { std::cout << n; return 0; }
 int wxx_print(WinxedxxObjectPtr &obj) { obj.print(); return 0; }
 
 #endif

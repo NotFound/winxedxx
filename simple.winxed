@@ -8,6 +8,9 @@ function hello()
 function main()
 {
     int i;
+    float f;
+    f = 0.5;
+    say(f);
     string s;
     hello();
     s = '"world"!';

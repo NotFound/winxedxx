@@ -99,15 +99,16 @@ function emit_expr(out, expr)
         emit_callexpr(out, expr);
     else if (expr instanceof OpAssignExpr)
         emit_assignexpr(out, expr);
+    else if (expr instanceof IdentifierExpr)
+        out.print(expr.name);
+    else if (expr instanceof IntegerLiteral)
+        out.print(expr.getIntegerValue());
+    else if (expr instanceof FloatLiteral)
+        out.print(expr.numval);
     else if (expr instanceof StringLiteral) {
         out.print('"');
         out.print(stringtoxx(expr));
         out.print('"');
-    }
-    else if (expr instanceof IdentifierExpr)
-        out.print(expr.name);
-    else if (expr instanceof IntegerLiteral) {
-        out.print(expr.getIntegerValue());
     }
     else if (expr instanceof OpPreDecExpr) {
         out.print('--(');
@@ -135,6 +136,13 @@ function emit_intstatement(out, st)
     out.print("int ");
     out.print(st.name);
     out.print(" = 0");
+}
+
+function emit_floatstatement(out, st)
+{
+    out.print("double ");
+    out.print(st.name);
+    out.print(" = 0.0");
 }
 
 function emit_stringstatement(out, st)
@@ -178,6 +186,8 @@ function emit_statement(out, st)
         emit_compoundstatement(out, st);
     else if (st instanceof IntStatement)
         emit_intstatement(out, st);
+    else if (st instanceof FloatStatement)
+        emit_floatstatement(out, st);
     else if (st instanceof StringStatement)
         emit_stringstatement(out, st);
     else if (st instanceof VarStatement)
