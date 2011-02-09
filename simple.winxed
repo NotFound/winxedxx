@@ -1,0 +1,21 @@
+// Test file for winxedxx
+
+function hello()
+{
+    print('Hello');
+}
+
+function main()
+{
+    int i;
+    string s;
+    hello();
+    s = '"world"!';
+    i = 42;
+    say(', ', s);
+again:
+    say(i);
+    --i;
+    if (i) goto again;
+}
+// End

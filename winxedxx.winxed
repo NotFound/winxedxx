@@ -1,0 +1,236 @@
+#! winxed
+
+// winxedxx.winxed
+// C++ backend for winxed
+// (C) 2011 Julián Albo "NotFound"
+
+// This code uses and abuses winxed compiler internals.
+// Not a good example on how to write winxed compiler extensions winxed,
+// but there is no better way right now.
+
+function WxxUnsupported(thing)
+{
+    string stname;
+    ${ typeof stname, thing };
+    string filename = '';
+    int line = 0;
+    string desc;
+    try {
+        var start = thing.start;
+        filename = start.file;
+        line = start.line;
+        desc = start.viewable();
+    }
+    catch () { }
+    throw Error(stname + " unsupported! at " +
+            filename + ":" + string(line) +
+            " near " + desc);
+}
+
+function stringtoxx(literal)
+{
+    var strval = literal.strval;
+    string str = strval.str;
+    if (strval instanceof TokenQuoted)
+        return str;
+    if (strval instanceof TokenSingleQuoted)
+    {
+        string result = '';
+        for (string c in str) {
+            switch (c) {
+              case '"':
+              case '\':
+                result += '\' + c;
+                break;
+              default:
+                result += c;
+            }
+        }
+        return result;
+    }
+    die('Unexpected literal string type');
+}
+
+function emit_callpredefexpr(out, expr)
+{
+    var predef = expr.predef;
+    if (predef.name != 'say' && predef.name != 'print')
+        WxxUnsupported(expr);
+    var args = expr.args;
+    out.print('(');
+    for (var arg in args) {
+        var argexp = arg.arg;
+        out.print('wxx_print(');
+        emit_expr(out, argexp);
+        out.print('),');
+    }
+    if (predef.name == 'say')
+        out.print('wxx_print("\n"),');
+    out.print('0)');
+}
+
+function emit_callexpr(out, callexpr)
+{
+    var funref = callexpr.funref;
+    if (funref.isidentifier()) {
+        string callname = funref.getName();
+        out.print(callname);
+        out.print("()");
+    }
+}
+
+function emit_assignexpr(out, assignexpr)
+{
+    var lexpr = assignexpr.lexpr;
+    if (lexpr instanceof IdentifierExpr) {
+        out.print(lexpr.name);
+        out.print(" = ");
+        emit_expr(out, assignexpr.rexpr);
+    }
+    else
+        WxxUnsupported(lexpr);
+}
+
+function emit_expr(out, expr)
+{
+    if (expr instanceof CallPredefExpr)
+        emit_callpredefexpr(out, expr);
+    else if (expr instanceof CallExpr)
+        emit_callexpr(out, expr);
+    else if (expr instanceof OpAssignExpr)
+        emit_assignexpr(out, expr);
+    else if (expr instanceof StringLiteral) {
+        out.print('"');
+        out.print(stringtoxx(expr));
+        out.print('"');
+    }
+    else if (expr instanceof IdentifierExpr)
+        out.print(expr.name);
+    else if (expr instanceof IntegerLiteral) {
+        out.print(expr.getIntegerValue());
+    }
+    else if (expr instanceof OpPreDecExpr) {
+        out.print('--(');
+        emit_expr(out, expr.subexpr);
+        out.print(')');
+    }
+    else
+        WxxUnsupported(expr);
+}
+
+function emit_exprst(out, exprst)
+{
+    var expr = exprst.expr;
+    emit_expr(out, expr);
+}
+
+function emit_intstatement(out, st)
+{
+    out.print("int ");
+    out.print(st.name);
+    out.print(" = 0");
+}
+
+function emit_stringstatement(out, st)
+{
+    out.print("std::string ");
+    out.print(st.name);
+    out.print(' = ""');
+}
+
+function emit_labelstatement(out, labelst)
+{
+    out.print(labelst.name);
+    out.print(":\n");
+}
+
+function emit_gotostatement(out, gotost)
+{
+    out.print("goto ");
+    out.print(gotost.label);
+}
+
+function emit_ifstatement(out, ifst)
+{
+    out.print('if (');
+    emit_expr(out, ifst.condexpr);
+    out.print(")\n");
+    emit_statement(out, ifst.truebranch);
+}
+
+function emit_compoundstatement(out, compound)
+{
+    var stlist = compound.statements;
+    int nst = elements(stlist);
+    for (var st in stlist)
+        emit_statement(out, st);
+}
+
+function emit_statement(out, st)
+{
+    if (st instanceof CompoundStatement)
+        emit_compoundstatement(out, st);
+    else if (st instanceof IntStatement)
+        emit_intstatement(out, st);
+    else if (st instanceof StringStatement)
+        emit_stringstatement(out, st);
+    else if (st instanceof LabelStatement)
+        emit_labelstatement(out, st);
+    else if (st instanceof GotoStatement)
+        emit_gotostatement(out, st);
+    else if (st instanceof IfStatement)
+        emit_ifstatement(out, st);
+    else if (st instanceof ExprStatement)
+        emit_exprst(out, st);
+    else
+        WxxUnsupported(st);
+    out.print(";\n");
+}
+
+function emit_function(out, funst)
+{
+    string name = funst.name;
+
+    if (name == 'main')
+        out.print('int main');
+    else {
+        out.print('WinxedxxObjectPtr ');
+        out.print(name);
+    }
+    out.print("()\n{\n");
+
+    // Get body. Should be a CompundStatement
+    var body = funst.body;
+    emit_statement(out, body);
+    out.print("\nreturn winxedxxnull;\n}\n");
+}
+
+function main(argv)
+{
+    using extern winxedst2; // Must be installed, or use -L
+    var winxed = compreg('winxed');
+    var parsed = winxed.compile_from_file(argv[1], 'parse':[named('target')]);
+
+    var out;
+    ${ getstdout out };
+
+    print(<<:HEADER
+// Generated by winxedxx
+
+#include "winxedxx.h"
+
+HEADER:>>
+    );
+
+    var ns = parsed.rootns;
+    var functions = ns.functions;
+    for (var funst in functions)
+        emit_function(out, funst);
+
+    print(<<:FOOTER
+// End
+FOOTER:>>
+    );
+}
+
+// End
