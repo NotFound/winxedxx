@@ -16,6 +16,8 @@ function main()
     var v;
     v = -42;
     say(v);
+    v = "Hi!";
+    say(v);
 again:
     say(i);
     --i;
