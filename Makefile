@@ -4,7 +4,7 @@ all: simple
 simple: simple.cxx
 	g++ -Wall -o simple simple.cxx
 
-simple.cxx: simple.winxed winxedxx.winxed
+simple.cxx: simple.winxed winxedxx.winxed winxedxx.h
 	winxed -L /home/julian/winxed winxedxx.winxed simple.winxed > simple.cxx
 
 clean:
