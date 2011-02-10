@@ -126,7 +126,7 @@ function emit_exprst(out, exprst)
 
 function emit_varstatement(out, st)
 {
-    out.print("WinxedxxObjectPtr ");
+    out.print("WxxObjectPtr ");
     out.print(st.name);
 }
 
@@ -208,10 +208,10 @@ function emit_function(out, funst)
 {
     string name = funst.name;
 
-    if (name == 'main')
+    /*if (name == 'main')
         out.print('int main');
-    else {
-        out.print('WinxedxxObjectPtr ');
+    else */{
+        out.print('WxxObjectPtr ');
         out.print(name);
     }
     out.print("()\n{\n");
@@ -252,6 +252,9 @@ function main(argv)
 
 #include "winxedxx.h"
 
+namespace WinxedXX
+{
+
 HEADER:>>
     );
 
@@ -261,6 +264,14 @@ HEADER:>>
         emit_function(out, funst);
 
     print(<<:FOOTER
+} // namespace WinxedXX
+
+int main(int argc, char **argv)
+{
+    WinxedXX::WxxObjectPtr result = WinxedXX::main();
+    return int(result);
+}
+
 // End
 FOOTER:>>
     );

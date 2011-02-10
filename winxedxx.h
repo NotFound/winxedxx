@@ -2,13 +2,16 @@
 #define INCLUDE_WINXEDXX_H
 
 // winxedxx.h
-// Revision 9-feb-2011
+// (C) 2011 Julián Albo "NotFound"
 
 #include <iostream>
 #include <string>
 #include <stdexcept>
 
-class WinxedxxObject {
+namespace WinxedXX
+{
+
+class WxxObject {
 public:
     virtual int get_integer()
     {
@@ -21,16 +24,16 @@ public:
     virtual void print() {}
 };
 
-class WinxedxxNull : public WinxedxxObject
+class WxxNull : public WxxObject
 {
 public:
     int get_integer() { return 0; };
 };
 
-class WinxedxxInteger : public WinxedxxObject
+class WxxInteger : public WxxObject
 {
 public:
-    WinxedxxInteger(int value)
+    WxxInteger(int value)
     {
         i = value;
     }
@@ -40,10 +43,10 @@ private:
     int i;
 };
 
-class WinxedxxString : public WinxedxxObject
+class WxxString : public WxxObject
 {
 public:
-    WinxedxxString(std::string value)
+    WxxString(std::string value)
     {
         str = value;
     }
@@ -55,20 +58,20 @@ private:
 
 //*************************************************************
 
-class WinxedxxObjectPtr
+class WxxObjectPtr
 {
 public:
-    WinxedxxObjectPtr() : object(new WinxedxxNull())
+    WxxObjectPtr() : object(new WxxNull())
     { }
     operator int() const { return object->get_integer(); };
-    WinxedxxObjectPtr & operator = (int i)
+    WxxObjectPtr & operator = (int i)
     {
-        object = new WinxedxxInteger(i);
+        object = new WxxInteger(i);
         return *this;
     }
-    WinxedxxObjectPtr & operator = (const std::string &s)
+    WxxObjectPtr & operator = (const std::string &s)
     {
-        object = new WinxedxxString(s);
+        object = new WxxString(s);
         return *this;
     }
     void print()
@@ -76,16 +79,18 @@ public:
         object->print();
     }
 private:
-    WinxedxxObject *object;
+    WxxObject *object;
 };
 
-static WinxedxxObjectPtr winxedxxnull = WinxedxxObjectPtr();
+static WxxObjectPtr winxedxxnull = WxxObjectPtr();
 
 int wxx_print(int i) { std::cout << i; return 0; }
 int wxx_print(const char *s) { std::cout << s; return 0; }
 int wxx_print(const std::string &s) { std::cout << s; return 0; }
 int wxx_print(double n) { std::cout << n; return 0; }
-int wxx_print(WinxedxxObjectPtr &obj) { obj.print(); return 0; }
+int wxx_print(WxxObjectPtr &obj) { obj.print(); return 0; }
+
+} // namespace WinxedXX
 
 #endif
 
