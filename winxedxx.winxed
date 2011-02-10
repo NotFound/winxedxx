@@ -234,6 +234,20 @@ function emit_ifstatement(out, ifst)
     emit_statement(out, ifst.truebranch);
 }
 
+function emit_forstatement(out, forst)
+{
+    emit_statement(out, forst.initializer);
+
+    out.print("for (");
+    emit_statement(out, forst.initializer);
+    emit_expr(out, forst.condexpr);
+    out.print(";");
+    emit_expr(out, forst.iteration);
+    out.print(") {\n");
+    emit_statement(out, forst.body);
+    out.print("}\n");
+}
+
 function emit_compoundstatement(out, compound)
 {
     var stlist = compound.statements;
@@ -260,6 +274,8 @@ function emit_statement(out, st)
         emit_gotostatement(out, st);
     else if (st instanceof IfStatement)
         emit_ifstatement(out, st);
+    else if (st instanceof ForStatement)
+        emit_forstatement(out, st);
     else if (st instanceof ExprStatement)
         emit_exprst(out, st);
     else
