@@ -268,8 +268,20 @@ HEADER:>>
 
 int main(int argc, char **argv)
 {
-    WinxedXX::WxxObjectPtr result = WinxedXX::main();
-    return int(result);
+    try {
+        WinxedXX::WxxObjectPtr result = WinxedXX::main();
+        return int(result);
+    }
+    catch (WinxedXX::WxxObjectPtr &e) {
+        std::cerr << "Exception caught:\n\t";
+        std::cerr.flush();
+        std::cerr << e.get_string() << '\n';
+        return 1;
+    }
+    catch (const std::exception &e) {
+        std::cerr << "Error: " << e.what() << '\n';
+        return 1;
+    }
 }
 
 // End

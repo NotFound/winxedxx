@@ -74,6 +74,10 @@ public:
         object = new WxxString(s);
         return *this;
     }
+    std::string get_string()
+    {
+        return object->get_string();
+    }
     void print()
     {
         object->print();
