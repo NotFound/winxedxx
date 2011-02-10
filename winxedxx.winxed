@@ -10,8 +10,7 @@
 
 function WxxUnsupported(thing)
 {
-    string stname;
-    ${ typeof stname, thing };
+    string stname = typeof(thing);
     string filename = '';
     int line = 0;
     string desc;
@@ -223,10 +222,26 @@ function emit_function(out, funst)
     out.print("\nreturn winxedxxnull;\n}\n");
 }
 
+//**************************************************************
+
+function get_winxed_compiler()
+{
+    // Load language module. If that fails, load the stage 2 bytecode.
+    var winxed;
+    try {
+        winxed = load_language('winxed');
+    } catch () { }
+    if (winxed == null) {
+        using extern winxedst2; // Must be installed, or use -L
+        winxed = compreg('winxed');
+    }
+    return winxed;
+}
+
 function main(argv)
 {
-    using extern winxedst2; // Must be installed, or use -L
-    var winxed = compreg('winxed');
+    var winxed = get_winxed_compiler();
+
     var parsed = winxed.compile_from_file(argv[1], 'parse':[named('target')]);
 
     var out;
