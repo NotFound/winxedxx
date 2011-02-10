@@ -133,21 +133,36 @@ function emit_intstatement(out, st)
 {
     out.print("int ");
     out.print(st.name);
-    out.print(" = 0");
+    if (st.init == null)
+        out.print(" = 0");
+    else {
+        out.print(" = ");
+        emit_exp(out, st.init);
+    }
 }
 
 function emit_floatstatement(out, st)
 {
     out.print("double ");
     out.print(st.name);
-    out.print(" = 0.0");
+    if (st.init == null)
+        out.print(" = 0.0");
+    else {
+        out.print(" = ");
+        emit_expr(out, st.init);
+    }
 }
 
 function emit_stringstatement(out, st)
 {
     out.print("std::string ");
     out.print(st.name);
-    out.print(' = ""');
+    if (st.init == null)
+        out.print(' = ""');
+    else {
+        out.print(" = ");
+        emit_expr(out, st.init);
+    }
 }
 
 function emit_labelstatement(out, labelst)
