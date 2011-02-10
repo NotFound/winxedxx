@@ -136,6 +136,24 @@ function emit_instanceofexpr(out, instanceofexpr)
     out.print(")");
 }
 
+function emit_lessexpr(out, lessexpr)
+{
+    out.print("((");
+    emit_expr(out, lessexpr.lexpr);
+    out.print(") < (");
+    emit_expr(out, lessexpr.rexpr);
+    out.print("))");
+}
+
+function emit_greaterexpr(out, lessexpr)
+{
+    out.print("((");
+    emit_expr(out, lessexpr.lexpr);
+    out.print(") > (");
+    emit_expr(out, lessexpr.rexpr);
+    out.print("))");
+}
+
 function emit_expr(out, expr)
 {
     if (expr instanceof CallPredefExpr)
@@ -157,6 +175,15 @@ function emit_expr(out, expr)
     }
     else if (expr instanceof OpInstanceOfExpr)
         emit_instanceofexpr(out, expr);
+    else if (expr instanceof OpPreIncExpr) {
+        out.print('++(');
+        emit_expr(out, expr.subexpr);
+        out.print(')');
+    }
+    else if (expr instanceof OpLessExpr)
+        emit_lessexpr(out, expr);
+    else if (expr instanceof OpGreaterExpr)
+        emit_greaterexpr(out, expr);
     else if (expr instanceof OpPreDecExpr) {
         out.print('--(');
         emit_expr(out, expr.subexpr);
