@@ -261,6 +261,15 @@ function emit_ifstatement(out, ifst)
     emit_statement(out, ifst.truebranch);
 }
 
+function emit_trystatement(out, tryst)
+{
+    out.print("try\n{\n");
+    emit_statement(out, tryst.stry);
+    out.print("}\ncatch (...)\n{\n");
+    emit_statement(out, tryst.scatch);
+    out.print("}\n");
+}
+
 function emit_forstatement(out, forst)
 {
     emit_statement(out, forst.initializer);
@@ -301,6 +310,8 @@ function emit_statement(out, st)
         emit_gotostatement(out, st);
     else if (st instanceof IfStatement)
         emit_ifstatement(out, st);
+    else if (st instanceof TryStatement)
+        emit_trystatement(out, st);
     else if (st instanceof ForStatement)
         emit_forstatement(out, st);
     else if (st instanceof ExprStatement)
