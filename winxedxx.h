@@ -76,6 +76,8 @@ class WxxObjectPtr
 public:
     WxxObjectPtr() : object(new WxxNull())
     { }
+    WxxObjectPtr(int value) : object(new WxxInteger(value))
+    { }
     operator int() const { return object->get_integer(); };
     WxxObjectPtr & operator = (int i)
     {

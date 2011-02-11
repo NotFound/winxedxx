@@ -284,6 +284,24 @@ function emit_forstatement(out, forst)
     out.print("}\n");
 }
 
+function emit_returnstatement(out, returnst)
+{
+    var values = returnst.values;
+    int nargs = values == null ? 0 : values.numargs();
+    switch (nargs) {
+      case 0:
+        out.print("return WxxObjectPtr()");
+        break;
+      case 1:
+        var expr = values.getfreearg(0);
+        out.print("return ");
+        emit_expr(out, expr);
+        break;
+      default:
+        WxxUnsupported(returnst);
+    }
+}
+
 function emit_compoundstatement(out, compound)
 {
     var stlist = compound.statements;
@@ -314,6 +332,8 @@ function emit_statement(out, st)
         emit_trystatement(out, st);
     else if (st instanceof ForStatement)
         emit_forstatement(out, st);
+    else if (st instanceof ReturnStatement)
+        emit_returnstatement(out, st);
     else if (st instanceof ExprStatement)
         emit_exprst(out, st);
     else
