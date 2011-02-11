@@ -95,6 +95,13 @@ function emit_callpredefexpr(out, expr)
             out.print('wxx_print("\n"),');
         out.print('0)');
         break;
+      case 'indexof':
+        out.print("int((");
+        emit_expr(out, args[0].arg);
+        out.print(").find(");
+        emit_expr(out, args[1].arg);
+        out.print("))");
+        break;
       default:
         WxxUnsupported(name);
     }
@@ -136,6 +143,15 @@ function emit_instanceofexpr(out, instanceofexpr)
     out.print(")");
 }
 
+function emit_equalexpr(out, lessexpr)
+{
+    out.print("((");
+    emit_expr(out, lessexpr.lexpr);
+    out.print(") == (");
+    emit_expr(out, lessexpr.rexpr);
+    out.print("))");
+}
+
 function emit_lessexpr(out, lessexpr)
 {
     out.print("((");
@@ -145,11 +161,47 @@ function emit_lessexpr(out, lessexpr)
     out.print("))");
 }
 
+function emit_lessequalexpr(out, lessexpr)
+{
+    out.print("((");
+    emit_expr(out, lessexpr.lexpr);
+    out.print(") <= (");
+    emit_expr(out, lessexpr.rexpr);
+    out.print("))");
+}
+
 function emit_greaterexpr(out, lessexpr)
 {
     out.print("((");
     emit_expr(out, lessexpr.lexpr);
     out.print(") > (");
+    emit_expr(out, lessexpr.rexpr);
+    out.print("))");
+}
+
+function emit_greaterequalexpr(out, lessexpr)
+{
+    out.print("((");
+    emit_expr(out, lessexpr.lexpr);
+    out.print(") >= (");
+    emit_expr(out, lessexpr.rexpr);
+    out.print("))");
+}
+
+function emit_boolorexpr(out, lessexpr)
+{
+    out.print("((");
+    emit_expr(out, lessexpr.lexpr);
+    out.print(") || (");
+    emit_expr(out, lessexpr.rexpr);
+    out.print("))");
+}
+
+function emit_boolandexpr(out, lessexpr)
+{
+    out.print("((");
+    emit_expr(out, lessexpr.lexpr);
+    out.print(") && (");
     emit_expr(out, lessexpr.rexpr);
     out.print("))");
 }
@@ -180,10 +232,20 @@ function emit_expr(out, expr)
         emit_expr(out, expr.subexpr);
         out.print(')');
     }
+    else if (expr instanceof OpEqualExpr)
+        emit_equalexpr(out, expr);
+    else if (expr instanceof OpLessEqualExpr)
+        emit_lessequalexpr(out, expr);
     else if (expr instanceof OpLessExpr)
         emit_lessexpr(out, expr);
     else if (expr instanceof OpGreaterExpr)
         emit_greaterexpr(out, expr);
+    else if (expr instanceof OpGreaterEqualExpr)
+        emit_greaterequalexpr(out, expr);
+    else if (expr instanceof OpBoolOrExpr)
+        emit_boolorexpr(out, expr);
+    else if (expr instanceof OpBoolAndExpr)
+        emit_boolandexpr(out, expr);
     else if (expr instanceof OpPreDecExpr) {
         out.print('--(');
         emit_expr(out, expr.subexpr);
@@ -197,6 +259,10 @@ function emit_exprst(out, exprst)
 {
     var expr = exprst.expr;
     emit_expr(out, expr);
+}
+
+function emit_conststatement(out, st)
+{
 }
 
 function emit_varstatement(out, st)
@@ -314,6 +380,8 @@ function emit_statement(out, st)
 {
     if (st instanceof CompoundStatement)
         emit_compoundstatement(out, st);
+    else if (st instanceof ConstStatement)
+        emit_conststatement(out, st);
     else if (st instanceof IntStatement)
         emit_intstatement(out, st);
     else if (st instanceof FloatStatement)
