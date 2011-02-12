@@ -463,8 +463,7 @@ function main(argv)
         var winxed = get_winxed_compiler();
         var parsed = winxed.compile_from_file(argv[1], 'parse':[named('target')]);
 
-        var out;
-        ${ getstdout out };
+        var out = getstdout();
         emit(out, parsed);
         return 0;
     }
