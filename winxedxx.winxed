@@ -5,28 +5,33 @@
 // (C) 2011 Julián Albo "NotFound"
 
 // This code uses and abuses winxed compiler internals.
-// Not a good example on how to write winxed compiler extensions winxed,
+// Not a good example on how to write winxed compiler extensions,
 // but there is no better way right now.
 
-function WxxUnsupported(thing)
+function WxxUnsupported(thing, string msg[optional])
 {
-    string stname;
-    if (thing instanceof 'String')
-        stname = thing;
-    else
-        stname = typeof(thing);
+    if (msg == null) {
+        if (thing instanceof 'String')
+            msg = thing;
+        else
+            msg = typeof(thing);
+    }
     string filename = '';
     int line = 0;
     string desc;
     try {
-        var start = thing.start;
+        var start;
+        if (thing instanceof Token)
+            start = thing;
+        else
+            start = thing.start;
         filename = start.file;
         line = start.line;
         desc = start.viewable();
     }
     catch () { }
     throw Error(filename + ":" + string(line) + ": " +
-            stname + " unsupported near " + desc);
+            msg + " unsupported near " + desc);
 }
 
 function tokstringtoxx(strval)
@@ -37,19 +42,18 @@ function tokstringtoxx(strval)
     if (strval instanceof TokenSingleQuoted)
     {
         string result = '';
-        for (string c in str) {
-            switch (c) {
-              case '"':
-              case '\':
+        int n = length(str);
+        int i;
+        for (i = 0 ; i < n; ++i) {
+            string c = substr(str, i, 1);
+            if (c ==  '"' || c == '\')
                 result += '\' + c;
-                break;
-              default:
+            else
                 result += c;
-            }
         }
         return result;
     }
-    die('Unexpected literal string type');
+    throw Error('Unexpected literal string type');
 }
 
 function stringtoxx(literal)
@@ -61,19 +65,18 @@ function stringtoxx(literal)
     if (strval instanceof TokenSingleQuoted)
     {
         string result = '';
-        for (string c in str) {
-            switch (c) {
-              case '"':
-              case '\':
+        int n = length(str);
+        int i;
+        for (i = 0 ; i < n; ++i) {
+            string c = substr(str, i, 1);
+            if (c ==  '"' || c == '\')
                 result += '\' + c;
-                break;
-              default:
+            else
                 result += c;
-            }
         }
         return result;
     }
-    die('Unexpected literal string type');
+    throw Error('Unexpected literal string type');
 }
 
 function emit_callpredefexpr(out, expr)
@@ -81,19 +84,42 @@ function emit_callpredefexpr(out, expr)
     var predef = expr.predef;
     string name = predef.name;
     var args = expr.args;
+    int nargs = elements(args);
+    int i;
     switch (name) {
+      case 'string':
+        out.print("std::string");
+        emit_expr(out, args[0].arg);
+        break;
+      case 'typeof':
+        out.print("www_typeof");
+        emit_expr(out, args[0].arg);
+        break;
+      case 'getstdin':
+      case 'getstdout':
+      case 'getstderr':
+        out.print("wxx_" + name + "()");
+        break;
       case 'print':
       case 'say':
-        out.print('(');
-        for (var arg in args) {
+        for (i = 0;  i < nargs; ++i) {
+            var arg = args[i];
             var argexp = arg.arg;
-            out.print('wxx_print(');
+            out.print('wxx_print');
             emit_expr(out, argexp);
-            out.print('),');
+            out.print(',');
         }
         if (predef.name == 'say')
             out.print('wxx_print("\n"),');
-        out.print('0)');
+        out.print('0');
+        break;
+      case 'elements':
+        emit_expr(out, args[0].arg);
+        out.print(".elements()");
+        break;
+      case 'length':
+        emit_expr(out, args[0].arg);
+        out.print(".length()");
         break;
       case 'indexof':
         out.print("int((");
@@ -102,19 +128,76 @@ function emit_callpredefexpr(out, expr)
         emit_expr(out, args[1].arg);
         out.print("))");
         break;
+      case 'substr':
+        emit_expr(out, args[0].arg);
+        out.print(".substr(");
+        emit_expr(out, args[1].arg);
+        out.print(", ");
+        emit_expr(out, args[2].arg);
+        out.print(")");
+        break;
+      case 'Error':
+        out.print("wxx_error(");
+        emit_expr(out, args[0].arg);
+        if (nargs > 1) {
+            out.print(", ");
+            emit_expr(out, args[1].arg);
+        }
+        if (nargs > 2) {
+            out.print(", ");
+            emit_expr(out, args[2].arg);
+        }
+        out.print(")");
+        break;
+      case 'open':
+        out.print("WxxObjectPtr((new WxxFileHandle())->open(");
+        emit_expr(out, args[0].arg);
+        out.print("))");
+        break;
       default:
-        WxxUnsupported(name);
+        WxxUnsupported(expr, "predef " + name);
     }
 }
 
 function emit_callexpr(out, callexpr)
 {
     var funref = callexpr.funref;
+    var args = callexpr.args;
+    int nargs = 0;
+    if (args != null)
+        nargs = args.numargs();
     if (funref.isidentifier()) {
         string callname = funref.getName();
         out.print(callname);
-        out.print("()");
+        out.print("(WxxObjectArray()");
+        if (nargs > 0) {
+            for (int i = 0; i < nargs; ++i) {
+                out.print(".push(");
+                var arg = args.getfreearg(i);
+                emit_expr(out, arg);
+                out.print(")");
+            }
+        }
+        out.print(")");
     }
+    else if (funref instanceof MemberExpr) {
+        emit_expr(out, funref.left);
+        out.print(".call_method(\"");
+        out.print(funref.right.getidentifier());
+        out.print("\"");
+        if (nargs > 0) {
+            out.print(", WxxObjectArray()");
+            for (int i = 0; i < nargs; ++i) {
+                out.print(".push(");
+                var arg = args.getfreearg(i);
+                emit_expr(out, arg);
+                out.print(")");
+            }
+        }
+        out.print(")");
+    }
+    else
+        WxxUnsupported(funref);
 }
 
 function emit_assignexpr(out, assignexpr)
@@ -143,47 +226,121 @@ function emit_instanceofexpr(out, instanceofexpr)
     out.print(")");
 }
 
+function emit_addtoexpr(out, assignexpr)
+{
+    var lexpr = assignexpr.lexpr;
+    if (lexpr instanceof IdentifierExpr) {
+        out.print(lexpr.name);
+        out.print(" += ");
+        emit_expr(out, assignexpr.rexpr);
+    }
+    else
+        WxxUnsupported(lexpr);
+}
 
+function emit_concatstring(out, concatstr)
+{
+    var values = concatstr.values;
+    emit_expr(out, values[0]);
+    int n = elements(values);
+    for (int i = 1; i < n; ++i) {
+        out.print(" + ");
+        emit_expr(out, values[i]);
+    }
+}
+
+function emit_nullchecker(out, expr)
+{
+    if (! expr.checknull)
+        out.print("!");
+    out.print("(");
+    out.print("wxx_isnull");
+    emit_expr(out, expr.expr);
+    out.print(")");
+}
+
+function emit_opnot(out, expr)
+{
+    out.print("!");
+    emit_expr(out, expr.subexpr);
+}
 
 function emit_commonop(out, expr, string opstr)
 {
-    out.print("((");
     emit_expr(out, expr.lexpr);
-    out.print(") ");
+    out.print(" ");
     out.print(opstr);
-    out.print(" (");
+    out.print(" ");
     emit_expr(out, expr.rexpr);
-    out.print("))");
 }
 
 function emit_boolorexpr(out, lessexpr)
 {
-    out.print("((");
+    out.print("wxx_boolor(");
     emit_expr(out, lessexpr.lexpr);
-    out.print(") || (");
+    out.print(", ");
     emit_expr(out, lessexpr.rexpr);
-    out.print("))");
+    out.print(")");
 }
 
 function emit_boolandexpr(out, lessexpr)
 {
-    out.print("((");
+    out.print("wxx_booland(");
     emit_expr(out, lessexpr.lexpr);
-    out.print(") && (");
+    out.print(", ");
     emit_expr(out, lessexpr.rexpr);
-    out.print("))");
+    out.print(")");
+}
+
+function emit_conditionalexpr(out, expr)
+{
+    emit_expr(out, expr.condition.condexpr);
+    out.print(" ? ");
+    emit_expr(out, expr.etrue);
+    out.print(" : ");
+    emit_expr(out, expr.efalse);
+}
+
+function emit_identifierexpr(out, expr)
+{
+    string name = expr.name;
+    if (name == "null")
+        out.print("winxednull");
+    else
+        out.print(name);
+}
+
+function emit_indexexpr(out, expr)
+{
+    var left = expr.left;
+    emit_expr(out, left);
+    var arg = expr.getarg(0);
+    out.print(".get_pmc_keyed");
+    emit_expr(out, arg);
+}
+
+function emit_memberexpr(out, expr)
+{
+    emit_expr(out, expr.left);
+    out.print(".get_attr_str(\"");
+    out.print(expr.right.getidentifier());
+    out.print("\")");
 }
 
 function emit_expr(out, expr)
 {
+    out.print("(");
+
     if (expr instanceof CallPredefExpr)
         emit_callpredefexpr(out, expr);
     else if (expr instanceof CallExpr)
         emit_callexpr(out, expr);
     else if (expr instanceof OpAssignExpr)
         emit_assignexpr(out, expr);
+    else if (expr instanceof OpAddToExpr)
+        emit_addtoexpr(out, expr);
     else if (expr instanceof IdentifierExpr)
-        out.print(expr.name);
+        emit_identifierexpr(out, expr);
     else if (expr instanceof IntegerLiteral)
         out.print(expr.getIntegerValue());
     else if (expr instanceof FloatLiteral)
@@ -193,15 +350,22 @@ function emit_expr(out, expr)
         out.print(stringtoxx(expr));
         out.print('"');
     }
+    else if (expr instanceof OpNotExpr)
+        emit_opnot(out, expr);
+    else if (expr instanceof NullCheckerExpr)
+        emit_nullchecker(out, expr);
     else if (expr instanceof OpInstanceOfExpr)
         emit_instanceofexpr(out, expr);
     else if (expr instanceof OpPreIncExpr) {
-        out.print('++(');
+        out.print('++');
         emit_expr(out, expr.subexpr);
-        out.print(')');
     }
+    else if (expr instanceof ConcatString)
+        emit_concatstring(out, expr);
     else if (expr instanceof OpEqualExpr)
         emit_commonop(out, expr, "==");
+    else if (expr instanceof OpNotEqualExpr)
+        emit_commonop(out, expr, "!=");
     else if (expr instanceof OpLessEqualExpr)
         emit_commonop(out, expr, "<=");
     else if (expr instanceof OpLessExpr)
@@ -217,12 +381,18 @@ function emit_expr(out, expr)
     else if (expr instanceof OpModExpr)
         emit_commonop(out, expr, "%");
     else if (expr instanceof OpPreDecExpr) {
-        out.print('--(');
+        out.print('--');
         emit_expr(out, expr.subexpr);
-        out.print(')');
     }
+    else if (expr instanceof OpConditionalExpr)
+        emit_conditionalexpr(out, expr);
+    else if (expr instanceof MemberExpr)
+        emit_memberexpr(out, expr);
+    else if (expr instanceof IndexExpr)
+        emit_indexexpr(out, expr);
     else
         WxxUnsupported(expr);
+    out.print(")");
 }
 
 function emit_exprst(out, exprst)
@@ -239,6 +409,11 @@ function emit_varstatement(out, st)
 {
     out.print("WxxObjectPtr ");
     out.print(st.name);
+    var init = st.init;
+    if (init != null) {
+        out.print(" = ");
+        emit_expr(out, init);
+    }
 }
 
 function emit_intstatement(out, st)
@@ -283,6 +458,11 @@ function emit_labelstatement(out, labelst)
     out.print(":\n");
 }
 
+function emit_breakstatement(out, gotost)
+{
+    out.print("break");
+}
+
 function emit_gotostatement(out, gotost)
 {
     out.print("goto ");
@@ -291,19 +471,71 @@ function emit_gotostatement(out, gotost)
 
 function emit_ifstatement(out, ifst)
 {
-    out.print('if (');
+    var truebranch = ifst.truebranch;
+    var falsebranch = ifst.falsebranch;
+    out.print('if ');
     emit_expr(out, ifst.condexpr);
-    out.print(")\n");
-    emit_statement(out, ifst.truebranch);
+    out.print("\n{\n");
+    if (! truebranch.isempty())
+        emit_statement(out, truebranch);
+    out.print("} else {\n");
+    if (! falsebranch.isempty())
+        emit_statement(out, falsebranch);
+    out.print("}\n");
+}
+
+function emit_switchstatement(out, switchst)
+{
+    var case_value = switchst.case_value;
+    var case_st = switchst.case_st;
+    out.print("do {\nWxxObjectPtr wxxswvar = ");
+    emit_expr(out, switchst.condition);
+    out.print(";\n");
+
+    int n = elements(case_st);
+    for (int i = 0; i < n; ++i) {
+        var caseval = case_value[i];
+        out.print ("if ((wxxswvar == ");
+        emit_expr(out, caseval);
+        out.print(") {\n");
+        int nst = elements(case_st[i]);
+        int j;
+        for (j = 0; j < nst; ++j)
+            emit_statement(out, case_st[i][j]);
+        out.print("}\n");
+    }
+
+    out.print("} while (false)\n");
+}
+
+function emit_whilestatement(out, ifst)
+{
+    out.print('while ');
+    emit_expr(out, ifst.condexpr);
+    out.print("\n");
+    emit_statement(out, ifst.body);
 }
 
 function emit_trystatement(out, tryst)
 {
     out.print("try\n{\n");
     emit_statement(out, tryst.stry);
-    out.print("}\ncatch (...)\n{\n");
+    out.print("}\ncatch (");
+    if (tryst.exname == null)
+        out.print("...");
+    else {
+        out.print("WxxObjectPtr &");
+        out.print(string(tryst.exname));
+    }
+    out.print(")\n{\n");
     emit_statement(out, tryst.scatch);
     out.print("}\n");
+}
+
+function emit_throwstatement(out, throwst)
+{
+    out.print("throw ");
+    emit_expr(out, throwst.excep);
 }
 
 function emit_forstatement(out, forst)
@@ -342,8 +574,11 @@ function emit_compoundstatement(out, compound)
 {
     var stlist = compound.statements;
     int nst = elements(stlist);
-    for (var st in stlist)
+    int i;
+    for (i = 0; i < nst; ++i) {
+        var st = stlist[i];
         emit_statement(out, st);
+    }
 }
 
 function emit_statement(out, st)
@@ -362,18 +597,28 @@ function emit_statement(out, st)
         emit_varstatement(out, st);
     else if (st instanceof LabelStatement)
         emit_labelstatement(out, st);
+    else if (st instanceof BreakStatement)
+        emit_breakstatement(out, st);
     else if (st instanceof GotoStatement)
         emit_gotostatement(out, st);
     else if (st instanceof IfStatement)
         emit_ifstatement(out, st);
+    else if (st instanceof SwitchStatement)
+        emit_switchstatement(out, st);
+    else if (st instanceof WhileStatement)
+        emit_whilestatement(out, st);
     else if (st instanceof TryStatement)
         emit_trystatement(out, st);
+    else if (st instanceof ThrowStatement)
+        emit_throwstatement(out, st);
     else if (st instanceof ForStatement)
         emit_forstatement(out, st);
     else if (st instanceof ReturnStatement)
         emit_returnstatement(out, st);
     else if (st instanceof ExprStatement)
         emit_exprst(out, st);
+    else if (st instanceof EmptyStatement)
+        /* Do nothing */ ;
     else
         WxxUnsupported(st);
     out.print(";\n");
@@ -383,13 +628,35 @@ function emit_function(out, funst)
 {
     string name = funst.name;
 
-    /*if (name == 'main')
-        out.print('int main');
-    else */{
-        out.print('WxxObjectPtr ');
+    out.print('WxxObjectPtr ');
+    out.print(name);
+    out.print("(");
+    out.print("const WxxObjectArray &wxx_fun_args");
+    out.print(")\n{\n");
+    var params = funst.params;
+    int nparams = params == null ? 0 : elements(params);
+    int i;
+    for (i = 0; i < nparams; ++i) {
+        var param = params[i];
+        string name = param['name'];
+        var a = funst.getvar(name);
+        string type = a.gettype();
+        switch (type) {
+          case 'I':
+            out.print("int"); break;
+          case 'N':
+            out.print("double"); break;
+          case 'S':
+            out.print("std::string"); break;
+          default:
+            out.print("WxxObjectPtr"); break;
+        }
+        out.print(" ");
         out.print(name);
+        out.print(" = *(wxx_fun_args[");
+        out.print(i);
+        out.print("]);\n");
     }
-    out.print("()\n{\n");
 
     // Get body. Should be a CompundStatement
     var body = funst.body;
@@ -437,8 +704,14 @@ HEADER:>>
 int main(int argc, char **argv)
 {
     try {
-        WinxedXX::WxxObjectPtr result = WinxedXX::main();
-        return int(result);
+        WinxedXX::WxxObjectArray *args = new WinxedXX::WxxObjectArray();
+        for (int i = 0; i < argc; ++i)
+            args->push(argv[i]);
+        WinxedXX::WxxObjectPtr mainarg(args);
+        WinxedXX::WxxObjectPtr objresult =
+                WinxedXX::main(WinxedXX::WxxObjectArray().push(mainarg));
+        int result = objresult.is_null() ? 0 : int(objresult);
+        return result;
     }
     catch (WinxedXX::WxxObjectPtr &e) {
         std::cerr << "Exception caught:\n\t";
