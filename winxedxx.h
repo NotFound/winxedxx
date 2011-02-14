@@ -26,6 +26,7 @@ public:
     virtual int is_null() = 0;
     virtual int instanceof(const std::string &type) = 0;
     virtual int get_integer() = 0;
+    virtual double get_number() = 0;
     virtual int elements() = 0;
     virtual std::string get_string() = 0;
     virtual WxxObjectPtr & get_pmc_keyed(int i) = 0;
@@ -79,6 +80,10 @@ public:
     {
         throw WxxNullAccess("get_integer");
     }
+    double get_number()
+    {
+        throw WxxNullAccess("get_number");
+    }
     int elements()
     {
         throw WxxNullAccess("elements");
@@ -124,6 +129,10 @@ public:
     {
         throw WxxNotImplemented("get_integer", name);
     }
+    double get_number()
+    {
+        throw WxxNotImplemented("get_number", name);
+    }
     int elements()
     {
         throw WxxNotImplemented("elements", name);
@@ -156,6 +165,10 @@ public:
         i = value;
     }
     int get_integer() { return i; };
+    double get_number()
+    {
+        return i;
+    }
     std::string get_string()
     {
         std::ostringstream oss;
@@ -175,6 +188,10 @@ public:
         n = value;
     }
     int get_integer() { return n; };
+    double get_number()
+    {
+        return n;
+    }
     std::string get_string()
     {
         std::ostringstream oss;
@@ -307,15 +324,28 @@ public:
     }
     WxxObjectPtr & operator = (int i)
     {
+        object->decref();
         object = new WxxInteger(i);
+        object->incref();
+        return *this;
+    }
+    WxxObjectPtr & operator = (double n)
+    {
+        object->decref();
+        object = new WxxFloat(n);
+        object->incref();
         return *this;
     }
     WxxObjectPtr & operator = (const std::string &s)
     {
+        object->decref();
         object = new WxxString(s);
+        object->incref();
         return *this;
     }
     operator int() { return object->get_integer(); }
+    operator double() { return object->get_number(); }
+    operator std::string() { return object->get_string(); }
     int is_null() { return object->is_null(); }
     int instanceof(const std::string &type)
     {

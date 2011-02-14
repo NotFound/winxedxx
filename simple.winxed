@@ -5,6 +5,11 @@ function hello()
     print('Hello');
 }
 
+function show(int i, float f, string s, var v)
+{
+    say(i, " ", f, " ", s, " ", v);
+}
+
 function main()
 {
     int i;
@@ -14,16 +19,22 @@ function main()
     string s;
     hello();
     s = '"world"!';
-    i = 42;
+    i = 10;
     say(', ', s);
     var v;
     v = -42;
     say(v);
     v = "Hi!";
-    say(v);
+
+    show(i, f, s, v);
+
+    for (i = 0; i < 10; ++i)
+    print(' ', i);
+
 again:
-    say(i);
+    print(' ', i);
     --i;
-    if (i) goto again;
+    if (i >= 0) goto again;
+    say();
 }
 // End
