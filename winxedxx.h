@@ -20,7 +20,6 @@ namespace WinxedXX
 
 class WxxObjectPtr;
 
-extern WxxObjectPtr winxedxxnull;
 
 WxxObjectPtr wxx_error(const std::string &message);
 WxxObjectPtr wxx_error(const std::string &message, int severity);
@@ -29,7 +28,7 @@ WxxObjectPtr wxx_error(const std::string &message, int severity, int type);
 class WxxObject
 {
 public:
-    virtual int is_null() = 0;
+    virtual int is_null() const = 0;
     virtual int instanceof(const std::string &type) = 0;
     virtual int get_integer() = 0;
     virtual double get_number() = 0;
@@ -59,197 +58,95 @@ protected:
 };
 
 
-class WxxNotImplemented : public std::runtime_error
-{
-public:
-    WxxNotImplemented(const std::string &funcname, const std::string &name) :
-        std::runtime_error(funcname + " not implemented in " + name)
-    { }
-};
-
 class WxxNull : public WxxObject
 {
 public:
-    int is_null() { return 1; }
-    int instanceof(const std::string &type)
-    {
-        nullaccess("instanceof");
-        return 0;
-    }
-    int get_integer()
-    {
-        nullaccess("get_integer");
-        return 0;
-    }
-    double get_number()
-    {
-        nullaccess("get_number");
-        return 0;
-    }
-    int elements()
-    {
-        nullaccess("elements");
-        return 0;
-    }
-    std::string get_string()
-    {
-        nullaccess("get_string");
-        return std::string();
-    }
-    WxxObjectPtr & get_pmc_keyed(int i)
-    {
-        nullaccess("get_pmc_keyed");
-        return winxedxxnull;
-    }
-    WxxObjectPtr & get_attr_str(const std::string &s)
-    {
-        nullaccess("get_attr_str");
-        return winxedxxnull;
-    }
-    void set_attr_str(const std::string &s, const WxxObjectPtr &value)
-    {
-        nullaccess("set_attr_str");
-    }
-    void print()
-    {
-        nullaccess("print");
-    }
-    void print(WxxObjectPtr &)
-    {
-        nullaccess("print");
-    }
+    int is_null() const;
+    int instanceof(const std::string &type);
+    int get_integer();
+    double get_number();
+    int elements();
+    std::string get_string();
+    WxxObjectPtr & get_pmc_keyed(int i);
+    WxxObjectPtr & get_attr_str(const std::string &s);
+    void set_attr_str(const std::string &s, const WxxObjectPtr &value);
+    void print();
+    void print(WxxObjectPtr &);
     WxxObjectPtr readline();
 private:
     void nullaccess(const std::string &funcname);
 };
 
+
 class WxxDefault : public WxxObject
 {
 protected:
-    WxxDefault(const char *name) { this->name = name; }
-    ~WxxDefault()
-    {
-        //std::cerr << "~WxxDefault " << name << "\n";
-    }
+    WxxDefault(const char *name);
+    ~WxxDefault();
 public:
-    int is_null() { return 0; }
-    std::string getname() const { return name; }
-    int instanceof(const std::string &type)
-    {
-        return type == name;
-    }
-    int get_integer()
-    {
-        notimplemented("get_integer");
-        return 0;
-    }
-    double get_number()
-    {
-        notimplemented("get_number");
-        return 0;
-    }
-    int elements()
-    {
-        notimplemented("elements");
-        return 0;
-    }
-    virtual std::string get_string()
-    {
-        notimplemented("get_string");
-        return std::string();
-    }
-    WxxObjectPtr & get_pmc_keyed(int i)
-    {
-        notimplemented("get_pmc_keyed");
-        return winxedxxnull;
-    }
+    int is_null() const;
+    std::string getname() const;
+    int instanceof(const std::string &type);
+    int get_integer();
+    double get_number();
+    int elements();
+    virtual std::string get_string();
+    WxxObjectPtr & get_pmc_keyed(int i);
     WxxObjectPtr & get_attr_str(const std::string &s);
     void set_attr_str(const std::string &s, const WxxObjectPtr &value);
     WxxObjectPtr readline();
-    void print()
-    {
-        std::cout << this->get_string();
-    }
-    void print(WxxObjectPtr &)
-    {
-        notimplemented("print");
-    }
+    void print();
+    void print(WxxObjectPtr &);
 private:
     std::string name;
     std::map<std::string, WxxObjectPtr> attributes;
     void notimplemented(const std::string &funcname);
 };
 
+
 class WxxInteger : public WxxDefault
 {
 public:
-    WxxInteger(int value) : WxxDefault("Integer")
-    {
-        i = value;
-    }
-    int get_integer() { return i; };
-    double get_number()
-    {
-        return i;
-    }
-    std::string get_string()
-    {
-        std::ostringstream oss;
-        oss << i;
-        return oss.str();
-    }
-    void print() { std::cout << i; }
+    WxxInteger(int value);
+    int get_integer();
+    double get_number();
+    std::string get_string();
+    void print();
 private:
     int i;
 };
 
+
 class WxxFloat : public WxxDefault
 {
 public:
-    WxxFloat(double value) : WxxDefault("Float")
-    {
-        n = value;
-    }
-    int get_integer() { return n; };
-    double get_number()
-    {
-        return n;
-    }
-    std::string get_string()
-    {
-        std::ostringstream oss;
-        oss << n;
-        return oss.str();
-    }
-    void print() { std::cout << n; }
+    WxxFloat(double value);
+    int get_integer();
+    double get_number();
+    std::string get_string();
+    void print();
 private:
     double n;
 };
 
+
 class WxxString : public WxxDefault
 {
 public:
-    WxxString(std::string value) : WxxDefault("String")
-    {
-        str = value;
-    }
-    std::string get_string() { return str; }
-    void print() { std::cout << str; }
+    WxxString(std::string value);
+    std::string get_string();
+    void print();
 private:
     std::string str;
 };
 
+
 class WxxObjectArray : public WxxDefault
 {
 public:
-    WxxObjectArray() : WxxDefault("ResizablePMCArray")
-    {
-    }
+    WxxObjectArray();
     ~WxxObjectArray();
-    int elements()
-    {
-        return arr.size();
-    }
+    int elements();
     WxxObjectPtr *operator[](int i) const;
     WxxObjectPtr & get_pmc_keyed(int i);
     WxxObjectArray& push(WxxObjectPtr &obj);
@@ -261,42 +158,24 @@ private:
     std::vector<WxxObjectPtr *> arr;
 };
 
+
 class WxxException : public WxxDefault
 {
 public:
     WxxException(const std::string &message, int severity = 2, int type = 0);
-    std::string get_string() { return msg; }
+    std::string get_string();
 private:
     std::string msg;
     int sev;
     int typ;
 };
 
+
 class WxxFileHandle : public WxxDefault
 {
 public:
-    WxxFileHandle(int predef = 0) : WxxDefault("FileHandle")
-    {
-        switch (predef) {
-        case 1:
-            f = stdin;
-            break;
-        case 2:
-            f = stdout;
-            break;
-        case 3:
-            f = stderr;
-            break;
-        default:
-            f = 0;
-        }
-    }
-    ~WxxFileHandle()
-    {
-        //std::cerr << "~WxxFileHandle\n";
-        if (f && f != stdin && f != stdout && f != stderr)
-            fclose(f);
-    }
+    WxxFileHandle(int predef = 0);
+    ~WxxFileHandle();
     WxxObjectPtr readline();
     WxxObject *open(WxxObjectPtr & name);
     void print(WxxObjectPtr &obj);
@@ -309,122 +188,188 @@ private:
 class WxxObjectPtr
 {
 public:
-    WxxObjectPtr() : object(new WxxNull())
-    {
-        object->incref();
-    }
-    WxxObjectPtr(int value) : object(new WxxInteger(value))
-    {
-        object->incref();
-    }
-    WxxObjectPtr(double value) : object(new WxxFloat(value))
-    {
-        object->incref();
-    }
-    WxxObjectPtr(const std::string &value) : object(new WxxString(value))
-    {
-        object->incref();
-    }
-    WxxObjectPtr(const WxxObjectPtr &old) :
-        object(old.object)
-    {
-        object->incref();
-    }
-    WxxObjectPtr(WxxObject * obj) : object(obj)
-    {
-        object->incref();
-    }
-    ~WxxObjectPtr()
-    {
-        if (object)
-            object->decref();
-    }
-    WxxObjectPtr &operator = (const WxxObjectPtr &from)
-    {
-        from.object->incref();
-        object->decref();
-        object = from.object;
-        return *this;
-    }
-    WxxObjectPtr & operator = (int i)
-    {
-        object->decref();
-        object = new WxxInteger(i);
-        object->incref();
-        return *this;
-    }
-    WxxObjectPtr & operator = (double n)
-    {
-        object->decref();
-        object = new WxxFloat(n);
-        object->incref();
-        return *this;
-    }
-    WxxObjectPtr & operator = (const std::string &s)
-    {
-        object->decref();
-        object = new WxxString(s);
-        object->incref();
-        return *this;
-    }
+    WxxObjectPtr();
+    WxxObjectPtr(int value);
+    WxxObjectPtr(double value);
+    WxxObjectPtr(const std::string &value);
+    WxxObjectPtr(const WxxObjectPtr &old);
+    WxxObjectPtr(WxxObject * obj);
+    ~WxxObjectPtr();
+    WxxObjectPtr &operator = (const WxxObjectPtr &from);
+    WxxObjectPtr & operator = (int i);
+    WxxObjectPtr & operator = (double n);
+    WxxObjectPtr & operator = (const std::string &s);
     operator int() { return object->get_integer(); }
     operator double() { return object->get_number(); }
     operator std::string() { return object->get_string(); }
-    int is_null() { return object->is_null(); }
-    int instanceof(const std::string &type)
-    {
-        return object->instanceof(type);
-    }
-    std::string get_string()
-    {
-        return object->get_string();
-    }
-    int elements()
-    {
-        return object->elements();
-    }
-    WxxObjectPtr & get_pmc_keyed(int i)
-    {
-        return object->get_pmc_keyed(i);
-    }
-    void print()
-    {
-        object->print();
-    }
-    WxxObjectPtr & get_attr_str(const std::string &s)
-    {
-        return object->get_attr_str(s);
-    }
-    void set_attr_str(const std::string &s, const WxxObjectPtr &value)
-    {
-        object->set_attr_str(s, value);
-    }
-    WxxObjectPtr call_method(const std::string &methname)
-    {
-        if (methname == "readline")
-            return object->readline();
-        return WxxObjectPtr();
-    }
-    WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args)
-    {
-        if (methname == "print") {
-            int n = args.elements();
-            for (int i = 0; i < n; ++i)
-                object->print(*args[i]);
-        }
-        return WxxObjectPtr();
-    }
+    int is_null() const { return object->is_null(); }
+    int instanceof(const std::string &type);
+    std::string get_string();
+    int elements();
+    WxxObjectPtr & get_pmc_keyed(int i);
+    void print();
+    WxxObjectPtr & get_attr_str(const std::string &s);
+    void set_attr_str(const std::string &s, const WxxObjectPtr &value);
+    WxxObjectPtr call_method(const std::string &methname);
+    WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
 private:
     WxxObject *object;
 };
 
-WxxObjectPtr winxedxxnull;
+static WxxObjectPtr winxedxxnull;
 
 //*************************************************************
+
+int WxxNull::is_null() const { return 1; }
+
+int WxxNull::instanceof(const std::string &type)
+{
+    nullaccess("instanceof");
+    return 0;
+}
+
+int WxxNull::get_integer()
+{
+    nullaccess("get_integer");
+    return 0;
+}
+
+double WxxNull::get_number()
+{
+    nullaccess("get_number");
+    return 0;
+}
+
+int WxxNull::elements()
+{
+    nullaccess("elements");
+    return 0;
+}
+
+std::string WxxNull::get_string()
+{
+    nullaccess("get_string");
+    return std::string();
+}
+
+WxxObjectPtr & WxxNull::get_pmc_keyed(int i)
+{
+    nullaccess("get_pmc_keyed");
+    return winxedxxnull;
+}
+
+WxxObjectPtr & WxxNull::get_attr_str(const std::string &s)
+{
+    nullaccess("get_attr_str");
+    return winxedxxnull;
+}
+
+void WxxNull::set_attr_str(const std::string &s, const WxxObjectPtr &value)
+{
+    nullaccess("set_attr_str");
+}
+
+void WxxNull::print()
+{
+    nullaccess("print");
+}
+
+void WxxNull::print(WxxObjectPtr &)
+{
+    nullaccess("print");
+}
 
 void WxxNull::nullaccess(const std::string &funcname)
 {
     throw wxx_error("Null WxxObject in " + funcname);
+}
+
+WxxObjectPtr WxxNull::readline()
+{
+    nullaccess("readline");
+    return winxedxxnull;
+}
+
+//*************************************************************
+
+WxxDefault::WxxDefault(const char *name)
+{
+    this->name = name;
+}
+
+WxxDefault::~WxxDefault()
+{
+    //std::cerr << "~WxxDefault " << name << "\n";
+}
+
+int WxxDefault::is_null() const
+{ return 0; }
+
+std::string WxxDefault::getname() const { return name; }
+
+int WxxDefault::instanceof(const std::string &type)
+{
+    return type == name;
+}
+
+int WxxDefault::get_integer()
+{
+    notimplemented("get_integer");
+    return 0;
+}
+
+double WxxDefault::get_number()
+{
+    notimplemented("get_number");
+    return 0;
+}
+
+int WxxDefault::elements()
+{
+    notimplemented("elements");
+    return 0;
+}
+
+std::string WxxDefault::get_string()
+{
+    notimplemented("get_string");
+    return std::string();
+}
+
+WxxObjectPtr & WxxDefault::get_pmc_keyed(int i)
+{
+    notimplemented("get_pmc_keyed");
+    return winxedxxnull;
+}
+
+WxxObjectPtr & WxxDefault::get_attr_str(const std::string &s)
+{
+    std::map<std::string, WxxObjectPtr>::iterator attr = attributes.find(s);
+    if (attr == attributes.end())
+        return winxedxxnull;
+    else
+        return attr->second;
+}
+
+void WxxDefault::set_attr_str(const std::string &s, const WxxObjectPtr &value)
+{
+    attributes[s] = WxxObjectPtr(value);
+}
+
+WxxObjectPtr WxxDefault::readline()
+{
+    notimplemented("readline");
+    return winxedxxnull;
+}
+
+void WxxDefault::print()
+{
+    std::cout << this->get_string();
+}
+
+void WxxDefault::print(WxxObjectPtr &)
+{
+    notimplemented("print");
 }
 
 void WxxDefault::notimplemented(const std::string &funcname)
@@ -432,10 +377,72 @@ void WxxDefault::notimplemented(const std::string &funcname)
     throw wxx_error(funcname + " not implemented in " + name);
 }
 
+//*************************************************************
+
+WxxInteger::WxxInteger(int value) : WxxDefault("Integer")
+{
+    i = value;
+}
+
+int WxxInteger::get_integer() { return i; };
+
+double WxxInteger::get_number() { return i; }
+
+std::string WxxInteger::get_string()
+{
+    std::ostringstream oss;
+    oss << i;
+    return oss.str();
+}
+
+void WxxInteger::print() { std::cout << i; }
+
+//*************************************************************
+
+WxxFloat::WxxFloat(double value) : WxxDefault("Float")
+{
+    n = value;
+}
+
+int WxxFloat::get_integer() { return n; };
+
+double WxxFloat::get_number() { return n; }
+
+std::string WxxFloat::get_string()
+{
+    std::ostringstream oss;
+    oss << n;
+    return oss.str();
+}
+
+void WxxFloat::print() { std::cout << n; }
+
+//*************************************************************
+
+WxxString::WxxString(std::string value) : WxxDefault("String")
+{
+    str = value;
+}
+
+std::string WxxString::get_string() { return str; }
+
+void WxxString::print() { std::cout << str; }
+
+//*************************************************************
+
+WxxObjectArray::WxxObjectArray() : WxxDefault("ResizablePMCArray")
+{
+}
+
 WxxObjectArray::~WxxObjectArray()
 {
     for (unsigned int i = 0; i < arr.size(); ++i)
-        delete arr[i];
+    delete arr[i];
+}
+
+int WxxObjectArray::elements()
+{
+    return arr.size();
 }
 
 WxxObjectPtr & WxxObjectArray::get_pmc_keyed(int i)
@@ -460,37 +467,55 @@ WxxObjectArray& WxxObjectArray::push(WxxObjectPtr &obj)
     arr.push_back(new WxxObjectPtr(obj));
     return *this;
 }
+
 WxxObjectArray& WxxObjectArray::push(int i)
 {
     arr.push_back(new WxxObjectPtr(i));
     return *this;
 }
+
 WxxObjectArray& WxxObjectArray::push(double n)
 {
     arr.push_back(new WxxObjectPtr(n));
     return *this;
 }
+
 WxxObjectArray& WxxObjectArray::push(const char *str)
 {
     arr.push_back(new WxxObjectPtr(str));
     return *this;
 }
+
 WxxObjectArray& WxxObjectArray::push(const std::string &str)
 {
     arr.push_back(new WxxObjectPtr(str));
     return *this;
 }
 
-WxxObjectPtr WxxNull::readline()
+//*************************************************************
+
+WxxFileHandle::WxxFileHandle(int predef) : WxxDefault("FileHandle")
 {
-    nullaccess("readline");
-    return winxedxxnull;
+    switch (predef) {
+    case 1:
+        f = stdin;
+        break;
+    case 2:
+        f = stdout;
+        break;
+    case 3:
+        f = stderr;
+        break;
+    default:
+        f = 0;
+    }
 }
 
-WxxObjectPtr WxxDefault::readline()
+WxxFileHandle::~WxxFileHandle()
 {
-    notimplemented("readline");
-    return winxedxxnull;
+    //std::cerr << "~WxxFileHandle\n";
+    if (f && f != stdin && f != stdout && f != stderr)
+        fclose(f);
 }
 
 WxxObject *WxxFileHandle::open(WxxObjectPtr & name)
@@ -514,19 +539,7 @@ WxxObjectPtr WxxFileHandle::readline()
     return WxxObjectPtr(std::string(r));
 }
 
-WxxObjectPtr & WxxDefault::get_attr_str(const std::string &s)
-{
-    std::map<std::string, WxxObjectPtr>::iterator attr = attributes.find(s);
-    if (attr == attributes.end())
-        return winxedxxnull;
-    else
-        return attr->second;
-}
-
-void WxxDefault::set_attr_str(const std::string &s, const WxxObjectPtr &value)
-{
-    attributes[s] = WxxObjectPtr(value);
-}
+//*************************************************************
 
 WxxException::WxxException(const std::string &message, int severity, int type) :
         WxxDefault("Exception"),
@@ -537,6 +550,132 @@ WxxException::WxxException(const std::string &message, int severity, int type) :
     set_attr_str(std::string("message"), WxxObjectPtr(message));
     set_attr_str(std::string("severity"), WxxObjectPtr(severity));
     set_attr_str(std::string("type"), WxxObjectPtr(type));
+}
+
+std::string WxxException::get_string()
+{ return msg; }
+
+//*************************************************************
+
+WxxObjectPtr::WxxObjectPtr() : object(new WxxNull())
+{
+    object->incref();
+}
+
+WxxObjectPtr::WxxObjectPtr(int value) : object(new WxxInteger(value))
+{
+    object->incref();
+}
+
+WxxObjectPtr::WxxObjectPtr(double value) : object(new WxxFloat(value))
+{
+    object->incref();
+}
+
+WxxObjectPtr::WxxObjectPtr(const std::string &value) : object(new WxxString(value))
+{
+    object->incref();
+}
+
+WxxObjectPtr::WxxObjectPtr(const WxxObjectPtr &old) :
+    object(old.object)
+{
+    object->incref();
+}
+
+WxxObjectPtr::WxxObjectPtr(WxxObject * obj) : object(obj)
+{
+    object->incref();
+}
+
+WxxObjectPtr::~WxxObjectPtr()
+{
+    if (object)
+        object->decref();
+}
+
+WxxObjectPtr & WxxObjectPtr::operator = (const WxxObjectPtr &from)
+{
+    from.object->incref();
+    object->decref();
+    object = from.object;
+    return *this;
+}
+
+WxxObjectPtr & WxxObjectPtr::operator = (int i)
+{
+    object->decref();
+    object = new WxxInteger(i);
+    object->incref();
+    return *this;
+}
+
+WxxObjectPtr & WxxObjectPtr::operator = (double n)
+{
+    object->decref();
+    object = new WxxFloat(n);
+    object->incref();
+    return *this;
+}
+
+WxxObjectPtr & WxxObjectPtr::operator = (const std::string &s)
+{
+    object->decref();
+    object = new WxxString(s);
+    object->incref();
+    return *this;
+}
+
+int WxxObjectPtr::instanceof(const std::string &type)
+{
+    return object->instanceof(type);
+}
+
+std::string WxxObjectPtr::get_string()
+{
+    return object->get_string();
+}
+
+int WxxObjectPtr::elements()
+{
+return object->elements();
+}
+
+WxxObjectPtr & WxxObjectPtr::get_pmc_keyed(int i)
+{
+    return object->get_pmc_keyed(i);
+}
+
+void WxxObjectPtr::print()
+{
+    object->print();
+}
+
+WxxObjectPtr & WxxObjectPtr::get_attr_str(const std::string &s)
+{
+    return object->get_attr_str(s);
+}
+
+void WxxObjectPtr::set_attr_str(const std::string &s, const WxxObjectPtr &value)
+{
+    object->set_attr_str(s, value);
+}
+
+WxxObjectPtr WxxObjectPtr::call_method(const std::string &methname)
+{
+    if (methname == "readline")
+        return object->readline();
+    return WxxObjectPtr();
+}
+
+WxxObjectPtr WxxObjectPtr::call_method(const std::string &methname, WxxObjectArray &args)
+{
+    if (methname == "print") {
+        int n = args.elements();
+        for (int i = 0; i < n; ++i)
+            object->print(*args[i]);
+    }
+    return WxxObjectPtr();
 }
 
 //*************************************************************
