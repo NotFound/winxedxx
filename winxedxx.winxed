@@ -220,6 +220,14 @@ function emit_arrayexpr(out, expr)
     out.print("))");
 }
 
+function emit_newexpr(out, expr)
+{
+    var value = expr.value;
+    if (! value.isidentifier())
+        WxxUnsupported(expr);
+    out.print("WxxObjectPtr(new WxxInstance(\"" + string(value) + "\"))");
+}
+
 function emit_assignexpr(out, assignexpr)
 {
     var lexpr = assignexpr.lexpr;
@@ -370,6 +378,8 @@ function emit_expr(out, expr)
         out.print(stringtoxx(expr));
         out.print('"');
     }
+    else if (expr instanceof NewExpr)
+        emit_newexpr(out, expr);
     else if (expr instanceof ArrayExpr)
         emit_arrayexpr(out, expr);
     else if (expr instanceof OpNotExpr)
@@ -662,10 +672,16 @@ function emit_statement(out, st)
 function emit_function(out, funst)
 {
     string name = funst.name;
+    int ismethod = funst.ismethod();
 
+    if (ismethod)
+        out.print("static ");
     out.print('WxxObjectPtr ');
     out.print(name);
     out.print("(");
+
+    if (ismethod)
+        out.print("WxxObjectPtr &self, ");
     out.print("const WxxObjectArray &wxx_fun_args");
     out.print(")\n{\n");
     var params = funst.params;
@@ -717,7 +733,42 @@ function get_winxed_compiler()
 
 function emit_classst(out, clst)
 {
-    WxxUnsupported(clst, "class is still");
+    string name = clst.name;
+    var members = clst.members;
+    var functions = clst.functions;
+
+    out.print("class ");
+    out.print(name);
+    out.print("\n{\n");
+
+    for (var fun in functions)
+        emit_function(out, fun);
+
+    out.print(<<:CLINIT
+static WxxClass * init_class()
+{
+    WxxClass *cl = new WxxClass(
+CLINIT:>>
+    );
+    out.print('"' + name + '"');
+    out.print(<<:CLINIT
+        );
+CLINIT:>>
+    );
+    for (var member in members)
+        out.print("cl->addattribute(\"" + string(member) + "\");\n");
+    for (var fun in functions) {
+        string fname = fun.name;
+        out.print("cl->addfunction(\"" + fname +
+                "\", &" + name + "::" + fname + ");\n");
+    }
+
+    out.print("return cl;\n}\n");
+
+    out.print("static WxxClass *clreg;\n};\n");
+
+    out.print("WxxClass * " + name + "::clreg = " + name + "::init_class();");
+    //WxxUnsupported(clst, "class is still");
 }
 
 function emit_namespacest(out, ns)

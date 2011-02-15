@@ -19,6 +19,7 @@ namespace WinxedXX
 {
 
 class WxxObjectPtr;
+class WxxObjectArray;
 
 
 WxxObjectPtr wxx_error(const std::string &message);
@@ -38,6 +39,7 @@ public:
     virtual WxxObjectPtr & get_attr_str(const std::string &s) = 0;
     virtual void set_attr_str(const std::string &s, const WxxObjectPtr &value) = 0;
 
+    virtual WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args) = 0;
     virtual void print() = 0;
     virtual void print(WxxObjectPtr &obj) = 0;
     virtual WxxObjectPtr readline() = 0;
@@ -70,6 +72,7 @@ public:
     WxxObjectPtr & get_pmc_keyed(int i);
     WxxObjectPtr & get_attr_str(const std::string &s);
     void set_attr_str(const std::string &s, const WxxObjectPtr &value);
+    WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
     void print();
     void print(WxxObjectPtr &);
     WxxObjectPtr readline();
@@ -82,6 +85,7 @@ class WxxDefault : public WxxObject
 {
 protected:
     WxxDefault(const char *name);
+    WxxDefault(const std::string &name);
     ~WxxDefault();
 public:
     int is_null() const;
@@ -94,6 +98,7 @@ public:
     WxxObjectPtr & get_pmc_keyed(int i);
     WxxObjectPtr & get_attr_str(const std::string &s);
     void set_attr_str(const std::string &s, const WxxObjectPtr &value);
+    WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
     WxxObjectPtr readline();
     void print();
     void print(WxxObjectPtr &);
@@ -269,6 +274,12 @@ void WxxNull::set_attr_str(const std::string &s, const WxxObjectPtr &value)
     nullaccess("set_attr_str");
 }
 
+WxxObjectPtr WxxNull::call_method(const std::string &methname, WxxObjectArray &args)
+{
+    nullaccess("call_method");
+    return winxedxxnull;
+}
+
 void WxxNull::print()
 {
     nullaccess("print");
@@ -293,6 +304,11 @@ WxxObjectPtr WxxNull::readline()
 //*************************************************************
 
 WxxDefault::WxxDefault(const char *name)
+{
+    this->name = name;
+}
+
+WxxDefault::WxxDefault(const std::string &name)
 {
     this->name = name;
 }
@@ -354,6 +370,12 @@ WxxObjectPtr & WxxDefault::get_attr_str(const std::string &s)
 void WxxDefault::set_attr_str(const std::string &s, const WxxObjectPtr &value)
 {
     attributes[s] = WxxObjectPtr(value);
+}
+
+WxxObjectPtr WxxDefault::call_method(const std::string &methname, WxxObjectArray &args)
+{
+    notimplemented("call_method");
+    return winxedxxnull;
 }
 
 WxxObjectPtr WxxDefault::readline()
@@ -665,6 +687,10 @@ WxxObjectPtr WxxObjectPtr::call_method(const std::string &methname)
 {
     if (methname == "readline")
         return object->readline();
+    else {
+        WxxObjectArray args;
+        return object->call_method(methname, args);
+    }
     return WxxObjectPtr();
 }
 
@@ -675,7 +701,86 @@ WxxObjectPtr WxxObjectPtr::call_method(const std::string &methname, WxxObjectArr
         for (int i = 0; i < n; ++i)
             object->print(*args[i]);
     }
+    else {
+        return object->call_method(methname, args);
+    }
     return WxxObjectPtr();
+}
+
+//*************************************************************
+
+class WxxClass : public WxxDefault
+{
+public:
+    typedef WxxObjectPtr (*memberfun)(WxxObjectPtr &, const WxxObjectArray &);
+
+    WxxClass(const std::string &name);
+    void addattribute(const std::string &attrname);
+    void addfunction(const std::string &fname, memberfun);
+    memberfun getfunction(const std::string &fname);
+    static WxxClass * getclass(const std::string &name);
+private:
+    std::string clname;
+    std::vector<std::string> attrs;
+    static std::map<std::string, WxxClass *> reg;
+    std::map<std::string, memberfun> regfun;
+};
+
+std::map<std::string, WxxClass *> WxxClass::reg;
+
+WxxClass * WxxClass::getclass(const std::string &name)
+{
+    return reg[name];
+}
+
+WxxClass::WxxClass(const std::string &name) :
+        WxxDefault("Class"),
+        clname(name)
+{
+    reg[name] = this;
+}
+
+void WxxClass::addattribute(const std::string &attrname)
+{
+    attrs.push_back(attrname);
+}
+
+void WxxClass::addfunction(const std::string &fname, memberfun fun)
+{
+    regfun[fname] = fun;
+}
+
+WxxClass::memberfun WxxClass::getfunction(const std::string &fname)
+{
+    return regfun[fname];
+}
+
+
+class WxxInstance : public WxxDefault
+{
+public:
+    WxxInstance(const std::string &clname);
+    WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
+private:
+    WxxClass *cl;
+};
+
+WxxInstance::WxxInstance(const std::string &clname) :
+        WxxDefault(clname)
+{
+    cl = WxxClass::getclass(clname);
+    if (! cl)
+        throw wxx_error("class not found: " + clname);
+}
+
+WxxObjectPtr WxxInstance::call_method(const std::string &methname, WxxObjectArray &args)
+{
+    WxxClass::memberfun fun = cl->getfunction(methname);
+    if (fun) {
+        WxxObjectPtr obj(this);
+        return (*fun)(obj, args);
+    }
+    return winxedxxnull;
 }
 
 //*************************************************************
