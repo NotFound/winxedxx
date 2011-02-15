@@ -581,9 +581,22 @@ function emit_compoundstatement(out, compound)
     }
 }
 
+function emit_multistatement(out, mst)
+{
+    var stlist = mst.statements;
+    int nst = elements(stlist);
+    int i;
+    for (i = 0; i < nst; ++i) {
+        var st = stlist[i];
+        emit_statement(out, st);
+    }
+}
+
 function emit_statement(out, st)
 {
-    if (st instanceof CompoundStatement)
+    if (st instanceof MultiStatement)
+        emit_multistatement(out, st);
+    else if (st instanceof CompoundStatement)
         emit_compoundstatement(out, st);
     else if (st instanceof ConstStatement)
         emit_conststatement(out, st);
@@ -680,6 +693,35 @@ function get_winxed_compiler()
     return winxed;
 }
 
+function emit_classst(out, clst)
+{
+    WxxUnsupported(clst, "class is still");
+}
+
+function emit_namespacest(out, ns)
+{
+    if (! (ns instanceof RootNamespace)) {
+        out.print("namespace ");
+        out.print(ns.name);
+        out.print("\n{\n");
+    }
+    var items = ns.items;
+    for (var item in items) {
+        if (item instanceof FunctionStatement)
+            emit_function(out, item);
+        else if (item instanceof NamespaceStatement)
+            emit_namespacest(out, item);
+        else if (item instanceof ClassStatement)
+            emit_classst(out, item);
+        else if (item instanceof MultiStatement)
+            emit_statement(out, item);
+        else
+            WxxUnsupported(item);
+    }
+    if (! (ns instanceof RootNamespace))
+        out.print("\n}\n");
+}
+
 function emit(out, parsed)
 {
     out.print(<<:HEADER
@@ -694,9 +736,7 @@ HEADER:>>
     );
 
     var ns = parsed.rootns;
-    var functions = ns.functions;
-    for (var funst in functions)
-        emit_function(out, funst);
+    emit_namespacest(out, ns);
 
     out.print(<<:FOOTER
 } // namespace WinxedXX
