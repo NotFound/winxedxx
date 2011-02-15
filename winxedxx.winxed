@@ -136,6 +136,13 @@ function emit_callpredefexpr(out, expr)
         emit_expr(out, args[2].arg);
         out.print(")");
         break;
+      case 'join':
+        out.print("wxx_join(");
+        emit_expr(out, args[0].arg);
+        out.print(", ");
+        emit_expr(out, args[1].arg);
+        out.print(")");
+        break;
       case 'Error':
         out.print("wxx_error(");
         emit_expr(out, args[0].arg);

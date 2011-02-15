@@ -560,6 +560,19 @@ WxxObjectPtr wxx_typeof(WxxObjectPtr &thing)
     return winxedxxnull;
 }
 
+std::string wxx_join(const std::string &sep, WxxObjectPtr &arr)
+{
+    std::string result;
+    int n = arr.elements();
+    for (int i = 0; i < n; ++i)
+    {
+        if (i > 0)
+            result += sep;
+        result += std::string(arr.get_pmc_keyed(i));
+    }
+    return result;
+}
+
 int operator == (WxxObjectPtr &obj, const std::string &str)
 {
     return obj.get_string() == str;
