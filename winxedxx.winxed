@@ -200,6 +200,19 @@ function emit_callexpr(out, callexpr)
         WxxUnsupported(funref);
 }
 
+function emit_arrayexpr(out, expr)
+{
+    var values = expr.values;
+    int nvalues = values == null ? 0 : elements(values);
+    out.print("WxxObjectPtr(&((* new WxxObjectArray())");
+    int i;
+    for (i = 0; i < nvalues; ++i) {
+        out.print(".push");
+        emit_expr(out, values[i]);
+    }
+    out.print("))");
+}
+
 function emit_assignexpr(out, assignexpr)
 {
     var lexpr = assignexpr.lexpr;
@@ -350,6 +363,8 @@ function emit_expr(out, expr)
         out.print(stringtoxx(expr));
         out.print('"');
     }
+    else if (expr instanceof ArrayExpr)
+        emit_arrayexpr(out, expr);
     else if (expr instanceof OpNotExpr)
         emit_opnot(out, expr);
     else if (expr instanceof NullCheckerExpr)
