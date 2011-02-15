@@ -20,6 +20,10 @@ namespace WinxedXX
 
 class WxxObjectPtr;
 
+WxxObjectPtr wxx_error(const std::string &message);
+WxxObjectPtr wxx_error(const std::string &message, int severity);
+WxxObjectPtr wxx_error(const std::string &message, int severity, int type);
+
 class WxxObject
 {
 public:
@@ -227,8 +231,8 @@ public:
     {
         return arr.size();
     }
-    WxxObjectPtr *operator[](int i) const { return arr.at(i); }
-    WxxObjectPtr & get_pmc_keyed(int i) { return *(arr.at(i)); }
+    WxxObjectPtr *operator[](int i) const;
+    WxxObjectPtr & get_pmc_keyed(int i);
     WxxObjectArray& push(WxxObjectPtr &obj);
     WxxObjectArray& push(int i);
     WxxObjectArray& push(double n);
@@ -242,6 +246,7 @@ class WxxException : public WxxDefault
 {
 public:
     WxxException(const std::string &message, int severity = 2, int type = 0);
+    std::string get_string() { return msg; }
 private:
     std::string msg;
     int sev;
@@ -402,6 +407,20 @@ WxxObjectArray::~WxxObjectArray()
 {
     for (unsigned int i = 0; i < arr.size(); ++i)
         delete arr[i];
+}
+
+WxxObjectPtr & WxxObjectArray::get_pmc_keyed(int i)
+{
+    if (i < 0 || i >= int(arr.size()))
+        throw wxx_error("Out of bounds");
+    return *arr[i];
+}
+
+WxxObjectPtr *WxxObjectArray::operator[](int i) const
+{
+     if (i < 0 || i >= int(arr.size()))
+         throw wxx_error("Out of bounds");
+     return arr[i];
 }
 
 WxxObjectArray& WxxObjectArray::push(WxxObjectPtr &obj)
