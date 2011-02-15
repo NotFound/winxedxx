@@ -730,14 +730,48 @@ FOOTER:>>
     );
 }
 
+function winxedxx_get_options(argv)
+{
+    int argc = elements(argv);
+    int i;
+    var options = {};
+    int nomore = false;
+    for (i = 1; i < argc; ++i) {
+        switch (argv[i]) {
+          case '-o':
+            options['outfile'] = argv[++i];
+            break;
+          default:
+            nomore = true;
+        }
+        if (nomore)
+            break;
+    }
+    options['sourcefile'] = argv[i];
+    return options;
+}
+
+function winxedxx_compile(options)
+{
+    var winxed = get_winxed_compiler();
+    var parsed = winxed.compile_from_file(options['sourcefile'],
+        'parse':[named('target')]
+    );
+
+    string outfile = options['outfile'];
+    var out = outfile != null && outfile != '' ?
+        open(outfile, "w") :
+        getstdout();
+    emit(out, parsed);
+    if (outfile != null && outfile != '')
+        out.close();
+}
+
 function main(argv)
 {
     try {
-        var winxed = get_winxed_compiler();
-        var parsed = winxed.compile_from_file(argv[1], 'parse':[named('target')]);
-
-        var out = getstdout();
-        emit(out, parsed);
+        var options = winxedxx_get_options(argv);
+        winxedxx_compile(options);
         return 0;
     }
     catch (e) {

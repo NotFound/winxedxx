@@ -16,7 +16,7 @@ simple: simple.cxx winxedxx.h
 	$(CXX) $(CXXOPTS) -o simple simple.cxx
 
 simple.cxx: simple.winxed winxedxx.winxed
-	winxed $(WINXEDLIB)  winxedxx.winxed simple.winxed > simple.cxx
+	winxed $(WINXEDLIB) winxedxx.winxed -o simple.cxx simple.winxed
 
 #-----------------------------------------------------------------------
 
