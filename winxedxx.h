@@ -35,7 +35,10 @@ public:
     virtual double get_number() = 0;
     virtual int elements() = 0;
     virtual std::string get_string() = 0;
+    virtual WxxObject & set(int value) = 0;
+    virtual WxxObject & set(double value) = 0;
     virtual WxxObject & set(const char *s) = 0;
+    virtual WxxObject & set(const std::string &s) = 0;
     virtual WxxObjectPtr & get_pmc_keyed(int i) = 0;
     virtual WxxObjectPtr & get_pmc_keyed(const std::string &s) = 0;
     virtual WxxObjectPtr & get_pmc_keyed(const char *s) = 0;
@@ -72,7 +75,10 @@ public:
     double get_number();
     int elements();
     std::string get_string();
+    WxxObject & set(int value);
+    WxxObject & set(double value);
     WxxObject & set(const char *s);
+    WxxObject & set(const std::string &s);
     WxxObjectPtr & get_pmc_keyed(int i);
     WxxObjectPtr & get_pmc_keyed(const std::string &s);
     WxxObjectPtr & get_pmc_keyed(const char *s);
@@ -101,7 +107,10 @@ public:
     double get_number();
     int elements();
     virtual std::string get_string();
+    WxxObject & set(int value);
+    WxxObject & set(double value);
     WxxObject & set(const char *s);
+    WxxObject & set(const std::string &s);
     WxxObjectPtr & get_pmc_keyed(int i);
     WxxObjectPtr & get_pmc_keyed(const std::string &s);
     WxxObjectPtr & get_pmc_keyed(const char *s);
@@ -125,6 +134,8 @@ public:
     int get_integer();
     double get_number();
     std::string get_string();
+    WxxObject & set(int value);
+    WxxObject & set(double value);
     void print();
 private:
     int i;
@@ -138,6 +149,8 @@ public:
     int get_integer();
     double get_number();
     std::string get_string();
+    WxxObject & set(int value);
+    WxxObject & set(double value);
     void print();
 private:
     double n;
@@ -150,6 +163,7 @@ public:
     WxxString(std::string value);
     std::string get_string();
     WxxObject & set(const char *s);
+    WxxObject & set(const std::string &s);
     void print();
 private:
     std::string str;
@@ -166,7 +180,7 @@ public:
     WxxObjectPtr & get_pmc_keyed(int i);
     WxxObjectArray& push(WxxObjectPtr &obj);
     WxxObjectArray& push(int i);
-    WxxObjectArray& push(double n);
+    WxxObjectArray& push(double value);
     WxxObjectArray& push(const char *str);
     WxxObjectArray& push(const std::string &str);
 private:
@@ -221,10 +235,13 @@ public:
     WxxObjectPtr(const WxxObjectPtr &old);
     WxxObjectPtr(WxxObject * obj);
     ~WxxObjectPtr();
+    WxxObjectPtr & set(int value);
+    WxxObjectPtr & set(double value);
     WxxObjectPtr & set(const char *s);
+    WxxObjectPtr & set(const std::string &s);
     WxxObjectPtr &operator = (const WxxObjectPtr &from);
     WxxObjectPtr & operator = (int i);
-    WxxObjectPtr & operator = (double n);
+    WxxObjectPtr & operator = (double value);
     WxxObjectPtr & operator = (const std::string &s);
     WxxObjectPtr & operator = (const char *s);
     operator int() { return object->get_integer(); }
@@ -283,7 +300,25 @@ std::string WxxNull::get_string()
     return std::string();
 }
 
+WxxObject & WxxNull::set(int value)
+{
+    nullaccess("set");
+    return *this;
+}
+
+WxxObject & WxxNull::set(double value)
+{
+    nullaccess("set");
+    return *this;
+}
+
 WxxObject & WxxNull::set(const char *s)
+{
+    nullaccess("set");
+    return *this;
+}
+
+WxxObject & WxxNull::set(const std::string &s)
 {
     nullaccess("set");
     return *this;
@@ -396,7 +431,25 @@ std::string WxxDefault::get_string()
     return std::string();
 }
 
+WxxObject & WxxDefault::set(int value)
+{
+    notimplemented("set");
+    return *this;
+}
+
+WxxObject & WxxDefault::set(double value)
+{
+    notimplemented("set");
+    return *this;
+}
+
 WxxObject & WxxDefault::set(const char *s)
+{
+    notimplemented("set");
+    return *this;
+}
+
+WxxObject & WxxDefault::set(const std::string &s)
 {
     notimplemented("set");
     return *this;
@@ -479,6 +532,18 @@ std::string WxxInteger::get_string()
     return oss.str();
 }
 
+WxxObject & WxxInteger::set(int value)
+{
+    i = value;
+    return *this;
+}
+
+WxxObject & WxxInteger::set(double value)
+{
+    i = value;
+    return *this;
+}
+
 void WxxInteger::print() { std::cout << i; }
 
 //*************************************************************
@@ -499,6 +564,18 @@ std::string WxxFloat::get_string()
     return oss.str();
 }
 
+WxxObject & WxxFloat::set(int value)
+{
+    n = value;
+    return *this;
+}
+
+WxxObject & WxxFloat::set(double value)
+{
+    n = value;
+    return *this;
+}
+
 void WxxFloat::print() { std::cout << n; }
 
 //*************************************************************
@@ -511,6 +588,12 @@ WxxString::WxxString(std::string value) : WxxDefault("String")
 std::string WxxString::get_string() { return str; }
 
 WxxObject & WxxString::set(const char *s)
+{
+    str = s;
+    return *this;
+}
+
+WxxObject & WxxString::set(const std::string &s)
 {
     str = s;
     return *this;
@@ -564,9 +647,9 @@ WxxObjectArray& WxxObjectArray::push(int i)
     return *this;
 }
 
-WxxObjectArray& WxxObjectArray::push(double n)
+WxxObjectArray& WxxObjectArray::push(double value)
 {
-    arr.push_back(new WxxObjectPtr(n));
+    arr.push_back(new WxxObjectPtr(value));
     return *this;
 }
 
@@ -713,7 +796,25 @@ WxxObjectPtr::~WxxObjectPtr()
         object->decref();
 }
 
+WxxObjectPtr & WxxObjectPtr::set(int value)
+{
+    object->set(value);
+    return *this;
+}
+
+WxxObjectPtr & WxxObjectPtr::set(double value)
+{
+    object->set(value);
+    return *this;
+}
+
 WxxObjectPtr & WxxObjectPtr::set(const char *s)
+{
+    object->set(s);
+    return *this;
+}
+
+WxxObjectPtr & WxxObjectPtr::set(const std::string &s)
 {
     object->set(s);
     return *this;
@@ -735,10 +836,10 @@ WxxObjectPtr & WxxObjectPtr::operator = (int i)
     return *this;
 }
 
-WxxObjectPtr & WxxObjectPtr::operator = (double n)
+WxxObjectPtr & WxxObjectPtr::operator = (double value)
 {
     object->decref();
-    object = new WxxFloat(n);
+    object = new WxxFloat(value);
     object->incref();
     return *this;
 }
