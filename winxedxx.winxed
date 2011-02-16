@@ -799,6 +799,14 @@ function emit_statement(out, st)
     out.print(";\n");
 }
 
+function emit_declare_function(out, funst)
+{
+    string name = funst.name;
+    out.print('WxxObjectPtr ');
+    out.print(name);
+    out.print("(const WxxObjectArray &wxx_fun_args);\n");
+}
+
 function emit_function(out, funst)
 {
     string name = funst.name;
@@ -913,8 +921,15 @@ function emit_namespacest(out, ns)
         out.print(ns.name);
         out.print("\n{\n");
     }
+
+    int i;
+    var functions = ns.functions;
+    int nfunctions = elements(functions);
+    for (i = 0; i < nfunctions; ++i)
+        emit_declare_function(out, functions[i]);
+
     var items = ns.items;
-    for (int i = 0; i < elements(items); ++i) {
+    for (i = 0; i < elements(items); ++i) {
         var item = items[i];
         if (item instanceof FunctionStatement)
             emit_function(out, item);
