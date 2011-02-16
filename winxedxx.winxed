@@ -88,9 +88,17 @@ function emit_callpredefexpr(out, expr)
     int i;
     switch (name) {
       case 'string':
-        out.print("std::string");
+        switch (args[0].arg.checkresult()) {
+          case 'I':
+            out.print("wxx_int_to_string");
+            break;
+        }
         emit_expr(out, args[0].arg);
         break;
+      case 'int':
+        out.print("int");
+        emit_expr(out, args[0].arg);
+        break;      
       case 'typeof':
         out.print("wxx_typeof");
         emit_expr(out, args[0].arg);
@@ -271,6 +279,15 @@ function emit_assignexpr(out, assignexpr)
     if (lexpr instanceof IdentifierExpr) {
         out.print(lexpr.name);
         out.print(" = ");
+        // Coerce result type to avoid ambiguities
+        switch (lexpr.checkresult()) {
+          case 'S':
+            out.print("std::string"); break;
+          case 'I':
+            out.print("int"); break;
+          case 'F':
+            out.print("float"); break;
+        }
         emit_expr(out, rexpr);
     }
     else if (lexpr instanceof MemberExpr) {
@@ -467,9 +484,9 @@ function emit_expr(out, expr)
     else if (expr instanceof FloatLiteral)
         out.print(expr.numval);
     else if (expr instanceof StringLiteral) {
-        out.print('"');
+        out.print('std::string("');
         out.print(stringtoxx(expr));
-        out.print('"');
+        out.print('")');
     }
     else if (expr instanceof NewExpr)
         emit_newexpr(out, expr);
@@ -626,7 +643,7 @@ function emit_switchstatement(out, switchst)
     int n = elements(case_st);
     for (int i = 0; i < n; ++i) {
         var caseval = case_value[i];
-        out.print ("if ((wxxswvar == ");
+        out.print ("if (wxxswvar == ");
         emit_expr(out, caseval);
         out.print(") {\n");
         int nst = elements(case_st[i]);
@@ -694,7 +711,7 @@ function emit_forstatement(out, forst)
 function emit_returnstatement(out, returnst)
 {
     var values = returnst.values;
-    int nargs = values == null ? 0 : values.numargs();
+    int nargs = values == null ? 0 : int(values.numargs());
     switch (nargs) {
       case 0:
         out.print("return WxxObjectPtr()");

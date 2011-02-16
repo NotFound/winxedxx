@@ -42,6 +42,7 @@ public:
     virtual WxxObjectPtr & get_pmc_keyed(int i) = 0;
     virtual WxxObjectPtr & get_pmc_keyed(const std::string &s) = 0;
     virtual WxxObjectPtr & get_pmc_keyed(const char *s) = 0;
+    virtual WxxObjectPtr & set_pmc_keyed(const std::string &s, const WxxObjectPtr &value) = 0;
     virtual WxxObjectPtr & get_attr_str(const std::string &s) = 0;
     virtual void set_attr_str(const std::string &s, const WxxObjectPtr &value) = 0;
 
@@ -82,6 +83,7 @@ public:
     WxxObjectPtr & get_pmc_keyed(int i);
     WxxObjectPtr & get_pmc_keyed(const std::string &s);
     WxxObjectPtr & get_pmc_keyed(const char *s);
+    WxxObjectPtr & set_pmc_keyed(const std::string &s, const WxxObjectPtr &value);
     WxxObjectPtr & get_attr_str(const std::string &s);
     void set_attr_str(const std::string &s, const WxxObjectPtr &value);
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
@@ -114,6 +116,7 @@ public:
     WxxObjectPtr & get_pmc_keyed(int i);
     WxxObjectPtr & get_pmc_keyed(const std::string &s);
     WxxObjectPtr & get_pmc_keyed(const char *s);
+    WxxObjectPtr & set_pmc_keyed(const std::string &s, const WxxObjectPtr &value);
     WxxObjectPtr & get_attr_str(const std::string &s);
     void set_attr_str(const std::string &s, const WxxObjectPtr &value);
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
@@ -178,7 +181,7 @@ public:
     int elements();
     WxxObjectPtr *operator[](int i) const;
     WxxObjectPtr & get_pmc_keyed(int i);
-    WxxObjectArray& push(WxxObjectPtr &obj);
+    WxxObjectArray& push(WxxObjectPtr obj);
     WxxObjectArray& push(int i);
     WxxObjectArray& push(double value);
     WxxObjectArray& push(const char *str);
@@ -191,7 +194,8 @@ class WxxHash : public WxxDefault
 {
 public:
     WxxHash();
-    WxxHash &set(const std::string &key, WxxObjectPtr value);
+    WxxHash & set(const std::string &key, WxxObjectPtr value);
+    WxxObjectPtr & set_pmc_keyed(const std::string &s, const WxxObjectPtr &value);
     WxxObjectPtr & get_pmc_keyed(const std::string &s);
     WxxObjectPtr & get_pmc_keyed(const char *s);
 private:
@@ -216,7 +220,7 @@ public:
     WxxFileHandle(int predef = 0);
     ~WxxFileHandle();
     WxxObjectPtr readline();
-    WxxObject *open(WxxObjectPtr & name);
+    WxxObject *open(WxxObjectPtr name);
     void print(WxxObjectPtr &obj);
 private:
     FILE *f;
@@ -245,6 +249,7 @@ public:
     WxxObjectPtr & operator = (const std::string &s);
     WxxObjectPtr & operator = (const char *s);
     operator int() { return object->get_integer(); }
+    operator bool() { return object->get_integer(); }
     operator double() { return object->get_number(); }
     operator std::string() { return object->get_string(); }
     int is_null() const { return object->is_null(); }
@@ -254,6 +259,7 @@ public:
     WxxObjectPtr & get_pmc_keyed(int i);
     WxxObjectPtr & get_pmc_keyed(const std::string &s);
     WxxObjectPtr & get_pmc_keyed(const char *s);
+    WxxObjectPtr & set_pmc_keyed(const std::string &s, const WxxObjectPtr &value);
     void print();
     WxxObjectPtr & get_attr_str(const std::string &s);
     void set_attr_str(const std::string &s, const WxxObjectPtr &value);
@@ -339,6 +345,12 @@ WxxObjectPtr & WxxNull::get_pmc_keyed(const std::string &s)
 WxxObjectPtr & WxxNull::get_pmc_keyed(const char *s)
 {
     nullaccess("get_pmc_keyed");
+    return winxedxxnull;
+}
+
+WxxObjectPtr & WxxNull::set_pmc_keyed(const std::string &s, const WxxObjectPtr &value)
+{
+    nullaccess("set_pmc_keyed");
     return winxedxxnull;
 }
 
@@ -470,6 +482,12 @@ WxxObjectPtr & WxxDefault::get_pmc_keyed(const std::string &s)
 WxxObjectPtr & WxxDefault::get_pmc_keyed(const char *s)
 {
     notimplemented("get_pmc_keyed");
+    return winxedxxnull;
+}
+
+WxxObjectPtr & WxxDefault::set_pmc_keyed(const std::string &s, const WxxObjectPtr &value)
+{
+    notimplemented("set_pmc_keyed");
     return winxedxxnull;
 }
 
@@ -635,7 +653,7 @@ WxxObjectPtr *WxxObjectArray::operator[](int i) const
     return arr[i];
 }
 
-WxxObjectArray& WxxObjectArray::push(WxxObjectPtr &obj)
+WxxObjectArray& WxxObjectArray::push(WxxObjectPtr obj)
 {
     arr.push_back(new WxxObjectPtr(obj));
     return *this;
@@ -687,6 +705,12 @@ WxxObjectPtr & WxxHash::get_pmc_keyed(const char *s)
     return hsh[s];
 }
 
+WxxObjectPtr & WxxHash::set_pmc_keyed(const std::string &s, const WxxObjectPtr &value)
+{
+    hsh[s] = value;
+    return hsh[s];
+}
+
 //*************************************************************
 
 WxxFileHandle::WxxFileHandle(int predef) : WxxDefault("FileHandle")
@@ -713,7 +737,7 @@ WxxFileHandle::~WxxFileHandle()
         fclose(f);
 }
 
-WxxObject *WxxFileHandle::open(WxxObjectPtr & name)
+WxxObject *WxxFileHandle::open(WxxObjectPtr name)
 {
     std::string strname = name.get_string();
     f = fopen(strname.c_str(), "r");
@@ -890,6 +914,11 @@ WxxObjectPtr & WxxObjectPtr::get_pmc_keyed(const char *s)
     return object->get_pmc_keyed(s);
 }
 
+WxxObjectPtr & WxxObjectPtr::set_pmc_keyed(const std::string &s, const WxxObjectPtr &value)
+{
+    return object->set_pmc_keyed(s, value);
+}
+
 void WxxObjectPtr::print()
 {
     object->print();
@@ -1038,6 +1067,13 @@ int wxx_eprint(double n) { std::cerr << n; return 0; }
 // TODO
 int wxx_eprint(WxxObjectPtr &obj) { obj.print(); return 0; }
 
+std::string wxx_int_to_string(int i)
+{
+    std::ostringstream oss;
+    oss << i;
+    return oss.str();
+}
+
 int wxx_instanceof(WxxObjectPtr &obj, const std::string &type)
 {
     return obj.instanceof(type);
@@ -1086,6 +1122,26 @@ std::string wxx_join(const std::string &sep, WxxObjectPtr &arr)
     return result;
 }
 
+std::string operator + (WxxObjectPtr obj, const std::string &s)
+{
+    return obj.get_string() + s;
+}
+
+std::string operator + (WxxObjectPtr obj, const char *s)
+{
+    return obj.get_string() + s;
+}
+
+std::string operator + (const std::string &s, WxxObjectPtr obj)
+{
+    return s + obj.get_string();
+}
+
+std::string operator + (const char *s, WxxObjectPtr obj)
+{
+    return s + obj.get_string();
+}
+
 int operator == (WxxObjectPtr &obj, const std::string &str)
 {
     return obj.get_string() == str;
@@ -1101,6 +1157,14 @@ int operator != (WxxObjectPtr &obj, const std::string &str)
 int operator != (const std::string &str, WxxObjectPtr &obj)
 {
     return obj.get_string() != str;
+}
+int operator == (WxxObjectPtr &obj, int i)
+{
+    return int(obj) == i;
+}
+int operator == (int i, WxxObjectPtr &obj)
+{
+    return int(obj) == i;
 }
 
 } // namespace WinxedXX
