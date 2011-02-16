@@ -219,6 +219,7 @@ class WxxFileHandle : public WxxDefault
 public:
     WxxFileHandle(int predef = 0);
     ~WxxFileHandle();
+    WxxObjectPtr read(int n);
     WxxObjectPtr readline();
     WxxObject *open(WxxObjectPtr name);
     void print(WxxObjectPtr &obj);
@@ -749,6 +750,17 @@ void WxxFileHandle::print(WxxObjectPtr &obj)
     fputs(obj.get_string().c_str(), f);
 }
 
+WxxObjectPtr WxxFileHandle::read(int n)
+{
+    char *buf = (char *)malloc(n);
+    *buf = '\0';
+    size_t r = fread(buf, 1, n, f);
+    std::cerr << "\nread " << r << "\n";
+    std::string result = r > 0 ? std::string(buf, r) : std::string();
+    free(buf);
+    return WxxObjectPtr(result);
+}
+
 WxxObjectPtr WxxFileHandle::readline()
 {
     char buffer[1024];
@@ -956,6 +968,9 @@ WxxObjectPtr WxxObjectPtr::call_method(const std::string &methname, WxxObjectArr
         int n = args.elements();
         for (int i = 0; i < n; ++i)
             object->print(*args[i]);
+    }
+    else if (methname == "read" && dynamic_cast<WxxFileHandle *>(object)) {
+        return dynamic_cast<WxxFileHandle *>(object)->read(int(*(args[0])));
     }
     else {
         return object->call_method(methname, args);
