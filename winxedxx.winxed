@@ -228,6 +228,23 @@ function emit_arrayexpr(out, expr)
     out.print("))");
 }
 
+function emit_hashexpr(out, expr)
+{
+    var keys = expr.keys;
+    var values = expr.values;
+    int n = elements(keys);
+    out.print("WxxObjectPtr(&((* new WxxHash())");
+    int i;
+    for (i = 0; i < n; ++i) {
+        out.print(".set(");
+        emit_expr(out, keys[i]);
+        out.print(", ");
+        emit_expr(out, values[i]);
+        out.print(")");
+    }
+    out.print("))");
+}
+
 function emit_newexpr(out, expr)
 {
     var value = expr.value;
@@ -416,6 +433,8 @@ function emit_expr(out, expr)
         emit_newexpr(out, expr);
     else if (expr instanceof ArrayExpr)
         emit_arrayexpr(out, expr);
+    else if (expr instanceof HashExpr)
+        emit_hashexpr(out, expr);
     else if (expr instanceof OpNotExpr)
         emit_opnot(out, expr);
     else if (expr instanceof NullCheckerExpr)

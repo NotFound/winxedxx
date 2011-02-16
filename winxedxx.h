@@ -36,6 +36,8 @@ public:
     virtual int elements() = 0;
     virtual std::string get_string() = 0;
     virtual WxxObjectPtr & get_pmc_keyed(int i) = 0;
+    virtual WxxObjectPtr & get_pmc_keyed(const std::string &s) = 0;
+    virtual WxxObjectPtr & get_pmc_keyed(const char *s) = 0;
     virtual WxxObjectPtr & get_attr_str(const std::string &s) = 0;
     virtual void set_attr_str(const std::string &s, const WxxObjectPtr &value) = 0;
 
@@ -70,6 +72,8 @@ public:
     int elements();
     std::string get_string();
     WxxObjectPtr & get_pmc_keyed(int i);
+    WxxObjectPtr & get_pmc_keyed(const std::string &s);
+    WxxObjectPtr & get_pmc_keyed(const char *s);
     WxxObjectPtr & get_attr_str(const std::string &s);
     void set_attr_str(const std::string &s, const WxxObjectPtr &value);
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
@@ -96,6 +100,8 @@ public:
     int elements();
     virtual std::string get_string();
     WxxObjectPtr & get_pmc_keyed(int i);
+    WxxObjectPtr & get_pmc_keyed(const std::string &s);
+    WxxObjectPtr & get_pmc_keyed(const char *s);
     WxxObjectPtr & get_attr_str(const std::string &s);
     void set_attr_str(const std::string &s, const WxxObjectPtr &value);
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
@@ -163,6 +169,16 @@ private:
     std::vector<WxxObjectPtr *> arr;
 };
 
+class WxxHash : public WxxDefault
+{
+public:
+    WxxHash();
+    WxxHash &set(const std::string &key, WxxObjectPtr value);
+    WxxObjectPtr & get_pmc_keyed(const std::string &s);
+    WxxObjectPtr & get_pmc_keyed(const char *s);
+private:
+    std::map<std::string, WxxObjectPtr> hsh;
+};
 
 class WxxException : public WxxDefault
 {
@@ -214,6 +230,8 @@ public:
     std::string get_string();
     int elements();
     WxxObjectPtr & get_pmc_keyed(int i);
+    WxxObjectPtr & get_pmc_keyed(const std::string &s);
+    WxxObjectPtr & get_pmc_keyed(const char *s);
     void print();
     WxxObjectPtr & get_attr_str(const std::string &s);
     void set_attr_str(const std::string &s, const WxxObjectPtr &value);
@@ -261,6 +279,18 @@ std::string WxxNull::get_string()
 }
 
 WxxObjectPtr & WxxNull::get_pmc_keyed(int i)
+{
+    nullaccess("get_pmc_keyed");
+    return winxedxxnull;
+}
+
+WxxObjectPtr & WxxNull::get_pmc_keyed(const std::string &s)
+{
+    nullaccess("get_pmc_keyed");
+    return winxedxxnull;
+}
+
+WxxObjectPtr & WxxNull::get_pmc_keyed(const char *s)
 {
     nullaccess("get_pmc_keyed");
     return winxedxxnull;
@@ -356,6 +386,18 @@ std::string WxxDefault::get_string()
 }
 
 WxxObjectPtr & WxxDefault::get_pmc_keyed(int i)
+{
+    notimplemented("get_pmc_keyed");
+    return winxedxxnull;
+}
+
+WxxObjectPtr & WxxDefault::get_pmc_keyed(const std::string &s)
+{
+    notimplemented("get_pmc_keyed");
+    return winxedxxnull;
+}
+
+WxxObjectPtr & WxxDefault::get_pmc_keyed(const char *s)
 {
     notimplemented("get_pmc_keyed");
     return winxedxxnull;
@@ -515,6 +557,28 @@ WxxObjectArray& WxxObjectArray::push(const std::string &str)
 {
     arr.push_back(new WxxObjectPtr(str));
     return *this;
+}
+
+//*************************************************************
+
+WxxHash::WxxHash() : WxxDefault("Hash")
+{
+}
+
+WxxHash &WxxHash::set(const std::string &key, WxxObjectPtr value)
+{
+    hsh[key] = value;
+    return *this;
+}
+
+WxxObjectPtr & WxxHash::get_pmc_keyed(const std::string &s)
+{
+    return hsh[s];
+}
+
+WxxObjectPtr & WxxHash::get_pmc_keyed(const char *s)
+{
+    return hsh[s];
 }
 
 //*************************************************************
@@ -684,6 +748,16 @@ return object->elements();
 WxxObjectPtr & WxxObjectPtr::get_pmc_keyed(int i)
 {
     return object->get_pmc_keyed(i);
+}
+
+WxxObjectPtr & WxxObjectPtr::get_pmc_keyed(const std::string &s)
+{
+    return object->get_pmc_keyed(s);
+}
+
+WxxObjectPtr & WxxObjectPtr::get_pmc_keyed(const char *s)
+{
+    return object->get_pmc_keyed(s);
 }
 
 void WxxObjectPtr::print()
