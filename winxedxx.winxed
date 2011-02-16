@@ -239,10 +239,18 @@ function emit_newexpr(out, expr)
 function emit_assignexpr(out, assignexpr)
 {
     var lexpr = assignexpr.lexpr;
+    var rexpr = assignexpr.rexpr;
     if (lexpr instanceof IdentifierExpr) {
         out.print(lexpr.name);
         out.print(" = ");
-        emit_expr(out, assignexpr.rexpr);
+        emit_expr(out, rexpr);
+    }
+    else if (lexpr instanceof MemberExpr) {
+        emit_expr(out, lexpr.left);
+        string ident = lexpr.right.getidentifier();
+        out.print(".set_attr_str(\"" + ident + "\",");
+        emit_expr(out, rexpr);
+        out.print(")");
     }
     else
         WxxUnsupported(lexpr);

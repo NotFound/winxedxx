@@ -197,6 +197,7 @@ public:
     WxxObjectPtr(int value);
     WxxObjectPtr(double value);
     WxxObjectPtr(const std::string &value);
+    WxxObjectPtr(const char *value);
     WxxObjectPtr(const WxxObjectPtr &old);
     WxxObjectPtr(WxxObject * obj);
     ~WxxObjectPtr();
@@ -204,6 +205,7 @@ public:
     WxxObjectPtr & operator = (int i);
     WxxObjectPtr & operator = (double n);
     WxxObjectPtr & operator = (const std::string &s);
+    WxxObjectPtr & operator = (const char *s);
     operator int() { return object->get_integer(); }
     operator double() { return object->get_number(); }
     operator std::string() { return object->get_string(); }
@@ -215,6 +217,7 @@ public:
     void print();
     WxxObjectPtr & get_attr_str(const std::string &s);
     void set_attr_str(const std::string &s, const WxxObjectPtr &value);
+    void set_attr_str(const char *s, const WxxObjectPtr &value);
     WxxObjectPtr call_method(const std::string &methname);
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
 private:
@@ -369,7 +372,7 @@ WxxObjectPtr & WxxDefault::get_attr_str(const std::string &s)
 
 void WxxDefault::set_attr_str(const std::string &s, const WxxObjectPtr &value)
 {
-    attributes[s] = WxxObjectPtr(value);
+    attributes[s] = value;
 }
 
 WxxObjectPtr WxxDefault::call_method(const std::string &methname, WxxObjectArray &args)
@@ -594,7 +597,14 @@ WxxObjectPtr::WxxObjectPtr(double value) : object(new WxxFloat(value))
     object->incref();
 }
 
-WxxObjectPtr::WxxObjectPtr(const std::string &value) : object(new WxxString(value))
+WxxObjectPtr::WxxObjectPtr(const std::string &value) :
+        object(new WxxString(value))
+{
+    object->incref();
+}
+
+WxxObjectPtr::WxxObjectPtr(const char *value) :
+        object(new WxxString(value))
 {
     object->incref();
 }
@@ -648,6 +658,14 @@ WxxObjectPtr & WxxObjectPtr::operator = (const std::string &s)
     return *this;
 }
 
+WxxObjectPtr & WxxObjectPtr::operator = (const char *s)
+{
+    object->decref();
+    object = new WxxString(s);
+    object->incref();
+    return *this;
+}
+
 int WxxObjectPtr::instanceof(const std::string &type)
 {
     return object->instanceof(type);
@@ -679,6 +697,11 @@ WxxObjectPtr & WxxObjectPtr::get_attr_str(const std::string &s)
 }
 
 void WxxObjectPtr::set_attr_str(const std::string &s, const WxxObjectPtr &value)
+{
+    object->set_attr_str(s, value);
+}
+
+void WxxObjectPtr::set_attr_str(const char *s, const WxxObjectPtr &value)
 {
     object->set_attr_str(s, value);
 }
