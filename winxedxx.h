@@ -35,6 +35,7 @@ public:
     virtual double get_number() = 0;
     virtual int elements() = 0;
     virtual std::string get_string() = 0;
+    virtual WxxObject & set(const char *s) = 0;
     virtual WxxObjectPtr & get_pmc_keyed(int i) = 0;
     virtual WxxObjectPtr & get_pmc_keyed(const std::string &s) = 0;
     virtual WxxObjectPtr & get_pmc_keyed(const char *s) = 0;
@@ -71,6 +72,7 @@ public:
     double get_number();
     int elements();
     std::string get_string();
+    WxxObject & set(const char *s);
     WxxObjectPtr & get_pmc_keyed(int i);
     WxxObjectPtr & get_pmc_keyed(const std::string &s);
     WxxObjectPtr & get_pmc_keyed(const char *s);
@@ -99,6 +101,7 @@ public:
     double get_number();
     int elements();
     virtual std::string get_string();
+    WxxObject & set(const char *s);
     WxxObjectPtr & get_pmc_keyed(int i);
     WxxObjectPtr & get_pmc_keyed(const std::string &s);
     WxxObjectPtr & get_pmc_keyed(const char *s);
@@ -146,6 +149,7 @@ class WxxString : public WxxDefault
 public:
     WxxString(std::string value);
     std::string get_string();
+    WxxObject & set(const char *s);
     void print();
 private:
     std::string str;
@@ -217,6 +221,7 @@ public:
     WxxObjectPtr(const WxxObjectPtr &old);
     WxxObjectPtr(WxxObject * obj);
     ~WxxObjectPtr();
+    WxxObjectPtr & set(const char *s);
     WxxObjectPtr &operator = (const WxxObjectPtr &from);
     WxxObjectPtr & operator = (int i);
     WxxObjectPtr & operator = (double n);
@@ -276,6 +281,12 @@ std::string WxxNull::get_string()
 {
     nullaccess("get_string");
     return std::string();
+}
+
+WxxObject & WxxNull::set(const char *s)
+{
+    nullaccess("set");
+    return *this;
 }
 
 WxxObjectPtr & WxxNull::get_pmc_keyed(int i)
@@ -385,6 +396,12 @@ std::string WxxDefault::get_string()
     return std::string();
 }
 
+WxxObject & WxxDefault::set(const char *s)
+{
+    notimplemented("set");
+    return *this;
+}
+
 WxxObjectPtr & WxxDefault::get_pmc_keyed(int i)
 {
     notimplemented("get_pmc_keyed");
@@ -492,6 +509,12 @@ WxxString::WxxString(std::string value) : WxxDefault("String")
 }
 
 std::string WxxString::get_string() { return str; }
+
+WxxObject & WxxString::set(const char *s)
+{
+    str = s;
+    return *this;
+}
 
 void WxxString::print() { std::cout << str; }
 
@@ -688,6 +711,12 @@ WxxObjectPtr::~WxxObjectPtr()
 {
     if (object)
         object->decref();
+}
+
+WxxObjectPtr & WxxObjectPtr::set(const char *s)
+{
+    object->set(s);
+    return *this;
 }
 
 WxxObjectPtr & WxxObjectPtr::operator = (const WxxObjectPtr &from)

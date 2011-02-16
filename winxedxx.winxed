@@ -273,6 +273,25 @@ function emit_assignexpr(out, assignexpr)
         WxxUnsupported(lexpr);
 }
 
+function emit_assigntoexpr(out, expr)
+{
+    var lexpr = expr.lexpr;
+    var rexpr = expr.rexpr;
+    if (lexpr instanceof IdentifierExpr) {
+        out.print(lexpr.name);
+        out.print(".set");
+        emit_expr(out, rexpr);
+    }
+    else if (lexpr instanceof MemberExpr) {
+        emit_expr(out, lexpr.left);
+        string ident = lexpr.right.getidentifier();
+        out.print(".get_attr_str(\"" + ident + "\").set");
+        emit_expr(out, rexpr);
+    }
+    else
+        WxxUnsupported(lexpr);
+}
+
 function emit_instanceofexpr(out, instanceofexpr)
 {
     var lexpr = instanceofexpr.lexpr;
@@ -416,6 +435,8 @@ function emit_expr(out, expr)
         emit_callexpr(out, expr);
     else if (expr instanceof OpAssignExpr)
         emit_assignexpr(out, expr);
+    else if (expr instanceof OpAssignToExpr)
+        emit_assigntoexpr(out, expr);
     else if (expr instanceof OpAddToExpr)
         emit_addtoexpr(out, expr);
     else if (expr instanceof IdentifierExpr)
