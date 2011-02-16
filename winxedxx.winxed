@@ -92,7 +92,7 @@ function emit_callpredefexpr(out, expr)
         emit_expr(out, args[0].arg);
         break;
       case 'typeof':
-        out.print("www_typeof");
+        out.print("wxx_typeof");
         emit_expr(out, args[0].arg);
         break;
       case 'getstdin':
@@ -111,6 +111,17 @@ function emit_callpredefexpr(out, expr)
         }
         if (predef.name == 'say')
             out.print('wxx_print("\n"),');
+        out.print('0');
+        break;
+      case 'cry':
+        for (i = 0;  i < nargs; ++i) {
+            var arg = args[i];
+            var argexp = arg.arg;
+            out.print('wxx_eprint');
+            emit_expr(out, argexp);
+            out.print(',');
+        }
+        out.print('wxx_eprint("\n"),');
         out.print('0');
         break;
       case 'elements':
@@ -266,6 +277,16 @@ function emit_assignexpr(out, assignexpr)
         emit_expr(out, lexpr.left);
         string ident = lexpr.right.getidentifier();
         out.print(".set_attr_str(\"" + ident + "\",");
+        emit_expr(out, rexpr);
+        out.print(")");
+    }
+    else if (lexpr instanceof IndexExpr) {
+        var left = lexpr.left;
+        emit_expr(out, left);
+        var arg = lexpr.getarg(0);
+        out.print(".set_pmc_keyed(");
+        emit_expr(out, arg);
+        out.print(", ");
         emit_expr(out, rexpr);
         out.print(")");
     }
