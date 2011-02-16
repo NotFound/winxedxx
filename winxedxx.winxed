@@ -556,12 +556,20 @@ function emit_switchstatement(out, switchst)
     out.print("} while (false)\n");
 }
 
-function emit_whilestatement(out, ifst)
+function emit_whilestatement(out, whilest)
 {
     out.print('while ');
-    emit_expr(out, ifst.condexpr);
+    emit_expr(out, whilest.condexpr);
     out.print("\n");
-    emit_statement(out, ifst.body);
+    emit_statement(out, whilest.body);
+}
+
+function emit_dostatement(out, dost)
+{
+    out.print("do {\n");
+    emit_statement(out, dost.body);
+    out.print("} while ");
+    emit_expr(out, dost.condexpr);
 }
 
 function emit_trystatement(out, tryst)
@@ -668,6 +676,8 @@ function emit_statement(out, st)
         emit_switchstatement(out, st);
     else if (st instanceof WhileStatement)
         emit_whilestatement(out, st);
+    else if (st instanceof DoStatement)
+        emit_dostatement(out, st);
     else if (st instanceof TryStatement)
         emit_trystatement(out, st);
     else if (st instanceof ThrowStatement)
