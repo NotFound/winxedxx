@@ -282,6 +282,24 @@ function emit_addtoexpr(out, assignexpr)
         WxxUnsupported(lexpr);
 }
 
+function emit_addexpr(out, expr)
+{
+    var lexpr = expr.lexpr;
+    var rexpr = expr.rexpr;
+    emit_expr(out, lexpr);
+    out.print(" + ");
+    emit_expr(out, rexpr);
+}
+
+function emit_mulexpr(out, expr)
+{
+    var lexpr = expr.lexpr;
+    var rexpr = expr.rexpr;
+    emit_expr(out, lexpr);
+    out.print(" * ");
+    emit_expr(out, rexpr);
+}
+
 function emit_concatstring(out, concatstr)
 {
     var values = concatstr.values;
@@ -408,6 +426,10 @@ function emit_expr(out, expr)
         out.print('++');
         emit_expr(out, expr.subexpr);
     }
+    else if (expr instanceof OpAddExpr)
+        emit_addexpr(out, expr);
+    else if (expr instanceof OpMulExpr)
+        emit_mulexpr(out, expr);
     else if (expr instanceof ConcatString)
         emit_concatstring(out, expr);
     else if (expr instanceof OpEqualExpr)
@@ -691,6 +713,8 @@ function emit_statement(out, st)
     else if (st instanceof EmptyStatement)
         /* Do nothing */ ;
     else if (st instanceof ExternStatement)
+        /* Do nothing */ ;
+    else if (st instanceof StaticStatement)
         /* Do nothing */ ;
     else
         WxxUnsupported(st);
