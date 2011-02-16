@@ -1058,14 +1058,14 @@ int wxx_print(int i) { std::cout << i; return 0; }
 int wxx_print(const char *s) { std::cout << s; return 0; }
 int wxx_print(const std::string &s) { std::cout << s; return 0; }
 int wxx_print(double n) { std::cout << n; return 0; }
-int wxx_print(WxxObjectPtr &obj) { obj.print(); return 0; }
+int wxx_print(WxxObjectPtr obj) { obj.print(); return 0; }
 
 int wxx_eprint(int i) { std::cerr << i; return 0; }
 int wxx_eprint(const char *s) { std::cerr << s; return 0; }
 int wxx_eprint(const std::string &s) { std::cerr << s; return 0; }
 int wxx_eprint(double n) { std::cerr << n; return 0; }
 // TODO
-int wxx_eprint(WxxObjectPtr &obj) { obj.print(); return 0; }
+int wxx_eprint(WxxObjectPtr obj) { obj.print(); return 0; }
 
 std::string wxx_int_to_string(int i)
 {
