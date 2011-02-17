@@ -240,6 +240,8 @@ public:
     WxxFileHandle(int predef = 0);
     ~WxxFileHandle();
     WxxObject *open(WxxObjectPtr name);
+    WxxObject *open(WxxObjectPtr name, WxxObjectPtr mode);
+    WxxObjectPtr close();
     void print(WxxObjectPtr &obj);
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
 private:
@@ -827,13 +829,49 @@ WxxObject *WxxFileHandle::open(WxxObjectPtr name)
     return this;
 }
 
+WxxObject *WxxFileHandle::open(WxxObjectPtr name, WxxObjectPtr mode)
+{
+    if (f)
+        throw wxx_error("FileHandle is already open");
+    std::string strname = name.get_string();
+    std::string strmode = mode.get_string();
+    for (size_t i = 0; i < strmode.length(); ++i) {
+        switch (strmode[i]) {
+          case 'r':
+          case 'w':
+          case 'a':
+            break;
+          default:
+            throw wxx_error("Invalid mode in open");
+        }
+    }
+    f = fopen(strname.c_str(), strmode.c_str());
+    return this;
+}
+
+WxxObjectPtr WxxFileHandle::close()
+{
+    int r;
+    if (f) {
+        r = fclose(f);
+        f = 0;
+    }
+    else
+        r = -1;
+    return r;
+}
+
 void WxxFileHandle::print(WxxObjectPtr &obj)
 {
+    if (! f)
+        throw wxx_error("FileHandle is closed");
     fputs(obj.get_string().c_str(), f);
 }
 
 WxxObjectPtr WxxFileHandle::read(int n)
 {
+    if (! f)
+        throw wxx_error("FileHandle is closed");
     char *buf = (char *)malloc(n);
     *buf = '\0';
     size_t r = fread(buf, 1, n, f);
@@ -845,6 +883,8 @@ WxxObjectPtr WxxFileHandle::read(int n)
 
 WxxObjectPtr WxxFileHandle::readline()
 {
+    if (! f)
+        throw wxx_error("FileHandle is closed");
     char buffer[1024];
     const char *r = fgets(buffer, 1024, f);
     if (! r)
@@ -863,6 +903,21 @@ WxxObjectPtr WxxFileHandle::call_method(const std::string &methname, WxxObjectAr
         if (args.elements() != 1)
             throw wxx_error("wrong number of positional arguments in read");
         return read(args.get_pmc_keyed(0));
+    }
+    if (methname == "open") {
+        switch (args.elements()) {
+          case 1:
+            return open(args.get_pmc_keyed(0));
+          case 2:
+            return open(args.get_pmc_keyed(0), args.get_pmc_keyed(1));
+          default:
+            throw wxx_error("too many positional arguments in close");
+        }
+    }
+    if (methname == "close") {
+        if (args.elements() > 0)
+            throw wxx_error("too many positional arguments in close");
+        return close();
     }
     else
         return WxxDefault::call_method(methname, args);

@@ -194,6 +194,10 @@ function emit_callpredefexpr(out, expr)
       case 'open':
         out.print("WxxObjectPtr((new WxxFileHandle())->open(");
         emit_expr(out, args[0].arg);
+        if (nargs > 1) {
+            out.print(", ");
+            emit_expr(out, args[1].arg);
+        }
         out.print("))");
         break;
       case 'load_language':
