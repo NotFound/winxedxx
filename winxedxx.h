@@ -31,6 +31,7 @@ class WxxObject
 public:
     virtual int is_null() const = 0;
     virtual int instanceof(const std::string &type) = 0;
+    virtual int get_bool() = 0;
     virtual int get_integer() = 0;
     virtual double get_number() = 0;
     virtual int elements() = 0;
@@ -45,6 +46,8 @@ public:
     virtual WxxObjectPtr & set_pmc_keyed(const std::string &s, const WxxObjectPtr &value) = 0;
     virtual WxxObjectPtr & get_attr_str(const std::string &s) = 0;
     virtual void set_attr_str(const std::string &s, const WxxObjectPtr &value) = 0;
+    virtual WxxObjectPtr get_iter() = 0;
+    virtual WxxObjectPtr shift_pmc() = 0;
 
     virtual WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args) = 0;
     virtual void print() = 0;
@@ -72,6 +75,7 @@ class WxxNull : public WxxObject
 public:
     int is_null() const;
     int instanceof(const std::string &type);
+    int get_bool();
     int get_integer();
     double get_number();
     int elements();
@@ -86,6 +90,8 @@ public:
     WxxObjectPtr & set_pmc_keyed(const std::string &s, const WxxObjectPtr &value);
     WxxObjectPtr & get_attr_str(const std::string &s);
     void set_attr_str(const std::string &s, const WxxObjectPtr &value);
+    WxxObjectPtr get_iter();
+    WxxObjectPtr shift_pmc();
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
     void print();
     void print(WxxObjectPtr &);
@@ -105,6 +111,7 @@ public:
     int is_null() const;
     std::string getname() const;
     int instanceof(const std::string &type);
+    int get_bool();
     int get_integer();
     double get_number();
     int elements();
@@ -119,6 +126,8 @@ public:
     WxxObjectPtr & set_pmc_keyed(const std::string &s, const WxxObjectPtr &value);
     WxxObjectPtr & get_attr_str(const std::string &s);
     void set_attr_str(const std::string &s, const WxxObjectPtr &value);
+    WxxObjectPtr get_iter();
+    WxxObjectPtr shift_pmc();
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
     WxxObjectPtr readline();
     void print();
@@ -178,9 +187,11 @@ class WxxObjectArray : public WxxDefault
 public:
     WxxObjectArray();
     ~WxxObjectArray();
+    int get_integer();
     int elements();
     WxxObjectPtr *operator[](int i) const;
     WxxObjectPtr & get_pmc_keyed(int i);
+    WxxObjectPtr get_iter();
     WxxObjectArray& push(WxxObjectPtr obj);
     WxxObjectArray& push(int i);
     WxxObjectArray& push(double value);
@@ -188,6 +199,18 @@ public:
     WxxObjectArray& push(const std::string &str);
 private:
     std::vector<WxxObjectPtr *> arr;
+};
+
+class WxxArrayIterator : public WxxDefault
+{
+public:
+    WxxArrayIterator(WxxObject *container);
+    ~WxxArrayIterator();
+    int get_bool();
+    WxxObjectPtr shift_pmc();
+private:
+    WxxObject *cnt;
+    int current;
 };
 
 class WxxHash : public WxxDefault
@@ -250,7 +273,7 @@ public:
     WxxObjectPtr & operator = (const std::string &s);
     WxxObjectPtr & operator = (const char *s);
     operator int() { return object->get_integer(); }
-    operator bool() { return object->get_integer(); }
+    operator bool() { return object->get_bool(); }
     operator double() { return object->get_number(); }
     operator std::string() { return object->get_string(); }
     int is_null() const { return object->is_null(); }
@@ -265,6 +288,8 @@ public:
     WxxObjectPtr & get_attr_str(const std::string &s);
     void set_attr_str(const std::string &s, const WxxObjectPtr &value);
     void set_attr_str(const char *s, const WxxObjectPtr &value);
+    WxxObjectPtr get_iter();
+    WxxObjectPtr shift_pmc();
     WxxObjectPtr call_method(const std::string &methname);
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
 private:
@@ -280,6 +305,12 @@ int WxxNull::is_null() const { return 1; }
 int WxxNull::instanceof(const std::string &type)
 {
     nullaccess("instanceof");
+    return 0;
+}
+
+int WxxNull::get_bool()
+{
+    nullaccess("get_bool");
     return 0;
 }
 
@@ -366,6 +397,18 @@ void WxxNull::set_attr_str(const std::string &s, const WxxObjectPtr &value)
     nullaccess("set_attr_str");
 }
 
+WxxObjectPtr WxxNull::get_iter()
+{
+    nullaccess("get_iter");
+    return winxedxxnull;
+}
+
+WxxObjectPtr WxxNull::shift_pmc()
+{
+    nullaccess("shift_pmc");
+    return winxedxxnull;
+}
+
 WxxObjectPtr WxxNull::call_method(const std::string &methname, WxxObjectArray &args)
 {
     nullaccess("call_method");
@@ -418,6 +461,11 @@ std::string WxxDefault::getname() const { return name; }
 int WxxDefault::instanceof(const std::string &type)
 {
     return type == name;
+}
+
+int WxxDefault::get_bool()
+{
+    return get_integer();
 }
 
 int WxxDefault::get_integer()
@@ -504,6 +552,18 @@ WxxObjectPtr & WxxDefault::get_attr_str(const std::string &s)
 void WxxDefault::set_attr_str(const std::string &s, const WxxObjectPtr &value)
 {
     attributes[s] = value;
+}
+
+WxxObjectPtr WxxDefault::get_iter()
+{
+    notimplemented("get_iter");
+    return winxedxxnull;
+}
+
+WxxObjectPtr WxxDefault::shift_pmc()
+{
+    notimplemented("shift_pmc");
+    return winxedxxnull;
 }
 
 WxxObjectPtr WxxDefault::call_method(const std::string &methname, WxxObjectArray &args)
@@ -637,9 +697,19 @@ int WxxObjectArray::elements()
     return arr.size();
 }
 
+int WxxObjectArray::get_integer()
+{
+    return elements();
+}
+
 WxxObjectPtr & WxxObjectArray::get_pmc_keyed(int i)
 {
     return *(this->operator[](i));
+}
+
+WxxObjectPtr WxxObjectArray::get_iter()
+{
+    return WxxObjectPtr(new WxxArrayIterator(this));
 }
 
 WxxObjectPtr *WxxObjectArray::operator[](int i) const
@@ -682,6 +752,31 @@ WxxObjectArray& WxxObjectArray::push(const std::string &str)
 {
     arr.push_back(new WxxObjectPtr(str));
     return *this;
+}
+
+//*************************************************************
+
+WxxArrayIterator::WxxArrayIterator(WxxObject *container) :
+        WxxDefault("ArrayIterator"),
+        cnt(container),
+        current(0)
+{
+    cnt->incref();
+}
+
+WxxArrayIterator::~WxxArrayIterator()
+{
+    cnt->decref();
+}
+
+int WxxArrayIterator::get_bool()
+{
+    return current < cnt->elements();
+}
+
+WxxObjectPtr WxxArrayIterator::shift_pmc()
+{
+    return cnt->get_pmc_keyed(current++);
 }
 
 //*************************************************************
@@ -949,6 +1044,16 @@ void WxxObjectPtr::set_attr_str(const std::string &s, const WxxObjectPtr &value)
 void WxxObjectPtr::set_attr_str(const char *s, const WxxObjectPtr &value)
 {
     object->set_attr_str(s, value);
+}
+
+WxxObjectPtr WxxObjectPtr::get_iter()
+{
+    return object->get_iter();
+}
+
+WxxObjectPtr WxxObjectPtr::shift_pmc()
+{
+    return object->shift_pmc();
 }
 
 WxxObjectPtr WxxObjectPtr::call_method(const std::string &methname)
