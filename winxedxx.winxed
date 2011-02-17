@@ -1133,12 +1133,17 @@ function winxedxx_get_options(argv)
           case '-o':
             options['outfile'] = argv[++i];
             break;
+          case '--target':
+            options['target'] = argv[++i];
+            break;
           default:
             nomore = true;
         }
         if (nomore)
             break;
     }
+    if (i >= argc)
+        throw Error("No source file");
     options['sourcefile'] = argv[i];
     return options;
 }
@@ -1146,25 +1151,64 @@ function winxedxx_get_options(argv)
 function winxedxx_compile(options)
 {
     var winxed = get_winxed_compiler();
-    var parsed = winxed.compile_from_file(options['sourcefile'],
+    string sourcefile = options['sourcefile'];
+    var parsed = winxed.compile_from_file(sourcefile,
         'parse':[named('target')]
     );
 
     string outfile = options['outfile'];
-    var out = outfile != null && outfile != '' ?
-        open(outfile, "w") :
+    if (outfile == null)
+        outfile = '';
+    string cxxfile = outfile;
+    var target = options["target"];
+    if (target == null)
+        target = 'cxx';
+    switch (target) {
+      case 'exe':
+      case 'run':
+        if (outfile == '') {
+            outfile = sourcefile + '.exe';
+            cxxfile = sourcefile + '.cxx';
+        }
+        else
+            cxxfile = outfile + '.cxx';
+        break;
+      case 'cxx':
+        /* Nothing in particular */
+        break;
+      default:
+        throw Error("Invalid target type: " + string(target));
+    }
+    var out = cxxfile != '' ?
+        open(cxxfile, "w") :
         getstdout();
     emit(out, parsed);
-    if (outfile != null && outfile != '')
+    if (cxxfile != '')
         out.close();
+    int r = 0;
+    switch (target) {
+      case 'exe':
+        r = spawnw(["g++", "-Wall", "-O2", "-o", outfile, cxxfile]);
+        r = (r >> 8) & 0xFF;
+        break;
+      case 'run':
+        r = spawnw(["g++", "-Wall", "-O2", "-o", outfile, cxxfile]);
+        r = (r >> 8) & 0xFF;
+        if (r != 0)
+            break;
+        r = spawnw(["./" + outfile]);
+        r = (r >> 8) & 0xFF;
+        break;
+    }
+    return r;
 }
 
 function main(argv)
 {
     try {
         var options = winxedxx_get_options(argv);
-        winxedxx_compile(options);
-        return 0;
+        int r = winxedxx_compile(options);
+        return r;
     }
     catch (e) {
         cry(e.message);
