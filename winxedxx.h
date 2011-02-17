@@ -840,6 +840,7 @@ WxxObject *WxxFileHandle::open(WxxObjectPtr name, WxxObjectPtr mode)
           case 'r':
           case 'w':
           case 'a':
+          case 'b':
             break;
           default:
             throw wxx_error("Invalid mode in open");
