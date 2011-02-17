@@ -52,7 +52,6 @@ public:
     virtual WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args) = 0;
     virtual void print() = 0;
     virtual void print(WxxObjectPtr &obj) = 0;
-    virtual WxxObjectPtr readline() = 0;
     void incref() { ++numrefs; }
     void decref()
     {
@@ -95,7 +94,6 @@ public:
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
     void print();
     void print(WxxObjectPtr &);
-    WxxObjectPtr readline();
 private:
     void nullaccess(const std::string &funcname);
 };
@@ -129,7 +127,6 @@ public:
     WxxObjectPtr get_iter();
     WxxObjectPtr shift_pmc();
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
-    WxxObjectPtr readline();
     void print();
     void print(WxxObjectPtr &);
 private:
@@ -242,12 +239,13 @@ class WxxFileHandle : public WxxDefault
 public:
     WxxFileHandle(int predef = 0);
     ~WxxFileHandle();
-    WxxObjectPtr read(int n);
-    WxxObjectPtr readline();
     WxxObject *open(WxxObjectPtr name);
     void print(WxxObjectPtr &obj);
+    WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
 private:
     FILE *f;
+    WxxObjectPtr read(int n);
+    WxxObjectPtr readline();
 };
 
 //*************************************************************
@@ -430,12 +428,6 @@ void WxxNull::nullaccess(const std::string &funcname)
     throw wxx_error("Null WxxObject in " + funcname);
 }
 
-WxxObjectPtr WxxNull::readline()
-{
-    nullaccess("readline");
-    return winxedxxnull;
-}
-
 //*************************************************************
 
 WxxDefault::WxxDefault(const char *name)
@@ -568,13 +560,8 @@ WxxObjectPtr WxxDefault::shift_pmc()
 
 WxxObjectPtr WxxDefault::call_method(const std::string &methname, WxxObjectArray &args)
 {
-    notimplemented("call_method");
-    return winxedxxnull;
-}
-
-WxxObjectPtr WxxDefault::readline()
-{
-    notimplemented("readline");
+    throw wxx_error("Method '" + methname +
+            "' not found for invocant of class '" + name + "'");
     return winxedxxnull;
 }
 
@@ -865,6 +852,22 @@ WxxObjectPtr WxxFileHandle::readline()
     return WxxObjectPtr(std::string(r));
 }
 
+WxxObjectPtr WxxFileHandle::call_method(const std::string &methname, WxxObjectArray &args)
+{
+    if (methname == "readline") {
+        if (args.elements() > 0)
+            throw wxx_error("too many positional arguments in readline");
+        return readline();
+    }
+    if (methname == "read") {
+        if (args.elements() != 1)
+            throw wxx_error("wrong number of positional arguments in read");
+        return read(args.get_pmc_keyed(0));
+    }
+    else
+        return WxxDefault::call_method(methname, args);
+}
+
 //*************************************************************
 
 WxxException::WxxException(const std::string &message, int severity, int type) :
@@ -1058,13 +1061,8 @@ WxxObjectPtr WxxObjectPtr::shift_pmc()
 
 WxxObjectPtr WxxObjectPtr::call_method(const std::string &methname)
 {
-    if (methname == "readline")
-        return object->readline();
-    else {
-        WxxObjectArray args;
-        return object->call_method(methname, args);
-    }
-    return WxxObjectPtr();
+    WxxObjectArray args;
+    return object->call_method(methname, args);
 }
 
 WxxObjectPtr WxxObjectPtr::call_method(const std::string &methname, WxxObjectArray &args)
@@ -1073,14 +1071,10 @@ WxxObjectPtr WxxObjectPtr::call_method(const std::string &methname, WxxObjectArr
         int n = args.elements();
         for (int i = 0; i < n; ++i)
             object->print(*args[i]);
+        return WxxObjectPtr();
     }
-    else if (methname == "read" && dynamic_cast<WxxFileHandle *>(object)) {
-        return dynamic_cast<WxxFileHandle *>(object)->read(int(*(args[0])));
-    }
-    else {
+    else
         return object->call_method(methname, args);
-    }
-    return WxxObjectPtr();
 }
 
 //*************************************************************
