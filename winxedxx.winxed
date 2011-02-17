@@ -752,6 +752,19 @@ function emit_foreachstatement(out, forst)
     out.print("{\nWxxObjectPtr wxx_it = ");
     emit_expr(out, container);
     out.print(".get_iter();\nwhile (bool(wxx_it)) {\n");
+    string type = forst.deftype == null ? '' : string(forst.deftype);
+    switch (type) {
+      case 'I':
+        out.print("int "); break;
+      case 'N':
+        out.print("double "); break;
+      case 'S':
+        out.print("std::string "); break;
+      case 'P':
+        out.print("WxxObjectPtr "); break;
+      default:
+        /* nothing */;
+    }
     out.print(varname);
     out.print(" = wxx_it.shift_pmc();\n");
     emit_statement(out, forst.body);
