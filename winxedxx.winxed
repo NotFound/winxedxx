@@ -999,15 +999,7 @@ function emit_namespacest(out, ns)
         out.print("\n{\n");
     }
 
-    int i;
-    var functions = ns.functions;
-    int nfunctions = elements(functions);
-    for (i = 0; i < nfunctions; ++i)
-        emit_declare_function(out, functions[i]);
-
-    var items = ns.items;
-    for (i = 0; i < elements(items); ++i) {
-        var item = items[i];
+    for (var item in ns.items) {
         if (item instanceof FunctionStatement)
             emit_function(out, item);
         else if (item instanceof NamespaceStatement)
@@ -1021,6 +1013,26 @@ function emit_namespacest(out, ns)
         else
             WxxUnsupported(item);
     }
+    if (! (ns instanceof RootNamespace))
+        out.print("\n}\n");
+}
+
+function emit_declare_namespacest(out, ns)
+{
+    if (! (ns instanceof RootNamespace)) {
+        out.print("namespace ");
+        out.print(ns.name);
+        out.print("\n{\n");
+    }
+
+    // Declare functions
+    for (var fun in ns.functions)
+        emit_declare_function(out, fun);
+
+    // Declare child namespaces
+    for (var childns in ns.namespaces)
+        emit_declare_namespacest(out, childns);
+
     if (! (ns instanceof RootNamespace))
         out.print("\n}\n");
 }
@@ -1056,6 +1068,8 @@ namespace WinxedXX
 
 HEADER:>>
     );
+
+    emit_declare_namespacest(out, ns);
 
     emit_namespacest(out, ns);
 
