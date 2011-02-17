@@ -632,13 +632,31 @@ function emit_floatstatement(out, st)
 
 function emit_stringstatement(out, st)
 {
-    out.print("std::string ");
-    out.print(st.name);
-    if (st.init == null)
-        out.print(' = ""');
+    string name = st.name;
+    int typearray = st.typearray;
+    var init = st.init;
+    if (typearray == 0) {
+        out.print("std::string ");
+        out.print(name);
+        if (init == null)
+            out.print(' = ""');
+        else {
+            out.print(" = ");
+            emit_expr(out, init);
+        }
+    }
     else {
-        out.print(" = ");
-        emit_expr(out, st.init);
+        out.print("WxxObjectPtr ");
+        out.print(name);
+        out.print("(&((*new WxxStringArray())");
+        if (init != null) {
+            for (var item in init) {
+                out.print(".push(");
+                emit_expr(out, item);
+                out.print(")");
+	    }
+	}
+        out.print("))");
     }
 }
 
