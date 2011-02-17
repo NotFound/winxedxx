@@ -735,11 +735,19 @@ function emit_throwstatement(out, throwst)
 
 function emit_forstatement(out, forst)
 {
+    var initializer = forst.initializer;
+    var condexpr = forst.condexpr;
+    var iteration = forst.iteration;
     out.print("for (");
-    emit_statement(out, forst.initializer);
-    emit_expr(out, forst.condexpr);
+    if (initializer != null)
+        emit_statement(out, initializer);
+    else
+        out.print(";");
+    if (condexpr != null)
+        emit_expr(out, forst.condexpr);
     out.print(";");
-    emit_expr(out, forst.iteration);
+    if (iteration != null)
+        emit_expr(out, forst.iteration);
     out.print(") {\n");
     emit_statement(out, forst.body);
     out.print("}\n");
@@ -860,6 +868,8 @@ function emit_statement(out, st)
     else if (st instanceof ExternStatement)
         /* Do nothing */ ;
     else if (st instanceof StaticStatement)
+        /* Do nothing */ ;
+    else if (st instanceof UsingStatement)
         /* Do nothing */ ;
     else
         WxxUnsupported(st);
