@@ -570,6 +570,8 @@ function emit_expr(out, expr)
         emit_boolandexpr(out, expr);
     else if (expr instanceof OpModExpr)
         emit_commonop(out, expr, "%");
+    else if (expr instanceof OpCModExpr)
+        emit_commonop(out, expr, "%");
     else if (expr instanceof OpPreDecExpr) {
         out.print('--');
         emit_expr(out, expr.subexpr);
