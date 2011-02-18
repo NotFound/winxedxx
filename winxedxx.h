@@ -207,6 +207,40 @@ private:
     std::vector<WxxObjectPtr *> arr;
 };
 
+class WxxIntegerArray : public WxxArrayBase
+{
+public:
+    WxxIntegerArray();
+    ~WxxIntegerArray();
+    int elements();
+    int operator[](int i) const;
+    WxxObjectPtr get_pmc_keyed(int i);
+    WxxIntegerArray& push(WxxObjectPtr obj);
+    WxxIntegerArray& push(int i);
+    WxxIntegerArray& push(double value);
+    WxxIntegerArray& push(const char *str);
+    WxxIntegerArray& push(const std::string &str);
+private:
+    std::vector<int> arr;
+};
+
+class WxxFloatArray : public WxxArrayBase
+{
+public:
+    WxxFloatArray();
+    ~WxxFloatArray();
+    int elements();
+    double operator[](int i) const;
+    WxxObjectPtr get_pmc_keyed(int i);
+    WxxFloatArray& push(WxxObjectPtr obj);
+    WxxFloatArray& push(int i);
+    WxxFloatArray& push(double value);
+    WxxFloatArray& push(const char *str);
+    WxxFloatArray& push(const std::string &str);
+private:
+    std::vector<double> arr;
+};
+
 class WxxStringArray : public WxxArrayBase
 {
 public:
@@ -774,6 +808,132 @@ WxxObjectArray& WxxObjectArray::push(const char *str)
 WxxObjectArray& WxxObjectArray::push(const std::string &str)
 {
     arr.push_back(new WxxObjectPtr(str));
+    return *this;
+}
+
+//*************************************************************
+
+WxxIntegerArray::WxxIntegerArray() :
+        WxxArrayBase("ResizableIntegerArray")
+{
+}
+
+WxxIntegerArray::~WxxIntegerArray()
+{
+}
+
+int WxxIntegerArray::elements()
+{
+    return arr.size();
+}
+
+WxxObjectPtr WxxIntegerArray::get_pmc_keyed(int i)
+{
+    return this->operator[](i);
+}
+
+int WxxIntegerArray::operator[](int i) const
+{
+    int size = arr.size();
+    if (i < 0)
+        i += size;
+    if (i < 0)
+        throw wxx_error(getname() + ": index out of bounds!");
+    if (i >= size)
+         return winxedxxnull;
+    return arr[i];
+}
+
+WxxIntegerArray& WxxIntegerArray::push(WxxObjectPtr obj)
+{
+    arr.push_back(obj);
+    return *this;
+}
+
+WxxIntegerArray& WxxIntegerArray::push(int i)
+{
+    arr.push_back(i);
+    return *this;
+}
+
+WxxIntegerArray& WxxIntegerArray::push(double value)
+{
+    arr.push_back(value);
+    return *this;
+}
+
+WxxIntegerArray& WxxIntegerArray::push(const char *str)
+{
+    arr.push_back(atoi(str));
+    return *this;
+}
+
+WxxIntegerArray& WxxIntegerArray::push(const std::string &str)
+{
+    arr.push_back(atoi(str.c_str()));
+    return *this;
+}
+
+//*************************************************************
+
+WxxFloatArray::WxxFloatArray() :
+        WxxArrayBase("ResizableFloatArray")
+{
+}
+
+WxxFloatArray::~WxxFloatArray()
+{
+}
+
+int WxxFloatArray::elements()
+{
+    return arr.size();
+}
+
+WxxObjectPtr WxxFloatArray::get_pmc_keyed(int i)
+{
+    return this->operator[](i);
+}
+
+double WxxFloatArray::operator[](int i) const
+{
+    int size = arr.size();
+    if (i < 0)
+        i += size;
+    if (i < 0)
+        throw wxx_error(getname() + ": index out of bounds!");
+    if (i >= size)
+         return winxedxxnull;
+    return arr[i];
+}
+
+WxxFloatArray& WxxFloatArray::push(WxxObjectPtr obj)
+{
+    arr.push_back(obj);
+    return *this;
+}
+
+WxxFloatArray& WxxFloatArray::push(int i)
+{
+    arr.push_back(i);
+    return *this;
+}
+
+WxxFloatArray& WxxFloatArray::push(double value)
+{
+    arr.push_back(value);
+    return *this;
+}
+
+WxxFloatArray& WxxFloatArray::push(const char *str)
+{
+    arr.push_back(strtod(str, 0));
+    return *this;
+}
+
+WxxFloatArray& WxxFloatArray::push(const std::string &str)
+{
+    arr.push_back(strtod(str.c_str(), 0));
     return *this;
 }
 

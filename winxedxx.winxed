@@ -606,40 +606,20 @@ function emit_varstatement(out, st)
     }
 }
 
-function emit_intstatement(out, st)
-{
-    out.print("int ");
-    out.print(st.name);
-    if (st.init == null)
-        out.print(" = 0");
-    else {
-        out.print(" = ");
-        emit_expr(out, st.init);
-    }
-}
-
-function emit_floatstatement(out, st)
-{
-    out.print("double ");
-    out.print(st.name);
-    if (st.init == null)
-        out.print(" = 0.0");
-    else {
-        out.print(" = ");
-        emit_expr(out, st.init);
-    }
-}
-
-function emit_stringstatement(out, st)
+function emit_nativetypestatement(out, st,
+        string simpletype, string arraytype, string nullinit)
 {
     string name = st.name;
     int typearray = st.typearray;
     var init = st.init;
     if (typearray == 0) {
-        out.print("std::string ");
+        out.print(simpletype);
+        out.print(" ");
         out.print(name);
-        if (init == null)
-            out.print(' = ""');
+        if (init == null) {
+            out.print(" = ");
+            out.print(nullinit);
+        }
         else {
             out.print(" = ");
             emit_expr(out, init);
@@ -648,7 +628,9 @@ function emit_stringstatement(out, st)
     else {
         out.print("WxxObjectPtr ");
         out.print(name);
-        out.print("(&((*new WxxStringArray())");
+        out.print("(&((*new Wxx");
+	out.print(arraytype);
+        out.print("Array())");
         if (init != null) {
             for (var item in init) {
                 out.print(".push(");
@@ -852,11 +834,11 @@ function emit_statement(out, st)
     else if (st instanceof ConstStatement)
         emit_conststatement(out, st);
     else if (st instanceof IntStatement)
-        emit_intstatement(out, st);
+        emit_nativetypestatement(out, st, "int", "Integer", "0");
     else if (st instanceof FloatStatement)
-        emit_floatstatement(out, st);
+        emit_nativetypestatement(out, st, "double", "Float", "0.0");
     else if (st instanceof StringStatement)
-        emit_stringstatement(out, st);
+        emit_nativetypestatement(out, st, "std::string", "String", '""');
     else if (st instanceof VarStatement)
         emit_varstatement(out, st);
     else if (st instanceof LabelStatement)
