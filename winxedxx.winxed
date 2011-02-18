@@ -542,6 +542,18 @@ function emit_expr(out, expr)
         out.print('++');
         emit_expr(out, expr.subexpr);
     }
+    else if (expr instanceof OpPreDecExpr) {
+        out.print('--');
+        emit_expr(out, expr.subexpr);
+    }
+    else if (expr instanceof OpPostIncExpr) {
+        emit_expr(out, expr.subexpr);
+        out.print('++');
+    }
+    else if (expr instanceof OpPostDecExpr) {
+        emit_expr(out, expr.subexpr);
+        out.print('--');
+    }
     else if (expr instanceof OpAddExpr)
         emit_addexpr(out, expr);
     else if (expr instanceof OpSubExpr)
@@ -572,10 +584,6 @@ function emit_expr(out, expr)
         emit_commonop(out, expr, "%");
     else if (expr instanceof OpCModExpr)
         emit_commonop(out, expr, "%");
-    else if (expr instanceof OpPreDecExpr) {
-        out.print('--');
-        emit_expr(out, expr.subexpr);
-    }
     else if (expr instanceof OpConditionalExpr)
         emit_conditionalexpr(out, expr);
     else if (expr instanceof MemberExpr)
@@ -631,15 +639,15 @@ function emit_nativetypestatement(out, st,
         out.print("WxxObjectPtr ");
         out.print(name);
         out.print("(&((*new Wxx");
-	out.print(arraytype);
+        out.print(arraytype);
         out.print("Array())");
         if (init != null) {
             for (var item in init) {
                 out.print(".push(");
                 emit_expr(out, item);
                 out.print(")");
-	    }
-	}
+            }
+        }
         out.print("))");
     }
 }
