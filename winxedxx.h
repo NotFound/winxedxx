@@ -44,6 +44,7 @@ public:
     virtual WxxObject & set(double value) = 0;
     virtual WxxObject & set(const char *s) = 0;
     virtual WxxObject & set(const std::string &s) = 0;
+    virtual std::string get_string_keyed(int i) = 0;
     virtual WxxObjectPtr get_pmc_keyed(int i) = 0;
     virtual WxxObjectPtr get_pmc_keyed(const std::string &s) = 0;
     virtual WxxObjectPtr get_pmc_keyed(const char *s) = 0;
@@ -88,6 +89,7 @@ public:
     WxxObject & set(double value);
     WxxObject & set(const char *s);
     WxxObject & set(const std::string &s);
+    std::string get_string_keyed(int i);
     WxxObjectPtr get_pmc_keyed(int i);
     WxxObjectPtr get_pmc_keyed(const std::string &s);
     WxxObjectPtr get_pmc_keyed(const char *s);
@@ -124,6 +126,7 @@ public:
     WxxObject & set(double value);
     WxxObject & set(const char *s);
     WxxObject & set(const std::string &s);
+    std::string get_string_keyed(int i);
     WxxObjectPtr get_pmc_keyed(int i);
     WxxObjectPtr get_pmc_keyed(const std::string &s);
     WxxObjectPtr get_pmc_keyed(const char *s);
@@ -253,6 +256,7 @@ public:
     ~WxxStringArray();
     int elements();
     std::string operator[](int i) const;
+    std::string get_string_keyed(int i);
     WxxObjectPtr get_pmc_keyed(int i);
     WxxStringArray& push(WxxObjectPtr obj);
     WxxStringArray& push(int i);
@@ -374,6 +378,7 @@ public:
     int instanceof(const std::string &type);
     std::string get_string();
     int elements();
+    std::string get_string_keyed(int i);
     WxxObjectPtr get_pmc_keyed(int i);
     WxxObjectPtr get_pmc_keyed(const std::string &s);
     WxxObjectPtr get_pmc_keyed(const char *s);
@@ -456,6 +461,12 @@ WxxObject & WxxNull::set(const std::string &s)
 {
     nullaccess("set");
     return *this;
+}
+
+std::string WxxNull::get_string_keyed(int i)
+{
+    nullaccess("get_pmc_keyed");
+    return std::string();
 }
 
 WxxObjectPtr WxxNull::get_pmc_keyed(int i)
@@ -610,6 +621,11 @@ WxxObject & WxxDefault::set(const std::string &s)
 {
     notimplemented("set");
     return *this;
+}
+
+std::string WxxDefault::get_string_keyed(int i)
+{
+    return get_pmc_keyed(i);
 }
 
 WxxObjectPtr WxxDefault::get_pmc_keyed(int i)
@@ -999,6 +1015,11 @@ WxxStringArray::~WxxStringArray()
 int WxxStringArray::elements()
 {
     return arr.size();
+}
+
+std::string WxxStringArray::get_string_keyed(int i)
+{
+    return this->operator[](i);
 }
 
 WxxObjectPtr WxxStringArray::get_pmc_keyed(int i)
@@ -1452,6 +1473,11 @@ int WxxObjectPtr::elements()
 return object->elements();
 }
 
+std::string WxxObjectPtr::get_string_keyed(int i)
+{
+    return object->get_string_keyed(i);
+}
+
 WxxObjectPtr WxxObjectPtr::get_pmc_keyed(int i)
 {
     return object->get_pmc_keyed(i);
@@ -1691,7 +1717,7 @@ std::string wxx_join(const std::string &sep, WxxObjectPtr &arr)
     {
         if (i > 0)
             result += sep;
-        result += std::string(arr.get_pmc_keyed(i));
+        result += arr.get_string_keyed(i);
     }
     return result;
 }
