@@ -86,7 +86,7 @@ function nciitemtoc(string item)
       case 'i':
         return 'int';
       case 'v':
-        return 'void';
+        return 'int'; // Allow void to return something
       default:
         throw Error("signature unsupported: " + item);
     }
@@ -980,7 +980,7 @@ function emit_function(out, funst)
         }
         out.print(" ");
         out.print(name);
-        out.print(" = *(wxx_fun_args[");
+        out.print(" = (wxx_fun_args[");
         out.print(i);
         out.print("]);\n");
     }

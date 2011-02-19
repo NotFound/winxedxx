@@ -56,7 +56,7 @@ public:
     virtual WxxObjectPtr operator()(WxxObjectArray &args) = 0;
     virtual WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args) = 0;
     virtual void print() = 0;
-    virtual void print(WxxObjectPtr &obj) = 0;
+    virtual void print(WxxObjectPtr obj) = 0;
     void incref() { ++numrefs; }
     void decref()
     {
@@ -99,7 +99,7 @@ public:
     WxxObjectPtr operator()(WxxObjectArray &args);
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
     void print();
-    void print(WxxObjectPtr &);
+    void print(WxxObjectPtr);
 private:
     void nullaccess(const std::string &funcname);
 };
@@ -135,7 +135,7 @@ public:
     WxxObjectPtr operator()(WxxObjectArray &args);
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
     void print();
-    void print(WxxObjectPtr &);
+    void print(WxxObjectPtr);
 private:
     std::string name;
     std::map<std::string, WxxObjectPtr> attributes;
@@ -201,7 +201,7 @@ public:
     WxxObjectArray();
     ~WxxObjectArray();
     int elements();
-    WxxObjectPtr *operator[](int i) const;
+    WxxObjectPtr operator[](int i) const;
     WxxObjectPtr get_pmc_keyed(int i);
     WxxObjectArray& push(WxxObjectPtr obj);
     WxxObjectArray& push(int i);
@@ -307,7 +307,7 @@ public:
     WxxObject *open(WxxObjectPtr name);
     WxxObject *open(WxxObjectPtr name, WxxObjectPtr mode);
     WxxObjectPtr close();
-    void print(WxxObjectPtr &obj);
+    void print(WxxObjectPtr obj);
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
 private:
     FILE *f;
@@ -522,7 +522,7 @@ void WxxNull::print()
     nullaccess("print");
 }
 
-void WxxNull::print(WxxObjectPtr &)
+void WxxNull::print(WxxObjectPtr)
 {
     nullaccess("print");
 }
@@ -680,7 +680,7 @@ void WxxDefault::print()
     std::cout << this->get_string();
 }
 
-void WxxDefault::print(WxxObjectPtr &)
+void WxxDefault::print(WxxObjectPtr)
 {
     notimplemented("print");
 }
@@ -814,10 +814,10 @@ int WxxObjectArray::elements()
 
 WxxObjectPtr WxxObjectArray::get_pmc_keyed(int i)
 {
-    return *(this->operator[](i));
+    return this->operator[](i);
 }
 
-WxxObjectPtr *WxxObjectArray::operator[](int i) const
+WxxObjectPtr WxxObjectArray::operator[](int i) const
 {
     int size = arr.size();
     if (i < 0)
@@ -825,8 +825,8 @@ WxxObjectPtr *WxxObjectArray::operator[](int i) const
     if (i < 0)
         throw wxx_error(getname() + ": index out of bounds!");
     if (i >= size)
-         return &winxedxxnull;
-    return arr[i];
+         return winxedxxnull;
+    return WxxObjectPtr(*(arr[i]));
 }
 
 WxxObjectArray& WxxObjectArray::push(WxxObjectPtr obj)
@@ -1167,7 +1167,7 @@ WxxObjectPtr WxxFileHandle::close()
     return r;
 }
 
-void WxxFileHandle::print(WxxObjectPtr &obj)
+void WxxFileHandle::print(WxxObjectPtr obj)
 {
     if (! f)
         throw wxx_error("FileHandle is closed");
@@ -1250,6 +1250,11 @@ WxxNCI::WxxNCI(const std::string &funcname) :
 {
 }
 
+WxxObjectPtr WxxNCI::operator()(WxxObjectArray &args)
+{
+    return winxedxxnull;
+}
+
 void * wxxncigetfunc(WxxObjectPtr lib, const std::string &funcname)
 {
     void *fun;
@@ -1258,11 +1263,6 @@ void * wxxncigetfunc(WxxObjectPtr lib, const std::string &funcname)
     else if (WxxLibrary *dlib = lib.getlib())
         fun = dlib->getsym(funcname.c_str());
     return fun;
-}
-
-WxxObjectPtr WxxNCI::operator()(WxxObjectArray &args)
-{
-    throw wxx_error("dynamic function not found: " + name);
 }
 
 
@@ -1288,7 +1288,7 @@ template <typename NciSig>
 class WxxNCIcall<NciSig, 1> : public WxxNCI
 {
 public:
-    WxxNCIcall(WxxObjectPtr lib, const std::string &funcname, NciSig func) :
+    WxxNCIcall(WxxObjectPtr lib, const std::string &funcname) :
         WxxNCI(funcname),
         fun((NciSig)wxxncigetfunc(lib, funcname))
     { }
@@ -1518,7 +1518,7 @@ WxxObjectPtr WxxObjectPtr::call_method(const std::string &methname, WxxObjectArr
     if (methname == "print") {
         int n = args.elements();
         for (int i = 0; i < n; ++i)
-            object->print(*args[i]);
+            object->print(args[i]);
         return WxxObjectPtr();
     }
     else
