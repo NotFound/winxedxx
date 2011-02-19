@@ -79,6 +79,36 @@ function stringtoxx(literal)
     throw Error('Unexpected literal string type');
 }
 
+function nciitemtoc(string item)
+{
+    switch (item)
+    {
+      case 'i':
+        return 'int';
+      case 'v':
+        return 'void';
+      default:
+        throw Error("signature unsupported: " + item);
+    }
+}
+
+function ncisigtoc(string sig)
+{
+    string ret = sig[0];
+    string args = substr(sig, 1);
+    string csig;
+    csig = nciitemtoc(ret);
+    csig += "(*)(";
+    string sep = '';
+    for (string item in args) {
+        csig += sep;
+        sep = ", ";
+        csig += nciitemtoc(item);
+    }
+    csig += ")";
+    return csig;
+}
+
 function emit_callpredefexpr(out, expr)
 {
     var predef = expr.predef;
@@ -212,6 +242,19 @@ function emit_callpredefexpr(out, expr)
         out.print("wxx_loadlib");
         emit_expr(out, args[0].arg);
         break;
+      case 'dlfunc':
+        var sig = args[2].arg;
+        if (! sig.isstringliteral())
+            throw Error("dlfunc siganture must be compile time constant");
+        int nsigargs = length(sig.strval.rawstring()) - 1;
+        string csig = ncisigtoc(sig.strval.rawstring());
+
+        out.print("wxx_dlfunc<" + csig + ", " + string(nsigargs) + ">(");
+        emit_expr(out, args[0].arg);
+        out.print(", ");
+        emit_expr(out, args[1].arg);
+        out.print(")");
+        break;
       default:
         WxxUnsupported(expr, "predef " + name);
     }
@@ -227,7 +270,7 @@ function emit_callexpr(out, callexpr)
     if (funref.isidentifier()) {
         string callname = funref.getName();
         out.print(callname);
-        out.print("(WxxObjectArray()");
+        out.print("(WinxedXX::WxxObjectArray()");
         if (nargs > 0) {
             for (int i = 0; i < nargs; ++i) {
                 out.print(".push(");
@@ -244,7 +287,7 @@ function emit_callexpr(out, callexpr)
         out.print(funref.right.getidentifier());
         out.print("\"");
         if (nargs > 0) {
-            out.print(", WxxObjectArray()");
+            out.print(", WinxedXX::WxxObjectArray()");
             for (int i = 0; i < nargs; ++i) {
                 out.print(".push(");
                 var arg = args.getfreearg(i);

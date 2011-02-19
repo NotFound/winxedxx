@@ -53,6 +53,7 @@ public:
     virtual WxxObjectPtr get_iter() = 0;
     virtual WxxObjectPtr shift_pmc() = 0;
 
+    virtual WxxObjectPtr operator()(WxxObjectArray &args) = 0;
     virtual WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args) = 0;
     virtual void print() = 0;
     virtual void print(WxxObjectPtr &obj) = 0;
@@ -95,6 +96,7 @@ public:
     void set_attr_str(const std::string &s, const WxxObjectPtr &value);
     WxxObjectPtr get_iter();
     WxxObjectPtr shift_pmc();
+    WxxObjectPtr operator()(WxxObjectArray &args);
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
     void print();
     void print(WxxObjectPtr &);
@@ -130,6 +132,7 @@ public:
     void set_attr_str(const std::string &s, const WxxObjectPtr &value);
     WxxObjectPtr get_iter();
     WxxObjectPtr shift_pmc();
+    WxxObjectPtr operator()(WxxObjectArray &args);
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
     void print();
     void print(WxxObjectPtr &);
@@ -316,8 +319,29 @@ class WxxLibrary : public WxxDefault
 {
 public:
     WxxLibrary(void *dl_handle);
+    void * getsym(const std::string &funcname);
 private:
     void *dl_h;
+};
+
+class WxxNCI : public WxxDefault
+{
+public:
+    WxxNCI(const std::string &funcname);
+    WxxObjectPtr operator()(WxxObjectArray &args);
+protected:
+    std::string name;
+};
+
+template <typename NciSig, int nargs>
+class WxxNCIcall : public WxxNCI
+{
+public:
+    WxxNCIcall(WxxObjectPtr lib, const std::string &funcname);
+    WxxObjectPtr operator()(WxxObjectArray &args);
+private:
+    WxxObjectPtr call(WxxObjectArray &args);
+    NciSig fun;
 };
 
 //*************************************************************
@@ -360,8 +384,10 @@ public:
     void set_attr_str(const char *s, const WxxObjectPtr &value);
     WxxObjectPtr get_iter();
     WxxObjectPtr shift_pmc();
+    WxxObjectPtr operator()(const WxxObjectArray &args);
     WxxObjectPtr call_method(const std::string &methname);
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
+    WxxLibrary *getlib();
 private:
     WxxObject *object;
 };
@@ -476,6 +502,12 @@ WxxObjectPtr WxxNull::get_iter()
 WxxObjectPtr WxxNull::shift_pmc()
 {
     nullaccess("shift_pmc");
+    return winxedxxnull;
+}
+
+WxxObjectPtr WxxNull::operator()(WxxObjectArray &args)
+{
+    nullaccess("invoke");
     return winxedxxnull;
 }
 
@@ -627,6 +659,12 @@ WxxObjectPtr WxxDefault::get_iter()
 WxxObjectPtr WxxDefault::shift_pmc()
 {
     notimplemented("shift_pmc");
+    return winxedxxnull;
+}
+
+WxxObjectPtr WxxDefault::operator()(WxxObjectArray &args)
+{
+    notimplemented("invoke");
     return winxedxxnull;
 }
 
@@ -1199,6 +1237,80 @@ WxxLibrary::WxxLibrary(void *dl_handle) :
 {
 }
 
+void * WxxLibrary::getsym(const std::string &funcname)
+{
+    return dlsym(dl_h, funcname.c_str());
+}
+
+//*************************************************************
+
+WxxNCI::WxxNCI(const std::string &funcname) :
+        WxxDefault("NCI"),
+        name(funcname)
+{
+}
+
+void * wxxncigetfunc(WxxObjectPtr lib, const std::string &funcname)
+{
+    void *fun;
+    if (lib.is_null())
+        fun = dlsym(NULL, funcname.c_str());
+    else if (WxxLibrary *dlib = lib.getlib())
+        fun = dlib->getsym(funcname.c_str());
+    return fun;
+}
+
+WxxObjectPtr WxxNCI::operator()(WxxObjectArray &args)
+{
+    throw wxx_error("dynamic function not found: " + name);
+}
+
+
+template <typename NciSig>
+class WxxNCIcall<NciSig, 0> : public WxxNCI
+{
+public:
+    WxxNCIcall(WxxObjectPtr lib, const std::string &funcname) :
+        WxxNCI(funcname),
+        fun((NciSig)wxxncigetfunc(lib, funcname))
+    { }
+    WxxObjectPtr operator()(WxxObjectArray &args)
+    {
+        if (! fun)
+            throw wxx_error("dynamic function -0- is null: " + name);
+        return (*fun)();
+    }
+private:
+    NciSig fun;
+};
+
+template <typename NciSig>
+class WxxNCIcall<NciSig, 1> : public WxxNCI
+{
+public:
+    WxxNCIcall(WxxObjectPtr lib, const std::string &funcname, NciSig func) :
+        WxxNCI(funcname),
+        fun((NciSig)wxxncigetfunc(lib, funcname))
+    { }
+    WxxObjectPtr operator()(WxxObjectArray &args)
+    {
+        if (! fun)
+            throw wxx_error("dynamic function -1- is null: " + name);
+        return (*fun)(args[0]);
+    }
+private:
+    NciSig fun;
+};
+
+template <typename NciSig, int nargs>
+WxxObjectPtr WxxNCIcall<NciSig, nargs>::operator()(WxxObjectArray &args)
+{
+    if (! fun)
+        throw wxx_error("dynamic function is null: " + name);
+    return winxedxxnull;
+}
+
+
 //*************************************************************
 
 WxxException::WxxException(const std::string &message, int severity, int type) :
@@ -1390,6 +1502,11 @@ WxxObjectPtr WxxObjectPtr::shift_pmc()
     return object->shift_pmc();
 }
 
+WxxObjectPtr WxxObjectPtr::operator()(const WxxObjectArray &args)
+{
+    return (*object)(const_cast<WxxObjectArray &>(args));
+}
+
 WxxObjectPtr WxxObjectPtr::call_method(const std::string &methname)
 {
     WxxObjectArray args;
@@ -1406,6 +1523,11 @@ WxxObjectPtr WxxObjectPtr::call_method(const std::string &methname, WxxObjectArr
     }
     else
         return object->call_method(methname, args);
+}
+
+WxxLibrary * WxxObjectPtr::getlib()
+{
+    return dynamic_cast<WxxLibrary *>(object);
 }
 
 //*************************************************************
@@ -1628,6 +1750,12 @@ WxxObjectPtr wxx_loadlib(const std::string &libname)
         return WxxObjectPtr(new WxxLibrary(dl_handle));
 }
 
+template <typename NciSig, int nargs>
+WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib,
+        std::string funcname)
+{
+    return WxxObjectPtr(new WxxNCIcall<NciSig, nargs>(lib, funcname));
+}
 
 } // namespace WinxedXX
 

@@ -5,7 +5,7 @@
 
 WINXEDLIB = -L /home/julian/winxed
 CXX = g++
-CXXOPTS = -g -Wall
+CXXOPTS = -g -Wall -ldl
 
 #-----------------------------------------------------------------------
 
