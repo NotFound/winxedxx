@@ -208,6 +208,10 @@ function emit_callpredefexpr(out, expr)
         // Cannot do it, always return null
         out.print("winxedxxnull");
         break;
+      case 'loadlib':
+        out.print("wxx_loadlib");
+        emit_expr(out, args[0].arg);
+        break;
       default:
         WxxUnsupported(expr, "predef " + name);
     }
@@ -1198,11 +1202,11 @@ function winxedxx_compile(options)
     int r = 0;
     switch (target) {
       case 'exe':
-        r = spawnw(["g++", "-Wall", "-O2", "-o", outfile, cxxfile]);
+        r = spawnw(["g++", "-Wall", "-O2", "-ldl", "-o", outfile, cxxfile]);
         r = (r >> 8) & 0xFF;
         break;
       case 'run':
-        r = spawnw(["g++", "-Wall", "-O2", "-o", outfile, cxxfile]);
+        r = spawnw(["g++", "-Wall", "-O2", "-ldl", "-o", outfile, cxxfile]);
         r = (r >> 8) & 0xFF;
         if (r != 0)
             break;

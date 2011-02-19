@@ -15,6 +15,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <dlfcn.h>
+
 namespace WinxedXX
 {
 
@@ -308,6 +310,14 @@ private:
     FILE *f;
     WxxObjectPtr read(int n);
     WxxObjectPtr readline();
+};
+
+class WxxLibrary : public WxxDefault
+{
+public:
+    WxxLibrary(void *dl_handle);
+private:
+    void *dl_h;
 };
 
 //*************************************************************
@@ -1183,6 +1193,14 @@ WxxObjectPtr WxxFileHandle::call_method(const std::string &methname, WxxObjectAr
 
 //*************************************************************
 
+WxxLibrary::WxxLibrary(void *dl_handle) :
+        WxxDefault("ParrotLibrary"),
+        dl_h(dl_handle)
+{
+}
+
+//*************************************************************
+
 WxxException::WxxException(const std::string &message, int severity, int type) :
         WxxDefault("Exception"),
         msg(message),
@@ -1600,6 +1618,16 @@ int operator == (int i, WxxObjectPtr &obj)
 {
     return int(obj) == i;
 }
+
+WxxObjectPtr wxx_loadlib(const std::string &libname)
+{
+    void *dl_handle = dlopen(libname.c_str(), RTLD_LAZY);
+    if (dl_handle == NULL)
+        return WxxObjectPtr(0); // Sort of Undef for a now
+    else
+        return WxxObjectPtr(new WxxLibrary(dl_handle));
+}
+
 
 } // namespace WinxedXX
 
