@@ -370,14 +370,14 @@ public:
     WxxObjectPtr & operator = (double value);
     WxxObjectPtr & operator = (const std::string &s);
     WxxObjectPtr & operator = (const char *s);
-    operator int() { return object->get_integer(); }
-    operator bool() { return object->get_bool(); }
-    operator double() { return object->get_number(); }
-    operator std::string() { return object->get_string(); }
+    operator int() const { return object->get_integer(); }
+    operator bool() const { return object->get_bool(); }
+    operator double() const { return object->get_number(); }
+    operator std::string() const { return object->get_string(); }
     int is_null() const { return object->is_null(); }
     int instanceof(const std::string &type);
-    std::string get_string();
-    int elements();
+    std::string get_string() const;
+    int elements() const;
     std::string get_string_keyed(int i);
     WxxObjectPtr get_pmc_keyed(int i);
     WxxObjectPtr get_pmc_keyed(const std::string &s);
@@ -1463,12 +1463,12 @@ int WxxObjectPtr::instanceof(const std::string &type)
     return object->instanceof(type);
 }
 
-std::string WxxObjectPtr::get_string()
+std::string WxxObjectPtr::get_string() const
 {
     return object->get_string();
 }
 
-int WxxObjectPtr::elements()
+int WxxObjectPtr::elements() const
 {
 return object->elements();
 }
@@ -1742,11 +1742,11 @@ std::string operator + (const char *s, WxxObjectPtr obj)
     return s + obj.get_string();
 }
 
-int operator == (WxxObjectPtr &obj, const std::string &str)
+int operator == (const WxxObjectPtr &obj, const std::string &str)
 {
     return obj.get_string() == str;
 }
-int operator == (const std::string &str, WxxObjectPtr &obj)
+int operator == (const std::string &str, const WxxObjectPtr &obj)
 {
     return obj.get_string() == str;
 }
@@ -1781,6 +1781,21 @@ WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib,
         std::string funcname)
 {
     return WxxObjectPtr(new WxxNCIcall<NciSig, nargs>(lib, funcname));
+}
+
+WxxObjectPtr wxx_spawnw(WxxObjectPtr obj)
+{
+    int len = obj.elements();
+    std::vector<std::string> args;
+    const char **argv = (const char **)malloc((len + 1) * sizeof(char *));
+    for (int i = 0; i < len; ++i) {
+        args.push_back(obj.get_pmc_keyed(i));
+	argv[i] = args[i].c_str();
+    }
+    argv[len] = 0;
+    if (fork() != 0)
+        execvp(argv[0], (char**)argv);
+    return WxxObjectPtr(0);
 }
 
 } // namespace WinxedXX

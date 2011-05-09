@@ -20,6 +20,9 @@ class IntegerLiteral;
 class FloatLiteral;
 class StringLiteral;
 
+class ClassSpecifierStr;
+class ClassSpecifierId;
+
 class IdentifierExpr;
 class MemberExpr;
 class IndexExpr;
@@ -53,6 +56,8 @@ class OpLessExpr;
 class OpGreaterExpr;
 class OpBoolAndExpr;
 class OpBoolOrExpr;
+class OpBinAndExpr;
+class OpShiftrightExpr;
 class OpInstanceOfExpr;
 class OpConditionalExpr;
 
@@ -68,6 +73,9 @@ class VarStatement;
 class IntStatement;
 class FloatStatement;
 class StringStatement;
+class IntArrayStatement;
+class FloatArrayStatement;
+class StringArrayStatement;
 class ConstStatement;
 class ReturnStatement;
 class LabelStatement;
@@ -86,6 +94,16 @@ class FunctionStatement;
 class ClassStatement;
 class NamespaceStatement;
 class RootNamespace;
+
+//**************************************************************
+
+// Types
+
+const string
+    Type_Int    = 'int',
+    Type_Num    = 'double',
+    Type_String = 'std::string',
+    Type_PMC    = 'WxxObjectPtr';
 
 //**************************************************************
 
@@ -181,7 +199,8 @@ function ncisigtoc(string sig)
     csig = nciitemtoc(ret);
     csig += "(*)(";
     string sep = '';
-    for (string item in args) {
+    for (int i = 0; i < length(args); ++i) {
+        string item = args[i];
         csig += sep;
         sep = ", ";
         csig += nciitemtoc(item);
@@ -204,13 +223,13 @@ function emit_callpredefexpr(out, expr)
             out.print("wxx_int_to_string");
             break;
           case 'P':
-            out.print("std::string");
+            out.print(Type_String);
             break;
         }
         emit_expr(out, args[0].arg);
         break;
       case 'int':
-        out.print("int");
+        out.print(Type_Int);
         emit_expr(out, args[0].arg);
         break;      
       case 'typeof':
@@ -252,7 +271,9 @@ function emit_callpredefexpr(out, expr)
         break;
       case 'length':
       case 'bytelength':
+        out.print(Type_String + "(");
         emit_expr(out, args[0].arg);
+        out.print(")");
         out.print(".length()");
         break;
       case 'ord':
@@ -261,12 +282,12 @@ function emit_callpredefexpr(out, expr)
         out.print(".c_str()[0])");
         break;
       case 'chr':
-        out.print("WxxObjectPtr(std::string(1, int(");
+        out.print("WxxObjectPtr(" + Type_String + "(1, int(");
         emit_expr(out, args[0].arg);
         out.print(")))");
         break;
       case 'indexof':
-        out.print("int((");
+        out.print(Type_Int + "((");
         emit_expr(out, args[0].arg);
         out.print(").find(");
         emit_expr(out, args[1].arg);
@@ -335,6 +356,10 @@ function emit_callpredefexpr(out, expr)
         out.print(", ");
         emit_expr(out, args[1].arg);
         out.print(")");
+        break;
+      case 'spawnw':
+        out.print("wxx_spawnw");
+        emit_expr(out, args[0].arg);
         break;
       default:
         WxxUnsupported(expr, "predef " + name);
@@ -429,12 +454,12 @@ function emit_assignexpr(out, assignexpr)
         out.print(" = ");
         // Coerce result type to avoid ambiguities
         switch (lexpr.checkresult()) {
-          case 'S':
-            out.print("std::string"); break;
           case 'I':
-            out.print("int"); break;
-          case 'F':
-            out.print("float"); break;
+            out.print(Type_Int); break;
+          case 'N':
+            out.print(Type_Num); break;
+          case 'S':
+            out.print(Type_String); break;
         }
         emit_expr(out, rexpr);
     }
@@ -448,7 +473,7 @@ function emit_assignexpr(out, assignexpr)
     else if (lexpr instanceof IndexExpr) {
         var left = lexpr.left;
         emit_expr(out, left);
-        var arg = lexpr.getarg(0);
+        var arg = lexpr.args.getarg(0);
         out.print(".set_pmc_keyed(");
         emit_expr(out, arg);
         out.print(", ");
@@ -485,8 +510,10 @@ function emit_instanceofexpr(out, instanceofexpr)
     out.print("wxx_instanceof(");
     emit_expr(out, lexpr);
     out.print(", ");
-    if (checked.isidentifier())
-        out.print('"' + string(checked.getidentifier()) + '"');
+    if (checked instanceof ClassSpecifierStr)
+        out.print('"' + string(checked.name) + '"');
+    else if (checked instanceof ClassSpecifierId)
+        out.print('"' + string(checked.last()) + '"');
     else
         out.print('"' + string(tokstringtoxx(checked)) + '"');
     out.print(")");
@@ -498,6 +525,8 @@ function emit_addtoexpr(out, assignexpr)
     if (lexpr instanceof IdentifierExpr) {
         out.print(lexpr.name);
         out.print(" += ");
+	if (lexpr.checkresult() == 'S')
+            out.print(Type_String);
         emit_expr(out, assignexpr.rexpr);
     }
     else
@@ -616,9 +645,16 @@ function emit_indexexpr(out, expr)
 {
     var left = expr.left;
     emit_expr(out, left);
-    var arg = expr.getarg(0);
-    out.print(".get_pmc_keyed");
-    emit_expr(out, arg);
+    var arg = expr.args.getarg(0);
+    if (left.checkresult() == 'S') {
+        out.print('.substr(');
+        emit_expr(out, arg);
+        out.print(', 1)');
+    }
+    else {
+        out.print(".get_pmc_keyed");
+        emit_expr(out, arg);
+    }
 }
 
 function emit_memberexpr(out, expr)
@@ -650,7 +686,7 @@ function emit_expr(out, expr)
     else if (expr instanceof FloatLiteral)
         out.print(expr.numval);
     else if (expr instanceof StringLiteral) {
-        out.print('std::string("');
+        out.print(Type_String + '("');
         out.print(stringtoxx(expr));
         out.print('")');
     }
@@ -708,6 +744,10 @@ function emit_expr(out, expr)
         emit_boolorexpr(out, expr);
     else if (expr instanceof OpBoolAndExpr)
         emit_boolandexpr(out, expr);
+    else if (expr instanceof OpBinAndExpr)
+        emit_commonop(out, expr, '&');
+    else if (expr instanceof OpShiftrightExpr)
+        emit_commonop(out, expr, '>>');
     else if (expr instanceof OpModExpr)
         emit_commonop(out, expr, "%");
     else if (expr instanceof OpCModExpr)
@@ -744,8 +784,7 @@ function emit_varstatement(out, st)
     }
 }
 
-function emit_nativetypestatement(out, st,
-        string simpletype, string arraytype, string nullinit)
+function emit_nativetypestatement(out, st, string simpletype, string nullinit)
 {
     string name = st.name;
     var init = st.init;
@@ -763,11 +802,10 @@ function emit_nativetypestatement(out, st,
     }
 }
 
-function emit_nativearraystatement(out, st,
-        string simpletype, string arraytype, string nullinit)
+function emit_nativearraystatement(out, st, string arraytype)
 {
     string name = st.name;
-    var init = st.init;
+    var init = st.initarray;
 
     out.print("WxxObjectPtr ");
     out.print(name);
@@ -810,9 +848,10 @@ function emit_ifstatement(out, ifst)
     out.print("\n{\n");
     if (! truebranch.isempty())
         emit_statement(out, truebranch);
-    out.print("} else {\n");
-    if (! falsebranch.isempty())
+    if (! falsebranch.isempty()) {
+        out.print("} else {\n");
         emit_statement(out, falsebranch);
+    }
     out.print("}\n");
 }
 
@@ -836,6 +875,11 @@ function emit_switchstatement(out, switchst)
             emit_statement(out, case_st[i][j]);
         out.print("}\n");
     }
+    var default_st = switchst.default_st;
+    int nst = elements(default_st);
+    int j;
+    for (j = 0; j < nst; ++j)
+        emit_statement(out, default_st[j]);
 
     out.print("} while (false)\n");
 }
@@ -909,13 +953,13 @@ function emit_foreachstatement(out, forst)
     string type = forst.deftype == null ? '' : string(forst.deftype);
     switch (type) {
       case 'I':
-        out.print("int "); break;
+        out.print(Type_Int + " "); break;
       case 'N':
-        out.print("double "); break;
+        out.print(Type_Num + " "); break;
       case 'S':
-        out.print("std::string "); break;
+        out.print(Type_String + " "); break;
       case 'P':
-        out.print("WxxObjectPtr "); break;
+        out.print(Type_PMC + " "); break;
       default:
         /* nothing */;
     }
@@ -976,11 +1020,17 @@ function emit_statement(out, st)
     else if (st instanceof ConstStatement)
         emit_conststatement(out, st);
     else if (st instanceof IntStatement)
-        emit_nativetypestatement(out, st, "int", "Integer", "0");
+        emit_nativetypestatement(out, st, Type_Int, "0");
     else if (st instanceof FloatStatement)
-        emit_nativetypestatement(out, st, "double", "Float", "0.0");
+        emit_nativetypestatement(out, st, Type_Num, "0.0");
     else if (st instanceof StringStatement)
-        emit_nativetypestatement(out, st, "std::string", "String", '""');
+        emit_nativetypestatement(out, st, Type_String, '""');
+    else if (st instanceof IntArrayStatement)
+        emit_nativearraystatement(out, st, "Integer");
+    else if (st instanceof FloatArrayStatement)
+        emit_nativearraystatement(out, st, "Float");
+    else if (st instanceof StringArrayStatement)
+        emit_nativearraystatement(out, st, "String");
     else if (st instanceof VarStatement)
         emit_varstatement(out, st);
     else if (st instanceof LabelStatement)
@@ -1055,13 +1105,13 @@ function emit_function(out, funst)
         string type = a.gettype();
         switch (type) {
           case 'I':
-            out.print("int"); break;
+            out.print(Type_Int); break;
           case 'N':
-            out.print("double"); break;
+            out.print(Type_Num); break;
           case 'S':
-            out.print("std::string"); break;
+            out.print(Type_String); break;
           default:
-            out.print("WxxObjectPtr"); break;
+            out.print(Type_PMC); break;
         }
         out.print(" ");
         out.print(name);
@@ -1293,6 +1343,9 @@ function winxedxx_get_options(argv)
 function winxedxx_compile(options)
 {
     var winxed = get_winxed_compiler();
+    if (winxed == null)
+        throw Error("Can't load winxed compiler");
+
     string sourcefile = options['sourcefile'];
     var parsed = winxed.compile_from_file(sourcefile,
         'parse':[named('target')]
@@ -1347,17 +1400,15 @@ function winxedxx_compile(options)
 
 function main(argv)
 {
-//    try {
+    try {
         var options = winxedxx_get_options(argv);
         int r = winxedxx_compile(options);
         return r;
-/*
     }
     catch (e) {
-        cry(e.message);
+        cry("Winxedxx: ", e.message);
         return 1;
     }
-*/
 }
 
 // End
