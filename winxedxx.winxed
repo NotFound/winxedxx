@@ -271,10 +271,10 @@ function emit_callpredefexpr(out, expr)
         break;
       case 'length':
       case 'bytelength':
-        out.print(Type_String + "(");
+        out.print(Type_Int + "(" + Type_String + "(");
         emit_expr(out, args[0].arg);
         out.print(")");
-        out.print(".length()");
+        out.print(".length())");
         break;
       case 'ord':
         out.print("(unsigned char)(");
@@ -305,6 +305,18 @@ function emit_callpredefexpr(out, expr)
         break;
       case 'join':
         out.print("wxx_join(");
+        emit_expr(out, args[0].arg);
+        out.print(", ");
+        emit_expr(out, args[1].arg);
+        out.print(")");
+        break;
+      case 'push':
+        emit_expr(out, args[0].arg);
+        out.print(".push");
+        emit_expr(out, args[1].arg);
+        break;
+      case 'split':
+        out.print("wxx_split(");
         emit_expr(out, args[0].arg);
         out.print(", ");
         emit_expr(out, args[1].arg);
@@ -1069,7 +1081,9 @@ function emit_statement(out, st)
         /* Do nothing */ ;
     else
         WxxUnsupported(st);
-    out.print(";\n");
+
+    if (! (st instanceof CompoundStatement))
+        out.print(";\n");
 }
 
 function emit_declare_function(out, funst)
@@ -1087,6 +1101,9 @@ function emit_function(out, funst)
 
     if (ismethod)
         out.print("static ");
+
+    out.print("\n// function " + name + "\n\n");
+
     out.print('WxxObjectPtr ');
     out.print(name);
     out.print("(");
@@ -1123,7 +1140,7 @@ function emit_function(out, funst)
     // Get body. Should be a CompundStatement
     var body = funst.body;
     emit_statement(out, body);
-    out.print("\nreturn winxedxxnull;\n}\n");
+    out.print("\nreturn winxedxxnull;\n\n} // function " + name + "\n\n");
 }
 
 //**************************************************************
