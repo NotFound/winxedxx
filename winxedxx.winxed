@@ -748,36 +748,40 @@ function emit_nativetypestatement(out, st,
         string simpletype, string arraytype, string nullinit)
 {
     string name = st.name;
-    int typearray = st.typearray;
     var init = st.init;
-    if (typearray == 0) {
-        out.print(simpletype);
-        out.print(" ");
-        out.print(name);
-        if (init == null) {
-            out.print(" = ");
-            out.print(nullinit);
-        }
-        else {
-            out.print(" = ");
-            emit_expr(out, init);
-        }
+
+    out.print(simpletype);
+    out.print(" ");
+    out.print(name);
+    if (init == null) {
+        out.print(" = ");
+        out.print(nullinit);
     }
     else {
-        out.print("WxxObjectPtr ");
-        out.print(name);
-        out.print("(&((*new Wxx");
-        out.print(arraytype);
-        out.print("Array())");
-        if (init != null) {
-            for (var item in init) {
-                out.print(".push(");
-                emit_expr(out, item);
-                out.print(")");
-            }
-        }
-        out.print("))");
+        out.print(" = ");
+        emit_expr(out, init);
     }
+}
+
+function emit_nativearraystatement(out, st,
+        string simpletype, string arraytype, string nullinit)
+{
+    string name = st.name;
+    var init = st.init;
+
+    out.print("WxxObjectPtr ");
+    out.print(name);
+    out.print("(&((*new Wxx");
+    out.print(arraytype);
+    out.print("Array())");
+    if (init != null) {
+        for (var item in init) {
+            out.print(".push(");
+            emit_expr(out, item);
+            out.print(")");
+        }
+    }
+    out.print("))");
 }
 
 function emit_labelstatement(out, labelst)
@@ -1046,7 +1050,7 @@ function emit_function(out, funst)
     int i;
     for (i = 0; i < nparams; ++i) {
         var param = params[i];
-        string name = param['name'];
+        string name = param.name;
         var a = funst.getvar(name);
         string type = a.gettype();
         switch (type) {
@@ -1343,15 +1347,17 @@ function winxedxx_compile(options)
 
 function main(argv)
 {
-    try {
+//    try {
         var options = winxedxx_get_options(argv);
         int r = winxedxx_compile(options);
         return r;
+/*
     }
     catch (e) {
         cry(e.message);
         return 1;
     }
+*/
 }
 
 // End
