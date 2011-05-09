@@ -215,10 +215,11 @@ function emit_callpredefexpr(out, expr)
     string name = predef.name;
     var args = expr.args;
     int nargs = elements(args);
+    var arg0 = nargs > 0 ? args[0].arg : null;
     int i;
     switch (name) {
       case 'string':
-        switch (args[0].arg.checkresult()) {
+        switch (arg0.checkresult()) {
           case 'I':
             out.print("wxx_int_to_string");
             break;
@@ -226,15 +227,15 @@ function emit_callpredefexpr(out, expr)
             out.print(Type_String);
             break;
         }
-        emit_expr(out, args[0].arg);
+        emit_expr(out, arg0);
         break;
       case 'int':
         out.print(Type_Int);
-        emit_expr(out, args[0].arg);
-        break;      
+        emit_expr(out, arg0);
+        break;
       case 'typeof':
         out.print("wxx_typeof");
-        emit_expr(out, args[0].arg);
+        emit_expr(out, arg0);
         break;
       case 'getstdin':
       case 'getstdout':
@@ -266,35 +267,35 @@ function emit_callpredefexpr(out, expr)
         out.print('0');
         break;
       case 'elements':
-        emit_expr(out, args[0].arg);
+        emit_expr(out, arg0);
         out.print(".elements()");
         break;
       case 'length':
       case 'bytelength':
-        out.print(Type_Int + "(" + Type_String + "(");
-        emit_expr(out, args[0].arg);
+        out.print("(" + Type_Int + ")(" + Type_String + "(");
+        emit_expr(out, arg0);
         out.print(")");
         out.print(".length())");
         break;
       case 'ord':
         out.print("(unsigned char)(");
-        emit_expr(out, args[0].arg);
+        emit_expr(out, arg0);
         out.print(".c_str()[0])");
         break;
       case 'chr':
         out.print("WxxObjectPtr(" + Type_String + "(1, int(");
-        emit_expr(out, args[0].arg);
+        emit_expr(out, arg0);
         out.print(")))");
         break;
       case 'indexof':
         out.print(Type_Int + "((");
-        emit_expr(out, args[0].arg);
+        emit_expr(out, arg0);
         out.print(").find(");
         emit_expr(out, args[1].arg);
         out.print("))");
         break;
       case 'substr':
-        emit_expr(out, args[0].arg);
+        emit_expr(out, arg0);
         out.print(".substr(");
         emit_expr(out, args[1].arg);
         if (nargs > 2) {
@@ -305,26 +306,26 @@ function emit_callpredefexpr(out, expr)
         break;
       case 'join':
         out.print("wxx_join(");
-        emit_expr(out, args[0].arg);
+        emit_expr(out, arg0);
         out.print(", ");
         emit_expr(out, args[1].arg);
         out.print(")");
         break;
       case 'push':
-        emit_expr(out, args[0].arg);
+        emit_expr(out, arg0);
         out.print(".push");
         emit_expr(out, args[1].arg);
         break;
       case 'split':
         out.print("wxx_split(");
-        emit_expr(out, args[0].arg);
+        emit_expr(out, arg0);
         out.print(", ");
         emit_expr(out, args[1].arg);
         out.print(")");
         break;
       case 'Error':
         out.print("wxx_error(");
-        emit_expr(out, args[0].arg);
+        emit_expr(out, arg0);
         if (nargs > 1) {
             out.print(", ");
             emit_expr(out, args[1].arg);
@@ -337,7 +338,7 @@ function emit_callpredefexpr(out, expr)
         break;
       case 'open':
         out.print("WxxObjectPtr((new WxxFileHandle())->open(");
-        emit_expr(out, args[0].arg);
+        emit_expr(out, arg0);
         if (nargs > 1) {
             out.print(", ");
             emit_expr(out, args[1].arg);
@@ -354,7 +355,7 @@ function emit_callpredefexpr(out, expr)
         break;
       case 'loadlib':
         out.print("wxx_loadlib");
-        emit_expr(out, args[0].arg);
+        emit_expr(out, arg0);
         break;
       case 'dlfunc':
         var sig = args[2].arg;
@@ -364,14 +365,14 @@ function emit_callpredefexpr(out, expr)
         string csig = ncisigtoc(sig.strval.rawstring());
 
         out.print("wxx_dlfunc<" + csig + ", " + string(nsigargs) + ">(");
-        emit_expr(out, args[0].arg);
+        emit_expr(out, arg0);
         out.print(", ");
         emit_expr(out, args[1].arg);
         out.print(")");
         break;
       case 'spawnw':
         out.print("wxx_spawnw");
-        emit_expr(out, args[0].arg);
+        emit_expr(out, arg0);
         break;
       default:
         WxxUnsupported(expr, "predef " + name);
