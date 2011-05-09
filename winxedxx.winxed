@@ -1418,15 +1418,15 @@ function winxedxx_compile(options)
 
 function main(argv)
 {
+    int r = 1;
     try {
         var options = winxedxx_get_options(argv);
-        int r = winxedxx_compile(options);
-        return r;
+        r = winxedxx_compile(options);
     }
     catch (e) {
         cry("Winxedxx: ", e.message);
-        return 1;
     }
+    exit(r);
 }
 
 // End
