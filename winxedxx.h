@@ -1252,7 +1252,7 @@ WxxObjectPtr WxxFileHandle::read(int n)
     char *buf = (char *)malloc(n);
     *buf = '\0';
     size_t r = fread(buf, 1, n, f);
-    std::cerr << "\nread " << r << "\n";
+    //std::cerr << "\nread " << r << "\n";
     std::string result = r > 0 ? std::string(buf, r) : std::string();
     free(buf);
     return WxxObjectPtr(result);
