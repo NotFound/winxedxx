@@ -8,6 +8,87 @@
 // Not a good example on how to write winxed compiler extensions,
 // but there is no better way right now.
 
+//**************************************************************
+
+// Declare used classes
+
+class Token;
+class TokenQuoted;
+class TokenSingleQuoted;
+
+class IntegerLiteral;
+class FloatLiteral;
+class StringLiteral;
+
+class IdentifierExpr;
+class MemberExpr;
+class IndexExpr;
+class NewExpr;
+class ArrayExpr;
+class HashExpr;
+class NullCheckerExpr;
+class ConcatString;
+class CallExpr;
+class CallPredefExpr;
+
+class OpPreIncExpr;
+class OpPreDecExpr;
+class OpPostIncExpr;
+class OpPostDecExpr;
+class OpAssignExpr;
+class OpAssignToExpr;
+class OpAddExpr;
+class OpAddToExpr;
+class OpSubExpr;
+class OpMulExpr;
+class OpDivExpr;
+class OpModExpr;
+class OpCModExpr;
+class OpNotExpr;
+class OpEqualExpr;
+class OpNotEqualExpr;
+class OpLessEqualExpr;
+class OpGreaterEqualExpr;
+class OpLessExpr;
+class OpGreaterExpr;
+class OpBoolAndExpr;
+class OpBoolOrExpr;
+class OpInstanceOfExpr;
+class OpConditionalExpr;
+
+class EmptyStatement;
+class UsingStatement;
+class StaticStatement;
+class ExternStatement;
+class ExprStatement;
+
+class MultiStatement;
+class CompoundStatement;
+class VarStatement;
+class IntStatement;
+class FloatStatement;
+class StringStatement;
+class ConstStatement;
+class ReturnStatement;
+class LabelStatement;
+class BreakStatement;
+class IfStatement;
+class GotoStatement;
+class SwitchStatement;
+class ForStatement;
+class ForeachStatement;
+class DoStatement;
+class WhileStatement;
+class TryStatement;
+class ThrowStatement;
+
+class FunctionStatement;
+class ClassStatement;
+class NamespaceStatement;
+class RootNamespace;
+
+//**************************************************************
+
 function WxxUnsupported(thing, string msg[optional])
 {
     if (msg == null) {
