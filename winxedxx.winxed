@@ -525,7 +525,7 @@ function emit_addtoexpr(out, assignexpr)
     if (lexpr instanceof IdentifierExpr) {
         out.print(lexpr.name);
         out.print(" += ");
-	if (lexpr.checkresult() == 'S')
+        if (lexpr.checkresult() == 'S')
             out.print(Type_String);
         emit_expr(out, assignexpr.rexpr);
     }
