@@ -209,6 +209,12 @@ function ncisigtoc(string sig)
     return csig;
 }
 
+function emit_callpredef_simple(out, string name, arg)
+{
+    out.print(name);
+    emit_expr(out, arg);
+}
+
 function emit_callpredefexpr(out, expr)
 {
     var predef = expr.predef;
@@ -345,17 +351,8 @@ function emit_callpredefexpr(out, expr)
         }
         out.print("))");
         break;
-      case 'load_language':
-        // Cannot do it, always return null
-        out.print("winxedxxnull");
-        break;
-      case 'compreg':
-        // Cannot do it, always return null
-        out.print("winxedxxnull");
-        break;
       case 'loadlib':
-        out.print("wxx_loadlib");
-        emit_expr(out, arg0);
+        emit_callpredef_simple(out, 'wxx_loadlib', arg0);
         break;
       case 'dlfunc':
         var sig = args[2].arg;
@@ -371,9 +368,28 @@ function emit_callpredefexpr(out, expr)
         out.print(")");
         break;
       case 'spawnw':
-        out.print("wxx_spawnw");
-        emit_expr(out, arg0);
+        emit_callpredef_simple(out, 'wxx_spawnw', arg0);
         break;
+      case 'sin':
+      case 'cos':
+      case 'tan':
+      case 'asin':
+      case 'acos':
+      case 'atan':
+      case 'exp':
+      case 'sqrt':
+        emit_callpredef_simple(out, name, arg0);
+        break;
+      case 'ln':
+        emit_callpredef_simple(out, 'log', arg0);
+        break;
+
+      // Unsupported, always return null
+      case 'load_language':
+      case 'compreg':
+        out.print("winxedxxnull");
+        break;
+
       default:
         WxxUnsupported(expr, "predef " + name);
     }
@@ -453,9 +469,20 @@ function emit_hashexpr(out, expr)
 function emit_newexpr(out, expr)
 {
     var value = expr.value;
-    if (! value.isidentifier())
+    if (value.isidentifier())
+        out.print("WxxObjectPtr(new WxxInstance(\"" + string(value) + "\"))");
+    else if (value.isstring()) {
+        string name = value.getasquoted();
+        switch (name) {
+          case 'FileHandle':
+            out.print("WxxObjectPtr(new WxxFileHandle())");
+            break;
+          default:
+            out.print("WxxObjectPtr(new WxxInstance(\"" + name + "\"))");
+        }
+    }
+    else
         WxxUnsupported(expr);
-    out.print("WxxObjectPtr(new WxxInstance(\"" + string(value) + "\"))");
 }
 
 function emit_assignexpr(out, assignexpr)

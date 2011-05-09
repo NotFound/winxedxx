@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include <dlfcn.h>
 
@@ -1296,6 +1297,11 @@ WxxObjectPtr WxxFileHandle::call_method(const std::string &methname, WxxObjectAr
             throw wxx_error("too many positional arguments in close");
         return close();
     }
+    if (methname == "eof") {
+        if (args.elements() > 0)
+            throw wxx_error("too many positional arguments in close");
+        return feof(f);
+    }
     else
         return WxxDefault::call_method(methname, args);
 }
@@ -1864,6 +1870,38 @@ int operator == (WxxObjectPtr &obj, int i)
 int operator == (int i, WxxObjectPtr &obj)
 {
     return int(obj) == i;
+}
+int operator > (WxxObjectPtr &obj, int i)
+{
+    return int(obj) > i;
+}
+int operator > (int i, WxxObjectPtr &obj)
+{
+    return i > int(obj);
+}
+int operator < (WxxObjectPtr &obj, int i)
+{
+    return int(obj) < i;
+}
+int operator < (int i, WxxObjectPtr &obj)
+{
+    return i < int(obj);
+}
+int operator >= (WxxObjectPtr &obj, int i)
+{
+    return int(obj) >= i;
+}
+int operator >= (int i, WxxObjectPtr &obj)
+{
+    return i >= int(obj);
+}
+int operator <= (WxxObjectPtr &obj, int i)
+{
+    return int(obj) <= i;
+}
+int operator <= (int i, WxxObjectPtr &obj)
+{
+    return i <= int(obj);
 }
 
 WxxObjectPtr wxx_loadlib(const std::string &libname)
