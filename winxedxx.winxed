@@ -1411,6 +1411,17 @@ function winxedxx_get_options(argv)
     return options;
 }
 
+function winxedxx_cxx(string cxxfile, string outfile)
+{
+    int r = spawnw( [
+        "g++", "-Wall", "-O2", "-ldl", "-o",
+        outfile, cxxfile,
+        'winxedxx_objectptr.o', 'winxedxx_util.o', 'winxedxx_classes.o'
+    ] );
+    r = (r >> 8) & 0xFF;
+    return r;
+}
+
 function winxedxx_compile(options)
 {
     var winxed = get_winxed_compiler();
@@ -1454,12 +1465,10 @@ function winxedxx_compile(options)
     int r = 0;
     switch (target) {
       case 'exe':
-        r = spawnw(["g++", "-Wall", "-O2", "-ldl", "-o", outfile, cxxfile]);
-        r = (r >> 8) & 0xFF;
+        r = winxedxx_cxx(cxxfile, outfile);
         break;
       case 'run':
-        r = spawnw(["g++", "-Wall", "-O2", "-ldl", "-o", outfile, cxxfile]);
-        r = (r >> 8) & 0xFF;
+        r = winxedxx_cxx(cxxfile, outfile);
         if (r != 0)
             break;
         r = spawnw(["./" + outfile]);

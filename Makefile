@@ -12,11 +12,15 @@ CXXOPTS = -g -Wall -ldl
 
 #-----------------------------------------------------------------------
 
+OBJS = winxedxx_objectptr.o winxedxx_util.o winxedxx_classes.o
+
+#-----------------------------------------------------------------------
+
 all: simple
 	./simple
 
-simple: simple.cxx winxedxx.h
-	$(CXX) $(CXXOPTS) -o simple simple.cxx
+simple: simple.cxx winxedxx.h  $(OBJS)
+	$(CXX) $(CXXOPTS) -o simple simple.cxx $(OBJS)
 
 simple.cxx: simple.winxed winxedxx.pbc
 	$(PARROT) $(WINXEDLIB) winxedxx.pbc -o simple.cxx simple.winxed
@@ -28,9 +32,21 @@ winxedxx.pbc: winxedxx.winxed
 
 #-----------------------------------------------------------------------
 
+winxedxx_objectptr.o: winxedxx_objectptr.cxx
+	$(CXX) $(CXXOPTS) -c winxedxx_objectptr.cxx
+
+winxedxx_classes.o: winxedxx_classes.cxx
+	$(CXX) $(CXXOPTS) -c winxedxx_classes.cxx
+
+winxedxx_util.o: winxedxx_util.cxx
+	$(CXX) $(CXXOPTS) -c winxedxx_util.cxx
+
+#-----------------------------------------------------------------------
+
 clean:
 	rm -f \
 		winxedxx.pbc \
+		$(OBJS) \
 		simple simple.cxx
 
 # End
