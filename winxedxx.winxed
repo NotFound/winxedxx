@@ -1189,20 +1189,6 @@ function emit_function(out, funst)
 
 //**************************************************************
 
-function get_winxed_compiler()
-{
-    // Load language module. If that fails, load the stage 2 bytecode.
-    var winxed;
-    try {
-        winxed = load_language('winxed');
-    } catch () { }
-    if (winxed == null) {
-        using extern winxedst2; // Must be installed, or use -L
-        winxed = compreg('winxed');
-    }
-    return winxed;
-}
-
 function emit_classst(out, clst)
 {
     string name = clst.name;
@@ -1375,6 +1361,28 @@ FOOTER3:>>
         );
     }
     out.print("// End\n");
+}
+
+function get_winxed_compiler()
+{
+    // Load language module. If that fails, load the stage 2 bytecode.
+    // Use the env var WINXED_PATH or set the parrot library path.
+    var winxed;
+    try {
+        winxed = load_language('winxed');
+    } catch () { }
+    if (winxed == null) {
+        string stagefile = 'winxedst2.pbc';
+        try {
+            var env = new 'Env';
+            string path = env['WINXED_PATH'];
+            if (path != null && path != '')
+                stagefile = path + stagefile;
+            load_bytecode(stagefile);
+            winxed = compreg('winxed');
+        } catch () { }
+    }
+    return winxed;
 }
 
 function winxedxx_get_options(argv)
