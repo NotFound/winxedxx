@@ -395,6 +395,18 @@ function emit_callpredefexpr(out, expr)
     }
 }
 
+function emit_callargs(out, args)
+{
+    out.print("WinxedXX::WxxObjectArray()");
+    int nargs = args == null ? 0 : args.numargs();
+    for (int i = 0; i < nargs; ++i) {
+        out.print(".push(");
+        var arg = args.getfreearg(i);
+        emit_expr(out, arg);
+        out.print(")");
+    }
+}
+
 function emit_callexpr(out, callexpr)
 {
     var funref = callexpr.funref;
@@ -405,15 +417,8 @@ function emit_callexpr(out, callexpr)
     if (funref.isidentifier()) {
         string callname = funref.getName();
         out.print(callname);
-        out.print("(WinxedXX::WxxObjectArray()");
-        if (nargs > 0) {
-            for (int i = 0; i < nargs; ++i) {
-                out.print(".push(");
-                var arg = args.getfreearg(i);
-                emit_expr(out, arg);
-                out.print(")");
-            }
-        }
+        out.print("(");
+        emit_callargs(out, args);
         out.print(")");
     }
     else if (funref instanceof MemberExpr) {
@@ -422,13 +427,8 @@ function emit_callexpr(out, callexpr)
         out.print(funref.right.getidentifier());
         out.print("\"");
         if (nargs > 0) {
-            out.print(", WinxedXX::WxxObjectArray()");
-            for (int i = 0; i < nargs; ++i) {
-                out.print(".push(");
-                var arg = args.getfreearg(i);
-                emit_expr(out, arg);
-                out.print(")");
-            }
+            out.print(", ");
+            emit_callargs(out, args);
         }
         out.print(")");
     }
@@ -469,8 +469,16 @@ function emit_hashexpr(out, expr)
 function emit_newexpr(out, expr)
 {
     var value = expr.value;
-    if (value.isidentifier())
-        out.print("WxxObjectPtr(new WxxInstance(\"" + string(value) + "\"))");
+    if (value.isidentifier()) {
+        var initializer = expr.initializer;
+        int numinits = initializer == null ? -1 : initializer.numargs();
+        out.print("wxx_new(\"" + string(value) + "\"");
+        if (numinits >= 0) {
+            out.print(", ");
+            emit_callargs(out, initializer);
+        }
+        out.print(")");
+    }
     else if (value.isstring()) {
         string name = value.getasquoted();
         switch (name) {
@@ -1127,13 +1135,21 @@ function emit_function(out, funst)
     string name = funst.name;
     int ismethod = funst.ismethod();
 
+    out.print("\n// function " + name + "\n\n");
+
+    int isconstructor = false;
+    if (ismethod) {
+        var cl = funst.owner;
+        string clname = cl.name;
+        if (clname == name)
+            isconstructor = true;
+    }
+
     if (ismethod)
         out.print("static ");
 
-    out.print("\n// function " + name + "\n\n");
-
     out.print('WxxObjectPtr ');
-    out.print(name);
+    out.print(isconstructor ? "__Winxedxx_constructor" : name);
     out.print("(");
 
     if (ismethod)
@@ -1193,6 +1209,8 @@ function emit_classst(out, clst)
     var members = clst.members;
     var functions = clst.functions;
 
+    out.print("\n// class " + name + "\n\n");
+
     out.print("class ");
     out.print(name);
     out.print("\n{\n");
@@ -1214,14 +1232,15 @@ CLINIT:>>
 CLINIT:>>
     );
     for (i = 0; i < elements(members); ++i) {
-        var member = members[i];
-        out.print("cl->addattribute(\"" + string(member) + "\");\n");
+        string member = members[i];
+        out.print("cl->addattribute(\"" + member + "\");\n");
     }
     for (i = 0; i < nfunctions; ++i) {
         var fun = functions[i];
         string fname = fun.name;
+        string cxxname = fname == name  ? "__Winxedxx_constructor" : fname;
         out.print("cl->addfunction(\"" + fname +
-                "\", &" + name + "::" + fname + ");\n");
+                "\", &" + name + "::" + cxxname + ");\n");
     }
 
     out.print("return cl;\n}\n");
@@ -1229,7 +1248,6 @@ CLINIT:>>
     out.print("static WxxClass *clreg;\n};\n");
 
     out.print("WxxClass * " + name + "::clreg = " + name + "::init_class();");
-    //WxxUnsupported(clst, "class is still");
 }
 
 function emit_namespacest(out, ns)

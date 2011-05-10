@@ -1738,6 +1738,21 @@ WxxObjectPtr wxx_getstderr()
     return WxxObjectPtr(new WxxFileHandle(3));
 }
 
+WxxObjectPtr wxx_new(std::string name)
+{
+    //std::cerr << "wxx_new " << name << '\n';
+    return new WxxInstance(name);
+}
+
+WxxObjectPtr wxx_new(std::string name, WxxObjectArray args)
+{
+    //std::cerr << "wxx_new " << name << '\n';
+    WxxInstance *instance = new WxxInstance(name);
+    WxxObjectPtr obj(instance);
+    instance->call_method(name, args);
+    return obj;
+}
+
 int wxx_print(int i) { std::cout << i; return 0; }
 int wxx_print(const char *s) { std::cout << s; return 0; }
 int wxx_print(const std::string &s) { std::cout << s; return 0; }
@@ -1821,7 +1836,7 @@ WxxObjectPtr wxx_split(const std::string &sep, std::string src)
     while ((pos = src.find(sep)) != std::string::npos)
     {
         result.push(src.substr(0, pos));
-	src.erase(0, pos + l);
+        src.erase(0, pos + l);
     }
     result.push(src);
     return result;
@@ -1927,7 +1942,7 @@ WxxObjectPtr wxx_spawnw(WxxObjectPtr obj)
     const char **argv = (const char **)malloc((len + 1) * sizeof(char *));
     for (int i = 0; i < len; ++i) {
         args.push_back(obj.get_pmc_keyed(i));
-	argv[i] = args[i].c_str();
+        argv[i] = args[i].c_str();
     }
     argv[len] = 0;
     if (fork() != 0)
