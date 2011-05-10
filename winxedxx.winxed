@@ -1376,11 +1376,18 @@ function get_winxed_compiler()
         try {
             var env = new 'Env';
             string path = env['WINXED_PATH'];
-            if (path != null && path != '')
+            if (path != null && path != '') {
+                if (substr(path, -1) != '/')
+                    path += '/';
                 stagefile = path + stagefile;
+            }
             load_bytecode(stagefile);
             winxed = compreg('winxed');
-        } catch () { }
+        }
+	catch (e)
+	{
+            throw "Cannot load stage file '" + stagefile + "': " + string(e.message);
+	}
     }
     return winxed;
 }
