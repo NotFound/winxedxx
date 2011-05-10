@@ -1334,7 +1334,7 @@ WxxObjectPtr WxxNCI::operator()(WxxObjectArray &args)
 
 void * wxxncigetfunc(WxxObjectPtr lib, const std::string &funcname)
 {
-    void *fun;
+    void *fun = 0;
     if (lib.is_null())
         fun = dlsym(NULL, funcname.c_str());
     else if (WxxLibrary *dlib = lib.getlib())
