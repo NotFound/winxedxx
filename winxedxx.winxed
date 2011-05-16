@@ -1158,7 +1158,7 @@ function emit_declare_function_subid(out, funst, key)
         out.print('WxxObjectPtr (*const ');
         out.print(funst.subid);
         out.print(")(const WxxObjectArray &wxx_fun_args) =  &");
-	if (elements(key) > 0)
+        if (elements(key) > 0)
             out.print(join("::", key) + "::");
         out.print(name);
         out.print(";\n");
@@ -1325,7 +1325,7 @@ function emit_declare_subid(out, ns, key[optional])
     }
     else {
         key = clone(key);
-	push(key, ns.name);
+        push(key, ns.name);
     }
     // Declare own functions
     for (var fun in ns.functions)
@@ -1439,10 +1439,10 @@ function get_winxed_compiler()
             load_bytecode(stagefile);
             winxed = compreg('winxed');
         }
-	catch (e)
-	{
+        catch (e)
+        {
             throw "Cannot load stage file '" + stagefile + "': " + string(e.message);
-	}
+        }
     }
     return winxed;
 }
@@ -1543,15 +1543,13 @@ function winxedxx_compile(options)
 function main(argv)
 {
     int r = 1;
-//    try {
+    try {
         var options = winxedxx_get_options(argv);
         r = winxedxx_compile(options);
-/*
     }
     catch (e) {
         cry("Winxedxx: ", e.message);
     }
-*/
     exit(r);
 }
 
