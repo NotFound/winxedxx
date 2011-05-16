@@ -32,6 +32,7 @@ class HashExpr;
 class NullCheckerExpr;
 class ConcatString;
 class CallExpr;
+class CallMemberExpr;
 class CallPredefExpr;
 
 class OpPreIncExpr;
@@ -62,6 +63,7 @@ class OpInstanceOfExpr;
 class OpConditionalExpr;
 
 class EmptyStatement;
+class UsingNamespaceStatement;
 class UsingStatement;
 class StaticStatement;
 class ExternStatement;
@@ -407,33 +409,48 @@ function emit_callargs(out, args)
     }
 }
 
-function emit_callexpr(out, callexpr)
+function emit_CallMemberExpr(out, callexpr)
 {
+    cry(__FUNCTION__);
     var funref = callexpr.funref;
     var args = callexpr.args;
-    int nargs = 0;
-    if (args != null)
-        nargs = args.numargs();
-    if (funref.isidentifier()) {
-        string callname = funref.getName();
-        out.print(callname);
+    int nargs = args == null ? 0 : args.numargs();
+
+    if (callexpr.subid != null) {
+        out.print(callexpr.subid);
         out.print("(");
         emit_callargs(out, args);
-        out.print(")");
     }
-    else if (funref instanceof MemberExpr) {
+    else {
         emit_expr(out, funref.left);
-        out.print(".call_method(\"");
+        out.print("./* CallMemberExpr*/call_method(\"");
         out.print(funref.right.getidentifier());
         out.print("\"");
         if (nargs > 0) {
             out.print(", ");
             emit_callargs(out, args);
         }
-        out.print(")");
     }
-    else
+    out.print(")");
+}
+
+function emit_CallExpr(out, callexpr)
+{
+    var funref = callexpr.funref;
+    var args = callexpr.args;
+    int nargs = args == null ? 0 : args.numargs();
+    if (! funref.isidentifier())
         WxxUnsupported(funref);
+
+    if (callexpr.subid != null)
+        out.print(callexpr.subid);
+    else {
+        string callname = funref.getName();
+        out.print(callname);
+    }
+    out.print("(");
+    emit_callargs(out, args);
+    out.print(")");
 }
 
 function emit_arrayexpr(out, expr)
@@ -719,8 +736,10 @@ function emit_expr(out, expr)
 
     if (expr instanceof CallPredefExpr)
         emit_callpredefexpr(out, expr);
+    else if (expr instanceof CallMemberExpr)
+        emit_CallMemberExpr(out, expr);
     else if (expr instanceof CallExpr)
-        emit_callexpr(out, expr);
+        emit_CallExpr(out, expr);
     else if (expr instanceof OpAssignExpr)
         emit_assignexpr(out, expr);
     else if (expr instanceof OpAssignToExpr)
@@ -1115,6 +1134,8 @@ function emit_statement(out, st)
         /* Do nothing */ ;
     else if (st instanceof UsingStatement)
         /* Do nothing */ ;
+    else if (st instanceof UsingNamespaceStatement)
+        /* Do nothing */ ;
     else
         WxxUnsupported(st);
 
@@ -1128,6 +1149,20 @@ function emit_declare_function(out, funst)
     out.print('WxxObjectPtr ');
     out.print(name);
     out.print("(const WxxObjectArray &wxx_fun_args);\n");
+}
+
+function emit_declare_function_subid(out, funst, key)
+{
+    string name = funst.name;
+    if (funst.subid != null) {
+        out.print('WxxObjectPtr (*const ');
+        out.print(funst.subid);
+        out.print(")(const WxxObjectArray &wxx_fun_args) =  &");
+	if (elements(key) > 0)
+            out.print(join("::", key) + "::");
+        out.print(name);
+        out.print(";\n");
+    }
 }
 
 function emit_function(out, funst)
@@ -1282,6 +1317,25 @@ function emit_declare_namespacest(out, ns)
         out.print("\n}\n");
 }
 
+function emit_declare_subid(out, ns, key[optional])
+{
+    if (key == null) {
+        string newkey[];
+        key = newkey;
+    }
+    else {
+        key = clone(key);
+	push(key, ns.name);
+    }
+    // Declare own functions
+    for (var fun in ns.functions)
+        emit_declare_function_subid(out, fun, key);
+
+    // Declare child functions
+    for (var childns in ns.namespaces)
+        emit_declare_subid(out, childns, key);
+}
+
 function get_main(ns)
 {
     int i;
@@ -1315,6 +1369,7 @@ HEADER:>>
     );
 
     emit_declare_namespacest(out, ns);
+    emit_declare_subid(out, ns);
 
     emit_namespacest(out, ns);
 
@@ -1488,13 +1543,15 @@ function winxedxx_compile(options)
 function main(argv)
 {
     int r = 1;
-    try {
+//    try {
         var options = winxedxx_get_options(argv);
         r = winxedxx_compile(options);
+/*
     }
     catch (e) {
         cry("Winxedxx: ", e.message);
     }
+*/
     exit(r);
 }
 
