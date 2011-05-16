@@ -411,7 +411,6 @@ function emit_callargs(out, args)
 
 function emit_CallMemberExpr(out, callexpr)
 {
-    cry(__FUNCTION__);
     var funref = callexpr.funref;
     var args = callexpr.args;
     int nargs = args == null ? 0 : args.numargs();
@@ -1083,7 +1082,7 @@ function emit_UsingStatement(out, st)
     if (st.subid != null) {
         var path = st.path;
         string name = path[-1];
-        out.print('WxxObjectPtr (*const ');
+        out.print('static WxxObjectPtr (*const ');
         out.print(name);
         out.print(")(const WxxObjectArray &wxx_fun_args) =  ");
         out.print(st.subid);
@@ -1167,7 +1166,7 @@ function emit_declare_function_subid(out, funst, key)
 {
     string name = funst.name;
     if (funst.subid != null) {
-        out.print('WxxObjectPtr (*const ');
+        out.print('static WxxObjectPtr (*const ');
         out.print(funst.subid);
         out.print(")(const WxxObjectArray &wxx_fun_args) =  &");
         if (elements(key) > 0)
@@ -1329,23 +1328,31 @@ function emit_declare_namespacest(out, ns)
         out.print("\n}\n");
 }
 
-function emit_declare_subid(out, ns, key[optional])
+function emit_declare_subid(out, ns, key[optional], seen[optional])
 {
     if (key == null) {
         string newkey[];
         key = newkey;
+        // This is a bit hackish for anow
+        seen = {};
+        seen =: 5;
+        seen.set_value_type(1);
     }
     else {
         key = clone(key);
         push(key, ns.name);
     }
     // Declare own functions
-    for (var fun in ns.functions)
-        emit_declare_function_subid(out, fun, key);
+    for (var fun in ns.functions) {
+        if (! exists seen[fun]) {
+            emit_declare_function_subid(out, fun, key);
+            seen[fun] = 1;
+        }
+    }
 
     // Declare child functions
     for (var childns in ns.namespaces)
-        emit_declare_subid(out, childns, key);
+        emit_declare_subid(out, childns, key, seen);
 }
 
 function get_main(ns)
