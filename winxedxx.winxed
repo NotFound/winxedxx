@@ -1078,6 +1078,18 @@ function emit_multistatement(out, mst)
     }
 }
 
+function emit_UsingStatement(out, st)
+{
+    if (st.subid != null) {
+        var path = st.path;
+        string name = path[-1];
+        out.print('WxxObjectPtr (*const ');
+        out.print(name);
+        out.print(")(const WxxObjectArray &wxx_fun_args) =  ");
+        out.print(st.subid);
+    }
+}
+
 function emit_statement(out, st)
 {
     if (st instanceof MultiStatement)
@@ -1133,7 +1145,7 @@ function emit_statement(out, st)
     else if (st instanceof StaticStatement)
         /* Do nothing */ ;
     else if (st instanceof UsingStatement)
-        /* Do nothing */ ;
+        emit_UsingStatement(out, st);
     else if (st instanceof UsingNamespaceStatement)
         /* Do nothing */ ;
     else
