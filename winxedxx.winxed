@@ -1403,10 +1403,7 @@ FOOTER1:>>
 int main(int argc, char **argv)
 {
     try {
-        WinxedXX::WxxObjectArray *args = new WinxedXX::WxxObjectArray();
-        for (int i = 0; i < argc; ++i)
-            args->push(argv[i]);
-        WinxedXX::WxxObjectPtr mainarg(args);
+        WinxedXX::WxxObjectPtr mainarg(new WinxedXX::WxxStringArray(argv));
         WinxedXX::WxxObjectPtr objresult =
                 WinxedXX::
 FOOTER2:>>

@@ -10,8 +10,16 @@ function show(int i, float f, string s, var v)
     say(i, " ", f, " ", s, " ", v);
 }
 
-function main()
+function main(args)
 {
+    int argc = elements(args);
+    if (argc > 1) {
+        print("\tProgram: ");
+        for (string s in args)
+	    say(s);
+	say();
+    }
+
     int i;
     float f;
     f = 0.5;

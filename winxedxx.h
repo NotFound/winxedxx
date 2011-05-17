@@ -74,6 +74,7 @@ class WxxStringArray : public WxxArrayBase
 {
 public:
     WxxStringArray();
+    WxxStringArray(char **argv);
     ~WxxStringArray();
     int elements();
     std::string operator[](int i) const;
@@ -633,6 +634,14 @@ void WxxFloatArray::set_pmc_keyed(int i, const WxxObjectPtr &value)
 WxxStringArray::WxxStringArray() :
         WxxArrayBase("ResizableStringArray")
 {
+}
+
+// Special purpose initialization intended only for usage from main.
+WxxStringArray::WxxStringArray(char **argv) :
+        WxxArrayBase("ResizableStringArray")
+{
+    for (int argi = 0; argv[argi]; ++argi)
+        push(argv[argi]);
 }
 
 WxxStringArray::~WxxStringArray()
