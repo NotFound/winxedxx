@@ -13,7 +13,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <sstream>
 #include <vector>
 #include <map>
 #include <stdexcept>
@@ -639,19 +638,6 @@ WxxObjectPtr WxxFileHandle::call_method(const std::string &methname, WxxObjectAr
     }
     else
         return WxxDefault::call_method(methname, args);
-}
-
-//*************************************************************
-
-WxxLibrary::WxxLibrary(void *dl_handle) :
-        WxxDefault("ParrotLibrary"),
-        dl_h(dl_handle)
-{
-}
-
-void * WxxLibrary::getsym(const std::string &funcname)
-{
-    return dlsym(dl_h, funcname.c_str());
 }
 
 //*************************************************************

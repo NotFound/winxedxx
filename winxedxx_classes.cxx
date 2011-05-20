@@ -10,6 +10,8 @@
 #include <iostream>
 #include <sstream>
 
+#include <dlfcn.h>
+
 namespace WinxedXX
 {
 
@@ -416,6 +418,19 @@ WxxObject & WxxString::set(const std::string &s)
 }
 
 void WxxString::print() { std::cout << str; }
+
+//*************************************************************
+
+WxxLibrary::WxxLibrary(void *dl_handle) :
+        WxxDefault("ParrotLibrary"),
+        dl_h(dl_handle)
+{
+}
+
+void * WxxLibrary::getsym(const std::string &funcname)
+{
+    return dlsym(dl_h, funcname.c_str());
+}
 
 //*************************************************************
 
