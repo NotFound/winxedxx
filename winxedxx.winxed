@@ -29,6 +29,7 @@ class IndexExpr;
 class NewExpr;
 class ArrayExpr;
 class HashExpr;
+class FunctionExpr;
 class NullCheckerExpr;
 class ConcatString;
 class CallExpr;
@@ -99,13 +100,42 @@ class RootNamespace;
 
 //**************************************************************
 
+// Generic functions
+
+function foreach(params, func)
+{
+    if (params != null) {
+        for (var param in params) {
+            func(param);
+        }
+    }
+}
+
 // Types
 
 const string
+    // Parrot types
+    REGint      = 'I',
+    REGfloat    = 'N',
+    REGstring   = 'S',
+    REGvar      = 'P',
+    // Generated types
     Type_Int    = 'int',
     Type_Num    = 'double',
     Type_String = 'std::string',
     Type_PMC    = 'WxxObjectPtr';
+
+function generatedType(string ptype)
+{
+    switch (ptype) {
+      case REGint:    return Type_Int;
+      case REGfloat:  return Type_Num;
+      case REGstring: return Type_String;
+      case REGvar:    return Type_PMC;
+      default:
+        throw "Internal error: wrong call: generatedType " + ptype;
+    }
+}
 
 //**************************************************************
 
@@ -228,10 +258,10 @@ function emit_callpredefexpr(out, expr)
     switch (name) {
       case 'string':
         switch (arg0.checkresult()) {
-          case 'I':
+          case REGint:
             out.print("wxx_int_to_string");
             break;
-          case 'P':
+          case REGvar:
             out.print(Type_String);
             break;
         }
@@ -482,6 +512,12 @@ function emit_hashexpr(out, expr)
     out.print("))");
 }
 
+function emit_FunctionExpr(out, expr)
+{
+    // For initial tests
+    out.print("winxedxxnull");
+}
+
 function emit_newexpr(out, expr)
 {
     var value = expr.value;
@@ -517,14 +553,7 @@ function emit_assignexpr(out, assignexpr)
         out.print(lexpr.name);
         out.print(" = ");
         // Coerce result type to avoid ambiguities
-        switch (lexpr.checkresult()) {
-          case 'I':
-            out.print(Type_Int); break;
-          case 'N':
-            out.print(Type_Num); break;
-          case 'S':
-            out.print(Type_String); break;
-        }
+        out.print(generatedType(lexpr.checkresult()));
         emit_expr(out, rexpr);
     }
     else if (lexpr instanceof MemberExpr) {
@@ -589,7 +618,7 @@ function emit_addtoexpr(out, assignexpr)
     if (lexpr instanceof IdentifierExpr) {
         out.print(lexpr.name);
         out.print(" += ");
-        if (lexpr.checkresult() == 'S')
+        if (lexpr.checkresult() == REGstring)
             out.print(Type_String);
         emit_expr(out, assignexpr.rexpr);
     }
@@ -710,7 +739,7 @@ function emit_indexexpr(out, expr)
     var left = expr.left;
     emit_expr(out, left);
     var arg = expr.args.getarg(0);
-    if (left.checkresult() == 'S') {
+    if (left.checkresult() == REGstring) {
         out.print('.substr(');
         emit_expr(out, arg);
         out.print(', 1)');
@@ -762,6 +791,9 @@ function emit_expr(out, expr)
         emit_arrayexpr(out, expr);
     else if (expr instanceof HashExpr)
         emit_hashexpr(out, expr);
+    else if (expr instanceof FunctionExpr) {
+        emit_FunctionExpr(out, expr);
+    }
     else if (expr instanceof OpNotExpr)
         emit_opnot(out, expr);
     else if (expr instanceof NullCheckerExpr)
@@ -1017,18 +1049,10 @@ function emit_foreachstatement(out, forst)
     emit_expr(out, container);
     out.print(".get_iter();\nwhile (bool(wxx_it)) {\n");
     string type = forst.deftype == null ? '' : string(forst.deftype);
-    switch (type) {
-      case 'I':
-        out.print(Type_Int + " "); break;
-      case 'N':
-        out.print(Type_Num + " "); break;
-      case 'S':
-        out.print(Type_String + " "); break;
-      case 'P':
-        out.print(Type_PMC + " "); break;
-      default:
-        /* nothing */;
-    }
+
+    if (indexof("INSP", type) >= 0)
+        out.print(string(generatedType(type)) + " ");
+
     out.print(varname);
     out.print(" = wxx_it.shift_pmc();\n");
     emit_statement(out, forst.body);
@@ -1176,10 +1200,74 @@ function emit_declare_function_subid(out, funst, key)
     }
 }
 
-function emit_function(out, funst)
+//**********************************************************************
+
+const string DATA = '__data';
+const string DECREFDATA = DATA + "->decref();";
+
+function declareFunctionData(string name)
+{
+    return "struct " + name + " : public WinxedXX::WxxFunctionVars";
+}
+
+function declareDataInstance(string name)
+{
+    return name + " *__data = new " + name + ";\n";
+}
+
+function declareDataVar(out, string varname, string vartype)
+{
+    out.print(generatedType(vartype));
+    out.print(" ");
+    out.print(varname);
+    //out.print(";\n");
+}
+
+function getArgValue(out, int i)
+{
+    out.print("(wxx_fun_args[");
+    out.print(i);
+    out.print("]);\n");
+}
+
+function setDataVarFromArg(out, string name, string type, int i)
+{
+    out.print(DATA + "->");
+    out.print(name);
+    out.print(" = ");
+    if (type == REGstring)
+        out.print(Type_String);
+    getArgValue(out, i);
+}
+
+function declareReferenceToData(out, string name, string type)
+{
+    out.print(generatedType(type));
+    out.print(" &");
+    out.print(name);
+    out.print(" = " + DATA + "->" + name);
+    out.print(";\n");
+}
+
+function foreachparam(params, funst, func)
+{
+    foreach(params,
+        function(param)
+	{
+            string name = param.name;
+            string type = funst.getvar(name).gettype();
+	    func(name, type);
+	}
+    );
+}
+
+function emit_FunctionStatement(out, funst)
 {
     string name = funst.name;
     int ismethod = funst.ismethod();
+    int haslocals = funst.localfun != null;
+
+    //haslocals = true; // Testing
 
     out.print("\n// function " + name + "\n\n");
 
@@ -1190,46 +1278,79 @@ function emit_function(out, funst)
         if (clname == name)
             isconstructor = true;
     }
+    string newname = isconstructor ? "__Winxedxx_constructor" : name;
+    string dataname = newname + DATA;
+    var params = funst.params;
+    int nparams = params == null ? 0 : elements(params);
+
+    if (haslocals) {
+        out.print(declareFunctionData(dataname));
+        out.print(" \n{\n");
+        foreachparam(params, funst,
+           function(string name, string type)
+           {
+               declareDataVar(out, name, type);
+               out.print(";\n");
+           }
+        );
+        var locals = funst.body.locals;
+        foreach(locals,
+            function(string name)
+            {
+                var local = locals[name];
+                if (local.isconst())
+                    return;
+                declareDataVar(out, name, local.type);
+                out.print(";\n");
+            }
+        );
+        out.print("};\n\n");
+    }
 
     if (ismethod)
         out.print("static ");
 
     out.print('WxxObjectPtr ');
-    out.print(isconstructor ? "__Winxedxx_constructor" : name);
+    out.print(newname);
     out.print("(");
 
     if (ismethod)
         out.print("WxxObjectPtr &self, ");
     out.print("const WxxObjectArray &wxx_fun_args");
     out.print(")\n{\n");
-    var params = funst.params;
-    int nparams = params == null ? 0 : elements(params);
-    int i;
-    for (i = 0; i < nparams; ++i) {
-        var param = params[i];
-        string name = param.name;
-        var a = funst.getvar(name);
-        string type = a.gettype();
-        switch (type) {
-          case 'I':
-            out.print(Type_Int); break;
-          case 'N':
-            out.print(Type_Num); break;
-          case 'S':
-            out.print(Type_String); break;
-          default:
-            out.print(Type_PMC); break;
+
+    if (haslocals) {
+        out.print(declareDataInstance(dataname));
+        for (int i = 0; i < nparams; ++i) {
+            var param = params[i];
+            string name = param.name;
+            setDataVarFromArg(out, name, funst.getvar(name).gettype(), i);
         }
-        out.print(" ");
-        out.print(name);
-        out.print(" = (wxx_fun_args[");
-        out.print(i);
-        out.print("]);\n");
+        foreachparam(params, funst,
+            function(string name, string type)
+            {
+                declareReferenceToData(out, name, type);
+            }
+        );
+    }
+    else
+    {
+        for (int i = 0; i < nparams; ++i) {
+            var param = params[i];
+            string name = param.name;
+            declareDataVar(out, name, funst.getvar(name).gettype());
+            getArgValue(out, i);
+        }
     }
 
     // Get body. Should be a CompundStatement
+    if (haslocals)
+        out.print("try {\n");
     var body = funst.body;
     emit_statement(out, body);
+    if (haslocals)
+        out.print("} catch (...) {" + DECREFDATA + " throw; }\n " +
+                DECREFDATA + "\n");
     out.print("\nreturn winxedxxnull;\n\n} // function " + name + "\n\n");
 }
 
@@ -1249,8 +1370,9 @@ function emit_classst(out, clst)
 
     int nfunctions = elements(functions);
     int i;
-    for (i = 0; i < nfunctions; ++i)
-        emit_function(out, functions[i]);
+    foreach(functions,
+        function(f) { emit_function(out, f); }
+    );
 
     out.print(<<:CLINIT
 static WxxClass * init_class()
@@ -1292,7 +1414,7 @@ function emit_namespacest(out, ns)
 
     for (var item in ns.items) {
         if (item instanceof FunctionStatement)
-            emit_function(out, item);
+            emit_FunctionStatement(out, item);
         else if (item instanceof NamespaceStatement)
             emit_namespacest(out, item);
         else if (item instanceof ClassStatement)

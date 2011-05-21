@@ -14,6 +14,23 @@ class WxxObject;
 class WxxObjectArray;
 class WxxLibrary;
 
+class WxxFunctionVars
+{
+protected:
+    WxxFunctionVars() :
+        refcount(1)
+    {
+    }
+public:
+    void decref()
+    {
+        if (--refcount == 0)
+	    delete this;
+    }
+private:
+    size_t refcount;
+};
+
 class WxxObjectPtr
 {
 public:
