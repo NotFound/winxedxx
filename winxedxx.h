@@ -9,6 +9,7 @@
 #include "winxedxx_null.h"
 #include "winxedxx_default.h"
 #include "winxedxx_integer.h"
+#include "winxedxx_handle.h"
 
 #include <iostream>
 #include <fstream>
@@ -114,6 +115,7 @@ private:
     std::map<std::string, WxxObjectPtr> hsh;
 };
 
+/*
 class WxxFileHandle : public WxxDefault
 {
 public:
@@ -129,6 +131,7 @@ private:
     WxxObjectPtr read(int n);
     WxxObjectPtr readline();
 };
+*/
 
 class WxxNCI : public WxxDefault
 {
@@ -509,6 +512,8 @@ WxxObjectPtr & WxxHash::set_pmc_keyed(const std::string &s, const WxxObjectPtr &
 
 //*************************************************************
 
+#if 0
+
 WxxFileHandle::WxxFileHandle(int predef) : WxxDefault("FileHandle")
 {
     switch (predef) {
@@ -639,6 +644,8 @@ WxxObjectPtr WxxFileHandle::call_method(const std::string &methname, WxxObjectAr
     else
         return WxxDefault::call_method(methname, args);
 }
+
+#endif
 
 //*************************************************************
 

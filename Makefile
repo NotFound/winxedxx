@@ -12,7 +12,11 @@ CXXOPTS = -g -Wall -ldl
 
 #-----------------------------------------------------------------------
 
-OBJS = winxedxx_objectptr.o winxedxx_util.o winxedxx_classes.o
+OBJS = \
+		winxedxx_objectptr.o \
+		winxedxx_classes.o \
+		winxedxx_handle.o \
+		winxedxx_util.o
 
 #-----------------------------------------------------------------------
 
@@ -37,6 +41,9 @@ winxedxx_objectptr.o: winxedxx_objectptr.cxx
 
 winxedxx_classes.o: winxedxx_classes.cxx
 	$(CXX) $(CXXOPTS) -c winxedxx_classes.cxx
+
+winxedxx_handle.o: winxedxx_handle.cxx
+	$(CXX) $(CXXOPTS) -c winxedxx_handle.cxx
 
 winxedxx_util.o: winxedxx_util.cxx
 	$(CXX) $(CXXOPTS) -c winxedxx_util.cxx
