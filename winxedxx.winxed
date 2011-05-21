@@ -246,6 +246,15 @@ function emit_callpredef_simple(out, string name, arg)
     out.print(name);
     emit_expr(out, arg);
 }
+function emit_callpredef_simple_2(out, string name, arg0, arg1)
+{
+    out.print(name);
+    out.print("(");
+    emit_expr(out, arg0);
+    out.print(", ");
+    emit_expr(out, arg1);
+    out.print(")");
+}
 
 function emit_callpredefexpr(out, expr)
 {
@@ -254,6 +263,8 @@ function emit_callpredefexpr(out, expr)
     var args = expr.args;
     int nargs = elements(args);
     var arg0 = nargs > 0 ? args[0].arg : null;
+    var arg1 = nargs > 1 ? args[1].arg : null;
+    var arg2 = nargs > 2 ? args[2].arg : null;
     int i;
     switch (name) {
       case 'string':
@@ -329,48 +340,40 @@ function emit_callpredefexpr(out, expr)
         out.print(Type_Int + "((");
         emit_expr(out, arg0);
         out.print(").find(");
-        emit_expr(out, args[1].arg);
+        emit_expr(out, arg1);
         out.print("))");
         break;
       case 'substr':
         emit_expr(out, arg0);
         out.print(".substr(");
-        emit_expr(out, args[1].arg);
+        emit_expr(out, arg1);
         if (nargs > 2) {
             out.print(", ");
-            emit_expr(out, args[2].arg);
+            emit_expr(out, arg2);
         }
         out.print(")");
         break;
       case 'join':
-        out.print("wxx_join(");
-        emit_expr(out, arg0);
-        out.print(", ");
-        emit_expr(out, args[1].arg);
-        out.print(")");
+        emit_callpredef_simple_2("wxx_join", arg0, arg1);
         break;
       case 'push':
         emit_expr(out, arg0);
         out.print(".push");
-        emit_expr(out, args[1].arg);
+        emit_expr(out, arg1);
         break;
       case 'split':
-        out.print("wxx_split(");
-        emit_expr(out, arg0);
-        out.print(", ");
-        emit_expr(out, args[1].arg);
-        out.print(")");
+        emit_callpredef_simple_2("wxx_split", arg0, arg1);
         break;
       case 'Error':
         out.print("wxx_error(");
         emit_expr(out, arg0);
         if (nargs > 1) {
             out.print(", ");
-            emit_expr(out, args[1].arg);
+            emit_expr(out, arg1);
         }
         if (nargs > 2) {
             out.print(", ");
-            emit_expr(out, args[2].arg);
+            emit_expr(out, arg2);
         }
         out.print(")");
         break;
@@ -379,7 +382,7 @@ function emit_callpredefexpr(out, expr)
         emit_expr(out, arg0);
         if (nargs > 1) {
             out.print(", ");
-            emit_expr(out, args[1].arg);
+            emit_expr(out, arg1);
         }
         out.print("))");
         break;
@@ -387,7 +390,7 @@ function emit_callpredefexpr(out, expr)
         emit_callpredef_simple(out, 'wxx_loadlib', arg0);
         break;
       case 'dlfunc':
-        var sig = args[2].arg;
+        var sig = arg2;
         if (! sig.isstringliteral())
             throw Error("dlfunc siganture must be compile time constant");
         int nsigargs = length(sig.strval.rawstring()) - 1;
@@ -396,7 +399,7 @@ function emit_callpredefexpr(out, expr)
         out.print("wxx_dlfunc<" + csig + ", " + string(nsigargs) + ">(");
         emit_expr(out, arg0);
         out.print(", ");
-        emit_expr(out, args[1].arg);
+        emit_expr(out, arg1);
         out.print(")");
         break;
       case 'spawnw':
