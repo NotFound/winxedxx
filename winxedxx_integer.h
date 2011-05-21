@@ -83,6 +83,18 @@ private:
     std::vector<WxxObjectPtr *> arr;
 };
 
+class WxxArrayIterator : public WxxDefault
+{
+public:
+    WxxArrayIterator(WxxObject *container);
+    ~WxxArrayIterator();
+    int get_bool();
+    WxxObjectPtr shift_pmc();
+private:
+    WxxObject *cnt;
+    int current;
+};
+
 class WxxLibrary : public WxxDefault
 {
 public:

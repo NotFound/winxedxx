@@ -2,7 +2,7 @@
 #define INCLUDE_WINXEDXX_OBJECT_H
 
 // winxedxx_object.h
-// Revision 10-may-2011
+// (C) 2011 Julián Albo "NotFound"
 
 namespace WinxedXX
 {
@@ -51,6 +51,10 @@ protected:
     }
     virtual ~WxxObject() { }
 };
+
+WxxObjectPtr wxx_getstdin();
+WxxObjectPtr wxx_getstdout();
+WxxObjectPtr wxx_getstderr();
 
 } // namespace WinxedXX
 

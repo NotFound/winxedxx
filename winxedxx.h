@@ -90,18 +90,6 @@ private:
     std::vector<std::string> arr;
 };
 
-class WxxArrayIterator : public WxxDefault
-{
-public:
-    WxxArrayIterator(WxxObject *container);
-    ~WxxArrayIterator();
-    int get_bool();
-    WxxObjectPtr shift_pmc();
-private:
-    WxxObject *cnt;
-    int current;
-};
-
 class WxxHash : public WxxDefault
 {
 public:
@@ -114,24 +102,6 @@ public:
 private:
     std::map<std::string, WxxObjectPtr> hsh;
 };
-
-/*
-class WxxFileHandle : public WxxDefault
-{
-public:
-    WxxFileHandle(int predef = 0);
-    ~WxxFileHandle();
-    WxxObject *open(WxxObjectPtr name);
-    WxxObject *open(WxxObjectPtr name, WxxObjectPtr mode);
-    WxxObjectPtr close();
-    void print(WxxObjectPtr obj);
-    WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
-private:
-    FILE *f;
-    WxxObjectPtr read(int n);
-    WxxObjectPtr readline();
-};
-*/
 
 class WxxNCI : public WxxDefault
 {
@@ -152,93 +122,6 @@ private:
     WxxObjectPtr call(WxxObjectArray &args);
     NciSig fun;
 };
-
-//*************************************************************
-
-WxxArrayBase::WxxArrayBase(const std::string &name) :
-        WxxDefault(name)
-{
-}
-
-int WxxArrayBase::get_integer()
-{
-    return elements();
-}
-
-WxxObjectPtr WxxArrayBase::get_iter()
-{
-    return WxxObjectPtr(new WxxArrayIterator(this));
-}
-
-//*************************************************************
-
-WxxObjectArray::WxxObjectArray() :
-        WxxArrayBase("ResizablePMCArray")
-{
-}
-
-WxxObjectArray::~WxxObjectArray()
-{
-    for (unsigned int i = 0; i < arr.size(); ++i)
-        delete arr[i];
-}
-
-int WxxObjectArray::elements()
-{
-    return arr.size();
-}
-
-WxxObjectPtr WxxObjectArray::get_pmc_keyed(int i)
-{
-    return this->operator[](i);
-}
-
-WxxObjectPtr WxxObjectArray::operator[](int i) const
-{
-    int size = arr.size();
-    if (i < 0)
-        i += size;
-    if (i < 0)
-        throw wxx_error(getname() + ": index out of bounds!");
-    if (i >= size)
-         return winxedxxnull;
-    return WxxObjectPtr(*(arr[i]));
-}
-
-WxxObjectArray& WxxObjectArray::push(WxxObjectPtr obj)
-{
-    arr.push_back(new WxxObjectPtr(obj));
-    return *this;
-}
-
-WxxObjectArray& WxxObjectArray::push(int i)
-{
-    arr.push_back(new WxxObjectPtr(i));
-    return *this;
-}
-
-WxxObjectArray& WxxObjectArray::push(double value)
-{
-    arr.push_back(new WxxObjectPtr(value));
-    return *this;
-}
-
-WxxObjectArray& WxxObjectArray::push(const char *str)
-{
-    arr.push_back(new WxxObjectPtr(str));
-    return *this;
-}
-
-WxxObjectArray& WxxObjectArray::push(const std::string &str)
-{
-    arr.push_back(new WxxObjectPtr(str));
-    return *this;
-}
-
-void WxxObjectArray::set_pmc_keyed(int i, const WxxObjectPtr &value)
-{
-    arr[i] = new WxxObjectPtr(value);
-}
 
 //*************************************************************
 
@@ -459,31 +342,6 @@ void WxxStringArray::set_pmc_keyed(int i, const WxxObjectPtr &value)
 
 //*************************************************************
 
-WxxArrayIterator::WxxArrayIterator(WxxObject *container) :
-        WxxDefault("ArrayIterator"),
-        cnt(container),
-        current(0)
-{
-    cnt->incref();
-}
-
-WxxArrayIterator::~WxxArrayIterator()
-{
-    cnt->decref();
-}
-
-int WxxArrayIterator::get_bool()
-{
-    return current < cnt->elements();
-}
-
-WxxObjectPtr WxxArrayIterator::shift_pmc()
-{
-    return cnt->get_pmc_keyed(current++);
-}
-
-//*************************************************************
-
 WxxHash::WxxHash() : WxxDefault("Hash")
 {
 }
@@ -509,143 +367,6 @@ WxxObjectPtr & WxxHash::set_pmc_keyed(const std::string &s, const WxxObjectPtr &
     hsh[s] = value;
     return hsh[s];
 }
-
-//*************************************************************
-
-#if 0
-
-WxxFileHandle::WxxFileHandle(int predef) : WxxDefault("FileHandle")
-{
-    switch (predef) {
-    case 1:
-        f = stdin;
-        break;
-    case 2:
-        f = stdout;
-        break;
-    case 3:
-        f = stderr;
-        break;
-    default:
-        f = 0;
-    }
-}
-
-WxxFileHandle::~WxxFileHandle()
-{
-    //std::cerr << "~WxxFileHandle\n";
-    if (f && f != stdin && f != stdout && f != stderr)
-        fclose(f);
-}
-
-WxxObject *WxxFileHandle::open(WxxObjectPtr name)
-{
-    std::string strname = name.get_string();
-    f = fopen(strname.c_str(), "r");
-    return this;
-}
-
-WxxObject *WxxFileHandle::open(WxxObjectPtr name, WxxObjectPtr mode)
-{
-    if (f)
-        throw wxx_error("FileHandle is already open");
-    std::string strname = name.get_string();
-    std::string strmode = mode.get_string();
-    for (size_t i = 0; i < strmode.length(); ++i) {
-        switch (strmode[i]) {
-          case 'r':
-          case 'w':
-          case 'a':
-          case 'b':
-            break;
-          default:
-            throw wxx_error("Invalid mode in open");
-        }
-    }
-    f = fopen(strname.c_str(), strmode.c_str());
-    return this;
-}
-
-WxxObjectPtr WxxFileHandle::close()
-{
-    int r;
-    if (f) {
-        r = fclose(f);
-        f = 0;
-    }
-    else
-        r = -1;
-    return r;
-}
-
-void WxxFileHandle::print(WxxObjectPtr obj)
-{
-    if (! f)
-        throw wxx_error("FileHandle is closed");
-    fputs(obj.get_string().c_str(), f);
-}
-
-WxxObjectPtr WxxFileHandle::read(int n)
-{
-    if (! f)
-        throw wxx_error("FileHandle is closed");
-    char *buf = (char *)malloc(n);
-    *buf = '\0';
-    size_t r = fread(buf, 1, n, f);
-    //std::cerr << "\nread " << r << "\n";
-    std::string result = r > 0 ? std::string(buf, r) : std::string();
-    free(buf);
-    return WxxObjectPtr(result);
-}
-
-WxxObjectPtr WxxFileHandle::readline()
-{
-    if (! f)
-        throw wxx_error("FileHandle is closed");
-    char buffer[1024];
-    const char *r = fgets(buffer, 1024, f);
-    if (! r)
-        r = "";
-    return WxxObjectPtr(std::string(r));
-}
-
-WxxObjectPtr WxxFileHandle::call_method(const std::string &methname, WxxObjectArray &args)
-{
-    if (methname == "readline") {
-        if (args.elements() > 0)
-            throw wxx_error("too many positional arguments in readline");
-        return readline();
-    }
-    if (methname == "read") {
-        if (args.elements() != 1)
-            throw wxx_error("wrong number of positional arguments in read");
-        return read(args.get_pmc_keyed(0));
-    }
-    if (methname == "open") {
-        switch (args.elements()) {
-          case 1:
-            return open(args.get_pmc_keyed(0));
-          case 2:
-            return open(args.get_pmc_keyed(0), args.get_pmc_keyed(1));
-          default:
-            throw wxx_error("too many positional arguments in close");
-        }
-    }
-    if (methname == "close") {
-        if (args.elements() > 0)
-            throw wxx_error("too many positional arguments in close");
-        return close();
-    }
-    if (methname == "eof") {
-        if (args.elements() > 0)
-            throw wxx_error("too many positional arguments in close");
-        return feof(f);
-    }
-    else
-        return WxxDefault::call_method(methname, args);
-}
-
-#endif
 
 //*************************************************************
 
@@ -792,19 +513,6 @@ WxxObjectPtr WxxInstance::call_method(const std::string &methname, WxxObjectArra
 }
 
 //*************************************************************
-
-WxxObjectPtr wxx_getstdin()
-{
-    return WxxObjectPtr(new WxxFileHandle(1));
-}
-WxxObjectPtr wxx_getstdout()
-{
-    return WxxObjectPtr(new WxxFileHandle(2));
-}
-WxxObjectPtr wxx_getstderr()
-{
-    return WxxObjectPtr(new WxxFileHandle(3));
-}
 
 WxxObjectPtr wxx_new(std::string name)
 {

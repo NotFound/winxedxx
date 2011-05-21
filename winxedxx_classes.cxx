@@ -421,6 +421,118 @@ void WxxString::print() { std::cout << str; }
 
 //*************************************************************
 
+WxxArrayBase::WxxArrayBase(const std::string &name) :
+        WxxDefault(name)
+{
+}
+
+int WxxArrayBase::get_integer()
+{
+    return elements();
+}
+
+WxxObjectPtr WxxArrayBase::get_iter()
+{
+    return WxxObjectPtr(new WxxArrayIterator(this));
+}
+
+//*************************************************************
+
+WxxArrayIterator::WxxArrayIterator(WxxObject *container) :
+        WxxDefault("ArrayIterator"),
+        cnt(container),
+        current(0)
+{
+    cnt->incref();
+}
+
+WxxArrayIterator::~WxxArrayIterator()
+{
+    cnt->decref();
+}
+
+int WxxArrayIterator::get_bool()
+{
+    return current < cnt->elements();
+}
+
+WxxObjectPtr WxxArrayIterator::shift_pmc()
+{
+    return cnt->get_pmc_keyed(current++);
+}
+
+//*************************************************************
+
+WxxObjectArray::WxxObjectArray() :
+        WxxArrayBase("ResizablePMCArray")
+{
+}
+
+WxxObjectArray::~WxxObjectArray()
+{
+    for (unsigned int i = 0; i < arr.size(); ++i)
+        delete arr[i];
+}
+
+int WxxObjectArray::elements()
+{
+    return arr.size();
+}
+
+WxxObjectPtr WxxObjectArray::get_pmc_keyed(int i)
+{
+    return this->operator[](i);
+}
+
+WxxObjectPtr WxxObjectArray::operator[](int i) const
+{
+    int size = arr.size();
+    if (i < 0)
+        i += size;
+    if (i < 0)
+        throw wxx_error(getname() + ": index out of bounds!");
+    if (i >= size)
+         return winxedxxnull;
+    return WxxObjectPtr(*(arr[i]));
+}
+
+WxxObjectArray& WxxObjectArray::push(WxxObjectPtr obj)
+{
+    arr.push_back(new WxxObjectPtr(obj));
+    return *this;
+}
+
+WxxObjectArray& WxxObjectArray::push(int i)
+{
+    arr.push_back(new WxxObjectPtr(i));
+    return *this;
+}
+
+WxxObjectArray& WxxObjectArray::push(double value)
+{
+    arr.push_back(new WxxObjectPtr(value));
+    return *this;
+}
+
+WxxObjectArray& WxxObjectArray::push(const char *str)
+{
+    arr.push_back(new WxxObjectPtr(str));
+    return *this;
+}
+
+WxxObjectArray& WxxObjectArray::push(const std::string &str)
+{
+    arr.push_back(new WxxObjectPtr(str));
+    return *this;
+}
+
+void WxxObjectArray::set_pmc_keyed(int i, const WxxObjectPtr &value)
+{
+    arr[i] = new WxxObjectPtr(value);
+}
+
+//*************************************************************
+
 WxxLibrary::WxxLibrary(void *dl_handle) :
         WxxDefault("ParrotLibrary"),
         dl_h(dl_handle)

@@ -5,6 +5,7 @@
 #include "winxedxx_object.h"
 #include "winxedxx_default.h"
 #include "winxedxx_integer.h"
+#include "winxedxx_handle.h"
 
 #include <sstream>
 
@@ -72,6 +73,18 @@ WxxObjectPtr wxx_error(const std::string &message, int severity, int type)
     return WxxObjectPtr((WxxObject *)new WxxException(message, severity, type));
 }
 
+WxxObjectPtr wxx_getstdin()
+{
+    return WxxObjectPtr(new WxxFileHandle(1));
+}
+WxxObjectPtr wxx_getstdout()
+{
+    return WxxObjectPtr(new WxxFileHandle(2));
+}
+WxxObjectPtr wxx_getstderr()
+{
+    return WxxObjectPtr(new WxxFileHandle(3));
+}
 
 WxxObjectPtr wxx_loadlib(const std::string &libname)
 {
