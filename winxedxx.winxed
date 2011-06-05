@@ -12,6 +12,9 @@
 
 // Declare used classes
 
+namespace Winxed {
+namespace Compiler {
+
 class Token;
 class TokenQuoted;
 class TokenSingleQuoted;
@@ -97,6 +100,11 @@ class FunctionStatement;
 class ClassStatement;
 class NamespaceStatement;
 class RootNamespace;
+
+} // namespace Compiler
+} // namespace Winxed
+
+using namespace Winxed.Compiler;
 
 //**************************************************************
 
@@ -474,7 +482,7 @@ function emit_CallExpr(out, callexpr)
     if (! funref.isidentifier())
         WxxUnsupported(funref);
 
-    if (callexpr.subid != null)
+    if ((callexpr instanceof CallMemberExpr) && callexpr.subid != null)
         out.print(callexpr.subid);
     else {
         string callname = funref.getName();
