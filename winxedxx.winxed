@@ -1477,6 +1477,8 @@ function emit_declare_subid(out, ns, key[optional], seen[optional])
     }
     // Declare own functions
     for (var fun in ns.functions) {
+        if (fun instanceof Winxed.Compiler.Builtin)
+            continue;
         if (! exists seen[fun]) {
             emit_declare_function_subid(out, fun, key);
             seen[fun] = 1;
