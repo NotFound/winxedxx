@@ -5,7 +5,7 @@
 
 PARROT = parrot
 WINXED = winxed
-WINXEDLIB = -L /home/julian/winxed
+WINXEDLIB =
 
 CXX = g++
 CXXOPTS = -g -Wall -ldl
@@ -31,8 +31,11 @@ simple.cxx: simple.winxed winxedxx.pbc
 
 #-----------------------------------------------------------------------
 
-winxedxx.pbc: winxedxx.winxed
-	$(WINXED) $(WINXEDLIB) --target pbc -o winxedxx.pbc winxedxx.winxed
+winxedxx.pbc: winxedxx.pir
+	$(PARROT) -o winxedxx.pbc winxedxx.pir
+
+winxedxx.pir: winxedxx.winxed
+	$(WINXED) $(WINXEDLIB) --target pir -o winxedxx.pir winxedxx.winxed
 
 #-----------------------------------------------------------------------
 
