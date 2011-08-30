@@ -7,6 +7,7 @@
 #include "winxedxx_integer.h"
 #include "winxedxx_handle.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 
 namespace WinxedXX
