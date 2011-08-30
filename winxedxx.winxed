@@ -1695,7 +1695,7 @@ function winxedxx_compile(options)
 function main(argv)
 {
     int r = 1;
-    try {
+    try [handle_types(__WINXED_ERROR__)] {
         var options = winxedxx_get_options(argv);
         r = winxedxx_compile(options);
     }
