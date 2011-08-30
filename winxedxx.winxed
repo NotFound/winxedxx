@@ -1450,8 +1450,11 @@ function emit_declare_namespacest(out, ns)
     }
 
     // Declare functions
-    for (var fun in ns.functions)
+    for (var fun in ns.functions) {
+        if (fun instanceof Winxed.Compiler.Builtin)
+            continue;
         emit_declare_function(out, fun);
+    }
 
     // Declare child namespaces
     for (var childns in ns.namespaces)
