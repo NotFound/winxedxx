@@ -1275,11 +1275,11 @@ function foreachparam(params, funst, func)
 {
     foreach(params,
         function(param)
-	{
+        {
             string name = param.name;
             string type = funst.getvar(name).gettype();
-	    func(name, type);
-	}
+            func(name, type);
+        }
     );
 }
 
@@ -1644,9 +1644,9 @@ function winxedxx_cxx(string cxxfile, string outfile)
         "g++", "-Wall", "-O2", "-ldl", "-o",
         outfile, cxxfile,
         'winxedxx_objectptr.o',
-	'winxedxx_classes.o',
-	'winxedxx_handle.o',
-	'winxedxx_util.o'
+        'winxedxx_classes.o',
+        'winxedxx_handle.o',
+        'winxedxx_util.o'
     ] );
     r = (r >> 8) & 0xFF;
     return r;
