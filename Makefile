@@ -56,6 +56,7 @@ winxedxx_util.o: winxedxx_util.cxx
 clean:
 	rm -f \
 		winxedxx.pbc \
+		winxedxx.pir \
 		$(OBJS) \
 		simple simple.cxx
 
