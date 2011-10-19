@@ -373,7 +373,7 @@ function emit_callbuiltinexpr(out, expr)
         out.print(")");
         break;
       case 'join':
-        emit_callbuiltin_simple_2("wxx_join", arg0, arg1);
+        emit_callbuiltin_simple_2(out, "wxx_join", arg0, arg1);
         break;
       case 'push':
         emit_expr(out, arg0);
@@ -381,7 +381,7 @@ function emit_callbuiltinexpr(out, expr)
         emit_expr(out, arg1);
         break;
       case 'split':
-        emit_callbuiltin_simple_2("wxx_split", arg0, arg1);
+        emit_callbuiltin_simple_2(out, "wxx_split", arg0, arg1);
         break;
       case 'Error':
         out.print("wxx_error(");
