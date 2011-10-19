@@ -1393,7 +1393,7 @@ function emit_classst(out, clst)
     int nfunctions = elements(functions);
     int i;
     foreach(functions,
-        function(f) { emit_function(out, f); }
+        function(f) { emit_FunctionStatement(out, f); }
     );
 
     out.print(<<:CLINIT
