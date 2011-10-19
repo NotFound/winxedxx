@@ -444,6 +444,12 @@ function emit_callbuiltinexpr(out, expr)
         out.print("winxedxxnull");
         break;
 
+      // Unimplemented, just to allow some testing
+      case 'unescape':
+      case 'escape':
+        emit_expr(out, arg0);
+        break;
+
       default:
         WxxUnsupported(expr, "builtin " + name);
     }
