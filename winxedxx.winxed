@@ -110,6 +110,41 @@ using namespace Winxed.Compiler;
 
 //**************************************************************
 
+// Errors
+
+function WxxError(string message)
+{
+    return Error(message, 2, __WINXED_ERROR__);
+}
+
+function WxxUnsupported(thing, string msg[optional])
+{
+    if (msg == null) {
+        if (thing instanceof 'String')
+            msg = thing;
+        else
+            msg = typeof(thing);
+    }
+    string filename = '';
+    int line = 0;
+    string desc;
+    try {
+        var start;
+        if (thing instanceof Token)
+            start = thing;
+        else
+            start = thing.start;
+        filename = start.file;
+        line = start.line;
+        desc = start.viewable();
+    }
+    catch () { }
+    throw Error(filename + ":" + string(line) + ": " +
+            msg + " unsupported near " + desc);
+}
+
+//**************************************************************
+
 // Generic functions
 
 function foreach(params, func)
@@ -148,32 +183,6 @@ function generatedType(string ptype)
 }
 
 //**************************************************************
-
-function WxxUnsupported(thing, string msg[optional])
-{
-    if (msg == null) {
-        if (thing instanceof 'String')
-            msg = thing;
-        else
-            msg = typeof(thing);
-    }
-    string filename = '';
-    int line = 0;
-    string desc;
-    try {
-        var start;
-        if (thing instanceof Token)
-            start = thing;
-        else
-            start = thing.start;
-        filename = start.file;
-        line = start.line;
-        desc = start.viewable();
-    }
-    catch () { }
-    throw Error(filename + ":" + string(line) + ": " +
-            msg + " unsupported near " + desc);
-}
 
 function tokstringtoxx(strval)
 {
@@ -1624,7 +1633,7 @@ function winxedxx_get_options(argv)
             break;
     }
     if (i >= argc)
-        throw Error("No source file");
+        throw WxxError("No source file");
     options['sourcefile'] = argv[i];
     return options;
 }
@@ -1647,7 +1656,7 @@ function winxedxx_compile(options)
 {
     var winxed = get_winxed_compiler();
     if (winxed == null)
-        throw Error("Can't load winxed compiler");
+        throw WxxError("Can't load winxed compiler");
 
     string sourcefile = options['sourcefile'];
     var parsed = winxed.compile_from_file(sourcefile,
@@ -1675,7 +1684,7 @@ function winxedxx_compile(options)
         /* Nothing in particular */
         break;
       default:
-        throw Error("Invalid target type: " + string(target));
+        throw WxxError("Invalid target type: " + string(target));
     }
     var out = cxxfile != '' ?
         open(cxxfile, "w") :
