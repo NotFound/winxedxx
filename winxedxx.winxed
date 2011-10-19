@@ -703,7 +703,7 @@ function emit_concatstring(out, concatstr)
 
 function emit_nullchecker(out, expr)
 {
-    if (! expr.checknull)
+    if (! expr.positive)
         out.print("!");
     out.print("(");
     out.print("wxx_isnull");
