@@ -23,6 +23,8 @@ class IntegerLiteral;
 class FloatLiteral;
 class StringLiteral;
 
+class Builtin;
+
 class ClassSpecifierStr;
 class ClassSpecifierId;
 
@@ -37,7 +39,7 @@ class NullCheckerExpr;
 class ConcatString;
 class CallExpr;
 class CallMemberExpr;
-class CallPredefExpr;
+class CallBuiltinExpr;
 
 class OpPreIncExpr;
 class OpPreDecExpr;
@@ -249,12 +251,12 @@ function ncisigtoc(string sig)
     return csig;
 }
 
-function emit_callpredef_simple(out, string name, arg)
+function emit_callbuiltin_simple(out, string name, arg)
 {
     out.print(name);
     emit_expr(out, arg);
 }
-function emit_callpredef_simple_2(out, string name, arg0, arg1)
+function emit_callbuiltin_simple_2(out, string name, arg0, arg1)
 {
     out.print(name);
     out.print("(");
@@ -264,10 +266,10 @@ function emit_callpredef_simple_2(out, string name, arg0, arg1)
     out.print(")");
 }
 
-function emit_callpredefexpr(out, expr)
+function emit_callbuiltinexpr(out, expr)
 {
-    var predef = expr.predef;
-    string name = predef.name;
+    var builtin = expr.builtin;
+    string name = builtin.name;
     var args = expr.args;
     int nargs = elements(args);
     var arg0 = nargs > 0 ? args[0].arg : null;
@@ -308,7 +310,7 @@ function emit_callpredefexpr(out, expr)
             emit_expr(out, argexp);
             out.print(',');
         }
-        if (predef.name == 'say')
+        if (builtin.name == 'say')
             out.print('wxx_print("\n"),');
         out.print('0');
         break;
@@ -362,7 +364,7 @@ function emit_callpredefexpr(out, expr)
         out.print(")");
         break;
       case 'join':
-        emit_callpredef_simple_2("wxx_join", arg0, arg1);
+        emit_callbuiltin_simple_2("wxx_join", arg0, arg1);
         break;
       case 'push':
         emit_expr(out, arg0);
@@ -370,7 +372,7 @@ function emit_callpredefexpr(out, expr)
         emit_expr(out, arg1);
         break;
       case 'split':
-        emit_callpredef_simple_2("wxx_split", arg0, arg1);
+        emit_callbuiltin_simple_2("wxx_split", arg0, arg1);
         break;
       case 'Error':
         out.print("wxx_error(");
@@ -395,7 +397,7 @@ function emit_callpredefexpr(out, expr)
         out.print("))");
         break;
       case 'loadlib':
-        emit_callpredef_simple(out, 'wxx_loadlib', arg0);
+        emit_callbuiltin_simple(out, 'wxx_loadlib', arg0);
         break;
       case 'dlfunc':
         var sig = arg2;
@@ -411,7 +413,7 @@ function emit_callpredefexpr(out, expr)
         out.print(")");
         break;
       case 'spawnw':
-        emit_callpredef_simple(out, 'wxx_spawnw', arg0);
+        emit_callbuiltin_simple(out, 'wxx_spawnw', arg0);
         break;
       case 'sin':
       case 'cos':
@@ -421,10 +423,10 @@ function emit_callpredefexpr(out, expr)
       case 'atan':
       case 'exp':
       case 'sqrt':
-        emit_callpredef_simple(out, name, arg0);
+        emit_callbuiltin_simple(out, name, arg0);
         break;
       case 'ln':
-        emit_callpredef_simple(out, 'log', arg0);
+        emit_callbuiltin_simple(out, 'log', arg0);
         break;
 
       // Unsupported, always return null
@@ -434,7 +436,7 @@ function emit_callpredefexpr(out, expr)
         break;
 
       default:
-        WxxUnsupported(expr, "predef " + name);
+        WxxUnsupported(expr, "builtin " + name);
     }
 }
 
@@ -773,8 +775,8 @@ function emit_expr(out, expr)
 {
     out.print("(");
 
-    if (expr instanceof CallPredefExpr)
-        emit_callpredefexpr(out, expr);
+    if (expr instanceof CallBuiltinExpr)
+        emit_callbuiltinexpr(out, expr);
     else if (expr instanceof CallMemberExpr)
         emit_CallMemberExpr(out, expr);
     else if (expr instanceof CallExpr)
