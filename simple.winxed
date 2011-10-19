@@ -1,5 +1,13 @@
 // Test file for winxedxx
 
+class Foo
+{
+    function bar()
+    {
+        say(__FUNCTION__);
+    }
+}
+
 function hello()
 {
     print('Hello');
@@ -16,8 +24,8 @@ function main(args)
     if (argc > 1) {
         print("\tProgram: ");
         for (string s in args)
-	    say(s);
-	say();
+            say(s);
+        say();
     }
 
     int i;
@@ -44,5 +52,7 @@ again:
     --i;
     if (i >= 0) goto again;
     say();
+    var foo = new Foo;
+    foo.bar();
 }
 // End
