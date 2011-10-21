@@ -4,10 +4,22 @@
 
 //**********************************************************************
 
+// Minimalistic TAP functions
+
 function ok(int check, string message)
 {
     print("ok ");
     if (check)
+        print("1");
+    else
+        print("0");
+    say(" - ", message);
+}
+
+function is(int value, int check, string message)
+{
+    print("ok ");
+    if (value == check)
         print("1");
     else
         print("0");
@@ -19,6 +31,19 @@ function ok(int check, string message)
 function main [main] (args)
 {
     ok(1, "compiled and started");
+
+    int i = 1;
+    ok(i == 1, "int initialization");
+
+    int j = 12;
+    for (i = 0; i < 10; ++i)
+        --j;
+    is(j, 2, "for loop, inc and dec operators");
+
+    j = 0;
+    for (i in [ 1, 3, 5, 7 ])
+        j += i;
+    is(j, 16, "for in");
 }
 
 // End
