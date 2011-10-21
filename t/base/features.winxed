@@ -1,0 +1,24 @@
+#! winxed
+// Test file for winxedxx supported features
+// All features used here should at least compile
+
+//**********************************************************************
+
+function ok(int check, string message)
+{
+    print("ok ");
+    if (check)
+        print("1");
+    else
+        print("0");
+    say(" - ", message);
+}
+
+//**********************************************************************
+
+function main [main] (args)
+{
+    ok(1, "compiled and started");
+}
+
+// End

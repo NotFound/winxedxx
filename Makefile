@@ -53,11 +53,18 @@ winxedxx_util.o: winxedxx_util.cxx
 
 #-----------------------------------------------------------------------
 
+test: winxedxx.pbc winxedxx.h $(OBJS)
+	$(WINXED) t/runtests.t t/base/features.winxed
+
+#-----------------------------------------------------------------------
+
 clean:
 	rm -f \
 		winxedxx.pbc \
 		winxedxx.pir \
 		$(OBJS) \
+		t/base/features \
+		t/base/features.cxx \
 		simple simple.cxx
 
 # End
