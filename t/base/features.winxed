@@ -45,6 +45,21 @@ function array()
     is_string(arr[2], "c", "array element initialized");
 }
 
+namespace Foo
+{
+
+function bar()
+{
+    return "Foo.bar";
+}
+
+} // namespace Foo
+
+function bar()
+{
+    return "bar";
+}
+
 //**********************************************************************
 
 function main [main] (args)
@@ -65,6 +80,9 @@ function main [main] (args)
     is(j, 16, "for in");
 
     array();
+
+    is_string(Foo.bar(), "Foo.bar", "call function in namespace");
+    is_string(bar(), "bar", "call function out of namespace with same name");
 }
 
 // End
