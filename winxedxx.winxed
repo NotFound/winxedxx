@@ -57,6 +57,7 @@ class OpDivExpr;
 class OpModExpr;
 class OpCModExpr;
 class OpNotExpr;
+class ZeroCheckerExpr;
 class OpEqualExpr;
 class OpNotEqualExpr;
 class OpLessEqualExpr;
@@ -734,6 +735,14 @@ function emit_opnot(out, expr)
     emit_expr(out, expr.subexpr);
 }
 
+function emit_ZeroCheckerExpr(out, expr, string opstr)
+{
+    out.print("(");
+    emit_expr(out, expr.expr);
+    out.print(expr.positive ? "=" : "!");
+    out.print("= 0)");
+}
+
 function emit_commonop(out, expr, string opstr)
 {
     emit_expr(out, expr.lexpr);
@@ -877,6 +886,8 @@ function emit_expr(out, expr)
         emit_divexpr(out, expr);
     else if (expr instanceof ConcatString)
         emit_concatstring(out, expr);
+    else if (expr instanceof ZeroCheckerExpr)
+        emit_ZeroCheckerExpr(out, expr, "==");
     else if (expr instanceof OpEqualExpr)
         emit_commonop(out, expr, "==");
     else if (expr instanceof OpNotEqualExpr)
