@@ -26,6 +26,25 @@ function is(int value, int check, string message)
     say(" - ", message);
 }
 
+function is_string(string value, string check, string message)
+{
+    print("ok ");
+    if (value == check)
+        print("1");
+    else
+        print("0");
+    say(" - ", message);
+}
+
+//**********************************************************************
+
+function array()
+{
+    var arr = [ "a", "b", "c", "d" ];
+    is(elements(arr), 4, "array literal");
+    is_string(arr[2], "c", "array element initialized");
+}
+
 //**********************************************************************
 
 function main [main] (args)
@@ -44,6 +63,8 @@ function main [main] (args)
     for (i in [ 1, 3, 5, 7 ])
         j += i;
     is(j, 16, "for in");
+
+    array();
 }
 
 // End
