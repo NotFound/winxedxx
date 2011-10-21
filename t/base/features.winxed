@@ -60,6 +60,21 @@ function bar()
     return "bar";
 }
 
+function test_switchcase()
+{
+    int i = 42;
+    int result = 0;
+    switch {
+      case i == 42:
+        result = 1;
+        break;
+      default:
+        // Make sure the previous break skip this
+        result = 0;
+    }
+    is(result, 1, "switchcase");
+}
+
 //**********************************************************************
 
 function main [main] (args)
@@ -86,6 +101,8 @@ function main [main] (args)
 
     is_string(Foo.bar(), "Foo.bar", "call function in namespace");
     is_string(bar(), "bar", "call function out of namespace with same name");
+
+    test_switchcase();
 }
 
 // End

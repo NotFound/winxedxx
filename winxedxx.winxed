@@ -94,6 +94,7 @@ class BreakStatement;
 class IfStatement;
 class GotoStatement;
 class SwitchStatement;
+class SwitchCaseStatement;
 class ForStatement;
 class ForeachStatement;
 class DoStatement;
@@ -1044,6 +1045,34 @@ function emit_switchstatement(out, switchst)
     out.print("} while (false)\n");
 }
 
+function emit_SwitchCaseStatement(out, switchst)
+{
+    var case_value = switchst.case_value;
+    var case_st = switchst.case_st;
+    int n = elements(case_st);
+
+    out.print("do {\n");
+
+    for (int i = 0; i < n; ++i) {
+        var caseval = case_value[i];
+        out.print ("if ");
+        emit_expr(out, caseval);
+        out.print(" {\n");
+        int nst = elements(case_st[i]);
+        int j;
+        for (j = 0; j < nst; ++j)
+            emit_statement(out, case_st[i][j]);
+        out.print("}\n");
+    }
+    var default_st = switchst.default_st;
+    int nst = elements(default_st);
+    int j;
+    for (j = 0; j < nst; ++j)
+        emit_statement(out, default_st[j]);
+
+    out.print("} while (false)\n");
+}
+
 function emit_whilestatement(out, whilest)
 {
     out.print('while ');
@@ -1207,6 +1236,8 @@ function emit_statement(out, st)
         emit_ifstatement(out, st);
     else if (st instanceof SwitchStatement)
         emit_switchstatement(out, st);
+    else if (st instanceof SwitchCaseStatement)
+        emit_SwitchCaseStatement(out, st);
     else if (st instanceof WhileStatement)
         emit_whilestatement(out, st);
     else if (st instanceof DoStatement)
