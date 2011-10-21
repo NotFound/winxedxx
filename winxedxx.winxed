@@ -139,7 +139,7 @@ function WxxUnsupported(thing, string msg[optional])
         desc = start.viewable();
     }
     catch () { }
-    throw Error(filename + ":" + string(line) + ": " +
+    throw WxxError(filename + ":" + string(line) + ": " +
             msg + " unsupported near " + desc);
 }
 
