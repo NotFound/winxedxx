@@ -60,6 +60,10 @@ function bar()
     return "bar";
 }
 
+class SomeClass
+{
+}
+
 function test_switchcase()
 {
     int i = 42;
@@ -121,6 +125,9 @@ function main [main] (args)
     is_string(bar(), "bar", "call function out of namespace with same name");
 
     test_switchcase();
+
+    var obj = new SomeClass;
+    ok(obj instanceof SomeClass, "new and instanceof by identifier");
 }
 
 // End
