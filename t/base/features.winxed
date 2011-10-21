@@ -90,6 +90,18 @@ function main [main] (args)
     i = -i;
     is(i, -1, "unary minus");
 
+    i = 1;
+
+    is(~i, -2, "bitwise not");
+
+    is(i | 2, 3, "bitwise or");
+
+    is(i ^ 3, 2, "bitwise xor");
+
+    is(i << 2, 4, "shift left");
+    i = 8;
+    is(i >> 2, 2, "shift right");
+
     int j = 12;
     for (i = 0; i < 10; ++i)
         --j;

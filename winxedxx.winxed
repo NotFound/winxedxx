@@ -57,6 +57,7 @@ class OpDivExpr;
 class OpModExpr;
 class OpCModExpr;
 class OpNotExpr;
+class OpBinNotExpr;
 class ZeroCheckerExpr;
 class OpEqualExpr;
 class OpNotEqualExpr;
@@ -66,8 +67,11 @@ class OpLessExpr;
 class OpGreaterExpr;
 class OpBoolAndExpr;
 class OpBoolOrExpr;
+class OpBinOrExpr;
 class OpBinAndExpr;
+class OpBinXorExpr;
 class OpShiftrightExpr;
+class OpShiftleftExpr;
 class OpInstanceOfExpr;
 class OpConditionalExpr;
 
@@ -746,6 +750,12 @@ function emit_opnot(out, expr)
     emit_expr(out, expr.subexpr);
 }
 
+function emit_OpBinNot(out, expr)
+{
+    out.print("~");
+    emit_expr(out, expr.subexpr);
+}
+
 function emit_ZeroCheckerExpr(out, expr, string opstr)
 {
     out.print("(");
@@ -863,6 +873,8 @@ function emit_expr(out, expr)
     }
     else if (expr instanceof OpNotExpr)
         emit_opnot(out, expr);
+    else if (expr instanceof OpBinNotExpr)
+        emit_OpBinNot(out, expr);
     else if (expr instanceof NullCheckerExpr)
         emit_nullchecker(out, expr);
     else if (expr instanceof OpInstanceOfExpr)
@@ -915,10 +927,16 @@ function emit_expr(out, expr)
         emit_boolorexpr(out, expr);
     else if (expr instanceof OpBoolAndExpr)
         emit_boolandexpr(out, expr);
+    else if (expr instanceof OpBinOrExpr)
+        emit_commonop(out, expr, '|');
     else if (expr instanceof OpBinAndExpr)
         emit_commonop(out, expr, '&');
+    else if (expr instanceof OpBinXorExpr)
+        emit_commonop(out, expr, '^');
     else if (expr instanceof OpShiftrightExpr)
         emit_commonop(out, expr, '>>');
+    else if (expr instanceof OpShiftleftExpr)
+        emit_commonop(out, expr, '<<');
     else if (expr instanceof OpModExpr)
         emit_commonop(out, expr, "%");
     else if (expr instanceof OpCModExpr)
