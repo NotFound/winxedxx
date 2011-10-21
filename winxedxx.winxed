@@ -46,6 +46,7 @@ class OpPreIncExpr;
 class OpPreDecExpr;
 class OpPostIncExpr;
 class OpPostDecExpr;
+class OpUnaryMinusExpr;
 class OpAssignExpr;
 class OpAssignToExpr;
 class OpAddExpr;
@@ -300,6 +301,10 @@ function emit_callbuiltinexpr(out, expr)
         break;
       case 'int':
         out.print(Type_Int);
+        emit_expr(out, arg0);
+        break;
+      case 'float':
+        out.print(Type_Num);
         emit_expr(out, arg0);
         break;
       case 'typeof':
@@ -857,6 +862,10 @@ function emit_expr(out, expr)
     else if (expr instanceof OpPostDecExpr) {
         emit_expr(out, expr.subexpr);
         out.print('--');
+    }
+    else if (expr instanceof OpUnaryMinusExpr) {
+        out.print('-');
+        emit_expr(out, expr.subexpr);
     }
     else if (expr instanceof OpAddExpr)
         emit_addexpr(out, expr);
