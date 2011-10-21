@@ -458,6 +458,11 @@ function emit_callbuiltinexpr(out, expr)
         break;
 
       // Unimplemented, just to allow some testing
+      case 'clone':
+        emit_expr(out, arg0);
+        break;
+
+      // Unimplemented, just to allow some testing
       case 'unescape':
       case 'escape':
         emit_expr(out, arg0);
