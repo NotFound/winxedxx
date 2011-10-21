@@ -32,6 +32,7 @@ class IdentifierExpr;
 class MemberExpr;
 class IndexExpr;
 class NewExpr;
+class NewIndexedExpr;
 class ArrayExpr;
 class HashExpr;
 class FunctionExpr;
@@ -573,6 +574,17 @@ function emit_newexpr(out, expr)
         WxxUnsupported(expr);
 }
 
+function emit_NewIndexedExpr(out, expr)
+{
+    var key = expr.nskey.key;
+    if (elements(key) != 1)
+        WxxUnsupported(expr, "supported only with keys length == 1");
+
+    // TESTING
+    string name = key[0];
+    out.print("WxxObjectPtr(new WxxInstance(\"" + name + "\"))");
+}
+
 function emit_assignexpr(out, assignexpr)
 {
     var lexpr = assignexpr.lexpr;
@@ -815,6 +827,8 @@ function emit_expr(out, expr)
     }
     else if (expr instanceof NewExpr)
         emit_newexpr(out, expr);
+    else if (expr instanceof NewIndexedExpr)
+        emit_NewIndexedExpr(out, expr);
     else if (expr instanceof ArrayExpr)
         emit_arrayexpr(out, expr);
     else if (expr instanceof HashExpr)
