@@ -1661,12 +1661,13 @@ function winxedxx_get_options(argv)
 function winxedxx_cxx(string cxxfile, string outfile)
 {
     int r = spawnw( [
-        "g++", "-Wall", "-O2", "-ldl", "-o",
+        "g++", "-Wall", "-O2", "-I.", "-o",
         outfile, cxxfile,
         'winxedxx_objectptr.o',
         'winxedxx_classes.o',
         'winxedxx_handle.o',
-        'winxedxx_util.o'
+        'winxedxx_util.o',
+        "-ldl"
     ] );
     r = (r >> 8) & 0xFF;
     return r;
