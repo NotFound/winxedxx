@@ -8,7 +8,8 @@ WINXED = winxed
 WINXEDLIB =
 
 CXX = g++
-CXXOPTS = -g -Wall -ldl
+CXXOPTS = -g -Wall
+LDOPTS = -ldl
 
 #-----------------------------------------------------------------------
 
@@ -23,8 +24,8 @@ OBJS = \
 all: simple
 	./simple
 
-simple: simple.cxx winxedxx.h  $(OBJS)
-	$(CXX) $(CXXOPTS) -o simple simple.cxx $(OBJS)
+simple: simple.cxx winxedxx.h $(OBJS)
+	$(CXX) $(CXXOPTS) -o simple simple.cxx $(OBJS) $(LDOPTS)
 
 simple.cxx: simple.winxed winxedxx.pbc
 	$(PARROT) $(WINXEDLIB) winxedxx.pbc -o simple.cxx simple.winxed
