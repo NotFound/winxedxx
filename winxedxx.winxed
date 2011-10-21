@@ -290,6 +290,11 @@ function emit_callbuiltinexpr(out, expr)
     var arg2 = nargs > 2 ? args[2].arg : null;
     int i;
     switch (name) {
+      case '__ASSERT__':
+        // No --debug option yet, emit something parseable as an expression
+        // that does nothing.
+        out.print("(void)0");
+        break;
       case 'string':
         switch (arg0.checkresult()) {
           case REGint:

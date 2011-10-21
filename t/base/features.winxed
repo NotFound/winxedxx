@@ -81,6 +81,9 @@ function main [main] (args)
 {
     ok(1, "compiled and started");
 
+    // No debug mode yet, just ensure this can be compiled
+    __ASSERT__(1 == 1);
+
     int i = 1;
     ok(i == 1, "int initialization");
 
