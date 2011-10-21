@@ -95,6 +95,7 @@ class ConstStatement;
 class ReturnStatement;
 class LabelStatement;
 class BreakStatement;
+class ContinueStatement;
 class IfStatement;
 class GotoStatement;
 class SwitchStatement;
@@ -1027,6 +1028,11 @@ function emit_breakstatement(out, gotost)
     out.print("break");
 }
 
+function emit_ContinueStatement(out, gotost)
+{
+    out.print("continue");
+}
+
 function emit_gotostatement(out, gotost)
 {
     out.print("goto ");
@@ -1263,6 +1269,8 @@ function emit_statement(out, st)
         emit_labelstatement(out, st);
     else if (st instanceof BreakStatement)
         emit_breakstatement(out, st);
+    else if (st instanceof ContinueStatement)
+        emit_ContinueStatement(out, st);
     else if (st instanceof GotoStatement)
         emit_gotostatement(out, st);
     else if (st instanceof IfStatement)
