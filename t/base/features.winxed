@@ -102,6 +102,9 @@ function main [main] (args)
     i = 8;
     is(i >> 2, 2, "shift right");
 
+    string s = "abc";
+    is_string(s[1], "b", "string indexing");
+
     int j = 12;
     for (i = 0; i < 10; ++i)
         --j;

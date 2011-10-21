@@ -31,6 +31,7 @@ class ClassSpecifierId;
 class IdentifierExpr;
 class MemberExpr;
 class IndexExpr;
+class StringIndexExpr;
 class NewExpr;
 class NewIndexedExpr;
 class ArrayExpr;
@@ -831,6 +832,16 @@ function emit_indexexpr(out, expr)
     }
 }
 
+function emit_StringIndexExpr(out, expr)
+{
+    var left = expr.left;
+    emit_expr(out, left);
+    var arg = expr.arg;
+    out.print('.substr(');
+    emit_expr(out, arg);
+    out.print(', 1)');
+}
+
 function emit_memberexpr(out, expr)
 {
     emit_expr(out, expr.left);
@@ -953,6 +964,8 @@ function emit_expr(out, expr)
         emit_memberexpr(out, expr);
     else if (expr instanceof IndexExpr)
         emit_indexexpr(out, expr);
+    else if (expr instanceof StringIndexExpr)
+        emit_StringIndexExpr(out, expr);
     else
         WxxUnsupported(expr);
     out.print(")");
