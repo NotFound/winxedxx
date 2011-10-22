@@ -95,6 +95,29 @@ function test_switchcase(test)
     test.is(result, 1, "switchcase");
 }
 
+function test_try(test)
+{
+    int result = 1;
+    try {
+        throw Error("whatever");
+        result = 0;
+    }
+    catch () {
+        result = 42;
+    }
+    test.is(result, 42, "try - catch");
+
+    result = 1;
+    try {
+        throw Error("whatever", 2, 42);
+        result = 0;
+    }
+    catch (e) {
+        result = e.type;
+    }
+    test.is(result, 42, "try - catch, use exception");
+}
+
 //**********************************************************************
 
 function main [main] (args)
@@ -143,6 +166,7 @@ function main [main] (args)
     test.is_string(bar(), "bar", "call function out of namespace with same name");
 
     test_switchcase(test);
+    test_try(test);
 
     var obj = new SomeClass;
     test.ok(obj instanceof SomeClass, "new and instanceof by identifier");
