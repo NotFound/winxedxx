@@ -20,6 +20,7 @@ class Test
         self.count =: count;
         return count;
     }
+
     function ok(int check, string message)
     {
         if (! check)
@@ -27,6 +28,22 @@ class Test
         print("ok ");
         print(self.inc_count());
         say(" - ", message);
+    }
+    function nok(int check, string message)
+    {
+        if (check)
+            print("not ");
+        print("ok ");
+        print(self.inc_count());
+        say(" - ", message);
+    }
+    function todo(int check, string message)
+    {
+        if (! check)
+            print("not ");
+        print("ok ");
+        print(self.inc_count());
+        say(" - ", message, " # TODO");
     }
 
     function is(int value, int check, string message)
@@ -37,7 +54,6 @@ class Test
         print(self.inc_count());
         say(" - ", message);
     }
-
     function is_string(string value, string check, string message)
     {
         if (value != check)
@@ -46,6 +62,7 @@ class Test
         print(self.inc_count());
         say(" - ", message);
     }
+
     function done_testing()
     {
         say("1..", self.count);
@@ -54,11 +71,19 @@ class Test
 
 //**********************************************************************
 
-function array(test)
+function test_array(test)
 {
     var arr = [ "a", "b", "c", "d" ];
     test.is(elements(arr), 4, "array literal");
     test.is_string(arr[2], "c", "array element initialized");
+}
+
+function test_hash(test)
+{
+    var hash = { "a" : 1, "b" : "x" };
+    test.is_string(hash["b"], "x", "hash element initialized");
+    test.nok(exists hash["none"], "hash exists false case");
+    test.todo(exists hash["a"], "hash exists true case");
 }
 
 namespace Foo
@@ -160,7 +185,8 @@ function main [main] (args)
         j += i;
     test.is(j, 16, "for in");
 
-    array(test);
+    test_array(test);
+    test_hash(test);
 
     test.is_string(Foo.bar(), "Foo.bar", "call function in namespace");
     test.is_string(bar(), "bar", "call function out of namespace with same name");
