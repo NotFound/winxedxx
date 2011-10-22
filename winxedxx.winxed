@@ -1752,32 +1752,6 @@ function get_winxed_compiler()
     return winxed;
 }
 
-function winxedxx_get_options(argv)
-{
-    int argc = elements(argv);
-    int i;
-    var options = {};
-    int nomore = false;
-    for (i = 1; i < argc; ++i) {
-        switch (argv[i]) {
-          case '-o':
-            options['outfile'] = argv[++i];
-            break;
-          case '--target':
-            options['target'] = argv[++i];
-            break;
-          default:
-            nomore = true;
-        }
-        if (nomore)
-            break;
-    }
-    if (i >= argc)
-        throw WxxError("No source file");
-    options['sourcefile'] = argv[i];
-    return options;
-}
-
 function winxedxx_cxx(string cxxfile, string outfile)
 {
     int r = spawnw( [
@@ -1809,7 +1783,7 @@ function winxedxx_compile(options)
         outfile = '';
     string cxxfile = outfile;
     var target = options["target"];
-    if (target == null)
+    if (target == null || target == '')
         target = 'cxx';
     switch (target) {
       case 'exe':
@@ -1847,6 +1821,48 @@ function winxedxx_compile(options)
         break;
     }
     return r;
+}
+
+//**********************************************************************
+
+$load 'Getopt/Obj.pbc';
+
+class WinxedxxOptions : ["Getopt", "Obj" ]
+{
+    var name;
+    var options;
+    var opts;
+    function WinxedxxOptions(argv)
+    {
+        self.options = [
+          [ "o=s",      "Object name" ],
+          [ "target=s", "Set target type: cxx, exe or run. Default is cxx." ]
+        ];
+        for (var o in self.options)
+            self.push_string(o[0]);
+        self.notOptStop(1);
+        self.name = argv.shift();
+        self.opts = self.get_options(argv);
+    }
+    function getstring(string option, string default[optional])
+    {
+        var value = self.opts[option];
+        return value != null ? string(value) : default;
+    }
+}
+
+function winxedxx_get_options(argv)
+{
+    var options = {};
+    var cloptions = new WinxedxxOptions(argv);
+    options["outfile"] = cloptions.getstring("o");
+    options["target"]  = cloptions.getstring("target");
+
+    int argc = elements(argv);
+    if (argc < 1)
+        throw WxxError("No source file");
+    options["sourcefile"] = argv.shift();
+    return options;
 }
 
 function main(argv)

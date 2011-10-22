@@ -36,7 +36,7 @@ winxedxx.pbc: winxedxx.pir
 	$(PARROT) -o winxedxx.pbc winxedxx.pir
 
 winxedxx.pir: winxedxx.winxed
-	$(WINXED) $(WINXEDLIB) --target pir -o winxedxx.pir winxedxx.winxed
+	$(WINXED) $(WINXEDLIB) --target=pir -o winxedxx.pir winxedxx.winxed
 
 #-----------------------------------------------------------------------
 

@@ -12,7 +12,12 @@ function runtest(string srcname)
         throw "Invalid test file: " + srcname;
     string objname = substr(srcname, 0, l - 7);
 
-    string cmd[] = [ "parrot", "winxedxx.pbc", "--target", "exe", "-o", objname, srcname ];
+    string cmd[] = [
+      "parrot", "winxedxx.pbc",
+      "--target=exe",
+      "-o", objname,
+      srcname
+    ];
     int r = spawnw(cmd);
     if (r != 0)
         say("FAILED " + srcname);
