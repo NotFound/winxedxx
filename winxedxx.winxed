@@ -110,6 +110,7 @@ class WhileStatement;
 class TryStatement;
 class ThrowStatement;
 
+class FunctionExtern;
 class FunctionStatement;
 class ClassStatement;
 class NamespaceStatement;
@@ -1629,6 +1630,8 @@ function emit_declare_subid(out, ns, key[optional], seen[optional])
     // Declare own functions
     for (var fun in ns.functions) {
         if (fun instanceof Winxed.Compiler.Builtin)
+            continue;
+        if (fun instanceof FunctionExtern)
             continue;
         if (! exists seen[fun]) {
             emit_declare_function_subid(out, fun, key);
