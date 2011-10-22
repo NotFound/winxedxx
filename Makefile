@@ -55,7 +55,7 @@ winxedxx_util.o: winxedxx_util.cxx
 #-----------------------------------------------------------------------
 
 test: winxedxx.pbc winxedxx.h $(OBJS)
-	$(WINXED) t/runtests.t t/base/features.winxed
+	prove -v -e "$(WINXED) t/runtests.t" t/base/features.winxed
 
 #-----------------------------------------------------------------------
 
