@@ -15,6 +15,8 @@
 namespace Winxed {
 namespace Compiler {
 
+extern function SyntaxError;
+
 class Token;
 class TokenQuoted;
 class TokenSingleQuoted;
@@ -32,6 +34,7 @@ class IdentifierExpr;
 class MemberExpr;
 class IndexExpr;
 class StringIndexExpr;
+class OpExistsExpr;
 class NewExpr;
 class NewIndexedExpr;
 class ArrayExpr;
@@ -841,6 +844,16 @@ function emit_StringIndexExpr(out, expr)
     out.print(', 1)');
 }
 
+function emit_OpExistsExpr(out, expr)
+{
+    var subexpr = expr.subexpr;
+    if (! (subexpr instanceof IndexExpr) || expr.checkresult() == REGstring)
+        SyntaxError("exits with invalid operator", expr);
+
+    // Fake implementation to allow some testing
+    out.print("false");
+}
+
 function emit_memberexpr(out, expr)
 {
     emit_expr(out, expr.left);
@@ -963,6 +976,8 @@ function emit_expr(out, expr)
         emit_indexexpr(out, expr);
     else if (expr instanceof StringIndexExpr)
         emit_StringIndexExpr(out, expr);
+    else if (expr instanceof OpExistsExpr)
+        emit_OpExistsExpr(out, expr);
     else
         WxxUnsupported(expr);
     out.print(")");
