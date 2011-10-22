@@ -509,6 +509,8 @@ WxxObjectPtr WxxInstance::call_method(const std::string &methname, WxxObjectArra
         WxxObjectPtr obj(this);
         return (*fun)(obj, args);
     }
+    else
+        throw wxx_error("method not found");
     return winxedxxnull;
 }
 
