@@ -61,7 +61,6 @@ class OpNotExpr;
 class OpBinNotExpr;
 class ZeroCheckerExpr;
 class OpEqualExpr;
-class OpNotEqualExpr;
 class OpLessEqualExpr;
 class OpGreaterEqualExpr;
 class OpLessExpr;
@@ -763,7 +762,7 @@ function emit_OpBinNot(out, expr)
     emit_expr(out, expr.subexpr);
 }
 
-function emit_ZeroCheckerExpr(out, expr, string opstr)
+function emit_ZeroCheckerExpr(out, expr)
 {
     out.print("(");
     emit_expr(out, expr.expr);
@@ -927,11 +926,9 @@ function emit_expr(out, expr)
     else if (expr instanceof ConcatString)
         emit_concatstring(out, expr);
     else if (expr instanceof ZeroCheckerExpr)
-        emit_ZeroCheckerExpr(out, expr, "==");
+        emit_ZeroCheckerExpr(out, expr);
     else if (expr instanceof OpEqualExpr)
-        emit_commonop(out, expr, "==");
-    else if (expr instanceof OpNotEqualExpr)
-        emit_commonop(out, expr, "!=");
+        emit_commonop(out, expr, expr.positive ? "==" : "!=");
     else if (expr instanceof OpLessEqualExpr)
         emit_commonop(out, expr, "<=");
     else if (expr instanceof OpLessExpr)
