@@ -53,6 +53,8 @@ class Test
         print("ok ");
         print(self.inc_count());
         say(" - ", message);
+        if (value != check)
+            say("# got: ", value, ", excpected: ", check);
     }
     function is_string(string value, string check, string message)
     {
@@ -61,6 +63,8 @@ class Test
         print("ok ");
         print(self.inc_count());
         say(" - ", message);
+        if (value != check)
+            say("# got: '", value, "', expected: '", check, "'");
     }
 
     function done_testing()
@@ -160,6 +164,9 @@ function main [main] (args)
     i = -i;
     test.is(i, -1, "unary minus");
 
+    string s = "abc";
+    test.is_string(s * 3, "abcabcabc", "repeat string");
+
     i = 1;
 
     test.is(~i, -2, "bitwise not");
@@ -172,7 +179,6 @@ function main [main] (args)
     i = 8;
     test.is(i >> 2, 2, "shift right");
 
-    string s = "abc";
     test.is_string(s[1], "b", "string indexing");
 
     int j = 12;

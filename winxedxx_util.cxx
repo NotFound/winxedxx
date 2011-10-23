@@ -59,6 +59,14 @@ std::string wxx_num_to_string(double value)
     return oss.str();
 }
 
+std::string wxx_repeat_string(std::string s, int n)
+{
+    std::string result;
+    for (int i = 0; i < n; ++i)
+        result += s;
+    return result;
+}
+
 
 WxxObjectPtr wxx_error(const std::string &message)
 {

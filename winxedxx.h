@@ -32,6 +32,7 @@ class WxxObjectArray;
 
 std::string wxx_int_to_string(int i);
 std::string wxx_num_to_string(double value);
+std::string wxx_repeat_string(std::string s, int n);
 
 
 class WxxIntegerArray : public WxxArrayBase

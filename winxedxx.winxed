@@ -56,6 +56,7 @@ class OpAssignToExpr;
 class OpAddExpr;
 class OpAddToExpr;
 class OpSubExpr;
+class RepeatString;
 class OpMulExpr;
 class OpDivExpr;
 class OpModExpr;
@@ -715,6 +716,17 @@ function emit_subexpr(out, expr)
     emit_expr(out, rexpr);
 }
 
+function emit_RepeatString(out, expr)
+{
+    var lexpr = expr.lexpr;
+    var rexpr = expr.rexpr;
+    out.print("wxx_repeat_string(");
+    emit_expr(out, lexpr);
+    out.print(", ");
+    emit_expr(out, rexpr);
+    out.print(")");
+}
+
 function emit_mulexpr(out, expr)
 {
     var lexpr = expr.lexpr;
@@ -933,6 +945,8 @@ function emit_expr(out, expr)
         emit_addexpr(out, expr);
     else if (expr instanceof OpSubExpr)
         emit_subexpr(out, expr);
+    else if (expr instanceof RepeatString)
+        emit_RepeatString(out, expr);
     else if (expr instanceof OpMulExpr)
         emit_mulexpr(out, expr);
     else if (expr instanceof OpDivExpr)
