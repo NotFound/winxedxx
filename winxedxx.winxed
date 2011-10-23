@@ -32,6 +32,7 @@ class ClassSpecifierId;
 
 class IdentifierExpr;
 class MemberExpr;
+class MemberRefExpr;
 class IndexExpr;
 class StringIndexExpr;
 class OpExistsExpr;
@@ -635,6 +636,10 @@ function emit_assignexpr(out, assignexpr)
         emit_expr(out, rexpr);
         out.print(")");
     }
+    else if (lexpr instanceof MemberRefExpr) {
+        // Fake implementation to allow some testing.
+        out.print("winxedxxnull");
+    }
     else if (lexpr instanceof IndexExpr) {
         var left = lexpr.left;
         emit_expr(out, left);
@@ -663,6 +668,10 @@ function emit_assigntoexpr(out, expr)
         string ident = lexpr.right.getidentifier();
         out.print(".get_attr_str(\"" + ident + "\").set");
         emit_expr(out, rexpr);
+    }
+    else if (lexpr instanceof MemberRefExpr) {
+        // Fake implementation to allow some testing.
+        out.print("winxedxxnull");
     }
     else
         WxxUnsupported(lexpr);
@@ -987,6 +996,10 @@ function emit_expr(out, expr)
         emit_conditionalexpr(out, expr);
     else if (expr instanceof MemberExpr)
         emit_memberexpr(out, expr);
+    else if (expr instanceof MemberRefExpr) {
+        // Fake implementation to allow some testing.
+        out.print("winxedxxnull");
+    }
     else if (expr instanceof IndexExpr)
         emit_indexexpr(out, expr);
     else if (expr instanceof StringIndexExpr)
