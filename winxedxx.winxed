@@ -873,7 +873,10 @@ function emit_OpExistsExpr(out, expr)
         SyntaxError("exits with invalid operator", expr);
 
     // Fake implementation to allow some testing
-    out.print("false");
+    emit_expr(out, subexpr.left);
+    var arg = subexpr.args.getarg(0);
+    out.print(".exists");
+    emit_expr(out, arg);
 }
 
 function emit_memberexpr(out, expr)

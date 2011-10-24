@@ -26,6 +26,7 @@ public:
     virtual WxxObjectPtr get_pmc_keyed(const std::string &s) = 0;
     virtual WxxObjectPtr get_pmc_keyed(const char *s) = 0;
     virtual void set_pmc_keyed(int i, const WxxObjectPtr &value) = 0;
+    virtual int exists(const std::string &key) = 0;
     virtual WxxObjectPtr & set_pmc_keyed(const std::string &s, const WxxObjectPtr &value) = 0;
     virtual WxxObjectPtr & get_attr_str(const std::string &s) = 0;
     virtual void set_attr_str(const std::string &s, const WxxObjectPtr &value) = 0;

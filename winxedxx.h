@@ -100,6 +100,7 @@ public:
     WxxObjectPtr &set_pmc_keyed(const std::string &s, const WxxObjectPtr &value);
     WxxObjectPtr get_pmc_keyed(const std::string &s);
     WxxObjectPtr get_pmc_keyed(const char *s);
+    int exists(const std::string &key);
 private:
     std::map<std::string, WxxObjectPtr> hsh;
 };
@@ -367,6 +368,11 @@ WxxObjectPtr & WxxHash::set_pmc_keyed(const std::string &s, const WxxObjectPtr &
 {
     hsh[s] = value;
     return hsh[s];
+}
+
+int WxxHash::exists(const std::string &key)
+{
+    return hsh.find(key) != hsh.end();
 }
 
 //*************************************************************

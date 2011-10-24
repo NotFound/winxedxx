@@ -114,6 +114,12 @@ WxxObjectPtr & WxxNull::set_pmc_keyed(const std::string &s, const WxxObjectPtr &
     return winxedxxnull;
 }
 
+int WxxNull::exists(const std::string &key)
+{
+    nullaccess("exists");
+    return 0;
+}
+
 WxxObjectPtr & WxxNull::get_attr_str(const std::string &s)
 {
     nullaccess("get_attr_str");
@@ -276,6 +282,11 @@ WxxObjectPtr & WxxDefault::set_pmc_keyed(const std::string &s, const WxxObjectPt
 {
     notimplemented("set_pmc_keyed");
     return winxedxxnull;
+}
+int WxxDefault::exists(const std::string &key)
+{
+    notimplemented("exists");
+    return 0;
 }
 
 WxxObjectPtr & WxxDefault::get_attr_str(const std::string &s)

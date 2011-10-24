@@ -87,7 +87,7 @@ function test_hash(test)
     var hash = { "a" : 1, "b" : "x" };
     test.is_string(hash["b"], "x", "hash element initialized");
     test.nok(exists hash["none"], "hash exists false case");
-    test.todo(exists hash["a"], "hash exists true case");
+    test.ok(exists hash["a"], "hash exists true case");
 }
 
 namespace Foo
