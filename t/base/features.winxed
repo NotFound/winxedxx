@@ -185,8 +185,11 @@ function main [main] (args)
     test.ntodo(vi1 != vi2, "operator != : x != same class, same value");
 
     test.ok(test === test, "operator === : x === x");
+    test.nok(test !== test, "operator !== : x !== x");
     test.nok(vi1 === vi2, "operator === : x === same class");
+    test.ok(vi1 !== vi2, "operator !== : x !== same class");
     test.nok(vi1 === test, "operator === : x === other class");
+    test.ok(vi1 !== test, "operator !== : x !== other class");
 
     string s = "abc";
     test.is_string(s * 3, "abcabcabc", "repeat string");

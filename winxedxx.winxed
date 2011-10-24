@@ -819,10 +819,13 @@ function emit_OpSameExpr(out, expr)
     var rexpr = expr.rexpr;
     if (lexpr.checkresult() != REGvar || rexpr.checkresult() != REGvar)
         WxxUnsupported(expr, "unsupported usage of ===");
+    if (! expr.positive)
+        out.print("!");
+    out.print("(");
     emit_expr(out, rexpr);
     out.print(".is_same(");
     emit_expr(out, lexpr);
-    out.print(")");
+    out.print("))");
 }
 
 function emit_commonop(out, expr, string opstr)
