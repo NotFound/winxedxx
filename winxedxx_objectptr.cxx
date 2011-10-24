@@ -118,6 +118,11 @@ WxxObjectPtr & WxxObjectPtr::operator = (const char *s)
     return *this;
 }
 
+int WxxObjectPtr::is_same(const WxxObjectPtr &from) const
+{
+    return object == from.object;
+}
+
 WxxObjectPtr::operator int() const
 {
     return object->get_integer();

@@ -168,8 +168,16 @@ function main [main] (args)
     int i = 1;
     test.ok(i == 1, "int initialization");
 
+    var vi1 = 42;
+    test.is(vi1, 42, "var initialized with int");
+
     i = -i;
     test.is(i, -1, "unary minus");
+
+    test.ok(test === test, "operator === : x === x");
+    var vi2 = 42;
+    test.nok(vi1 === vi2, "operator === : x === same class");
+    test.nok(vi1 === test, "operator === : x === other class");
 
     string s = "abc";
     test.is_string(s * 3, "abcabcabc", "repeat string");

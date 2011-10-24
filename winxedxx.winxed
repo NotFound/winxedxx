@@ -66,6 +66,7 @@ class OpNotExpr;
 class OpBinNotExpr;
 class ZeroCheckerExpr;
 class OpEqualExpr;
+class OpSameExpr;
 class OpLessEqualExpr;
 class OpGreaterEqualExpr;
 class OpLessExpr;
@@ -795,6 +796,18 @@ function emit_ZeroCheckerExpr(out, expr)
     out.print("= 0)");
 }
 
+function emit_OpSameExpr(out, expr)
+{
+    var lexpr = expr.lexpr;
+    var rexpr = expr.rexpr;
+    if (lexpr.checkresult() != REGvar || rexpr.checkresult() != REGvar)
+        WxxUnsupported(expr, "unsupported usage of ===");
+    emit_expr(out, rexpr);
+    out.print(".is_same(");
+    emit_expr(out, lexpr);
+    out.print(")");
+}
+
 function emit_commonop(out, expr, string opstr)
 {
     emit_expr(out, expr.lexpr);
@@ -977,6 +990,8 @@ function emit_expr(out, expr)
         emit_ZeroCheckerExpr(out, expr);
     else if (expr instanceof OpEqualExpr)
         emit_commonop(out, expr, expr.positive ? "==" : "!=");
+    else if (expr instanceof OpSameExpr)
+        emit_OpSameExpr(out, expr);
     else if (expr instanceof OpLessEqualExpr)
         emit_commonop(out, expr, "<=");
     else if (expr instanceof OpLessExpr)

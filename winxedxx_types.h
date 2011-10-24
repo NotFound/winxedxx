@@ -51,6 +51,7 @@ public:
     WxxObjectPtr & operator = (double value);
     WxxObjectPtr & operator = (const std::string &s);
     WxxObjectPtr & operator = (const char *s);
+    int is_same(const WxxObjectPtr &from) const;
     operator int() const;
     operator bool() const;
     operator double() const;
