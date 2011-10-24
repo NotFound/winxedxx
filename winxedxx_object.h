@@ -56,6 +56,7 @@ protected:
 WxxObjectPtr wxx_getstdin();
 WxxObjectPtr wxx_getstdout();
 WxxObjectPtr wxx_getstderr();
+WxxObjectPtr wxx_spawnw(WxxObjectPtr obj);
 
 } // namespace WinxedXX
 
