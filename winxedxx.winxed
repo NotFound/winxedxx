@@ -796,6 +796,23 @@ function emit_ZeroCheckerExpr(out, expr)
     out.print("= 0)");
 }
 
+function emit_OpEqualExpr(out, expr)
+{
+    var lexpr = expr.lexpr;
+    var rexpr = expr.rexpr;
+    if (lexpr.checkresult() == REGvar && rexpr.checkresult() == REGvar) {
+        if (! expr.positive)
+            out.print("!");
+        out.print("(");
+        emit_expr(out, lexpr);
+        out.print(".is_equal");
+        emit_expr(out, rexpr);
+        out.print(")");
+    }
+    else
+        emit_commonop(out, expr, expr.positive ? "==" : "!=");
+}
+
 function emit_OpSameExpr(out, expr)
 {
     var lexpr = expr.lexpr;
@@ -989,7 +1006,7 @@ function emit_expr(out, expr)
     else if (expr instanceof ZeroCheckerExpr)
         emit_ZeroCheckerExpr(out, expr);
     else if (expr instanceof OpEqualExpr)
-        emit_commonop(out, expr, expr.positive ? "==" : "!=");
+        emit_OpEqualExpr(out, expr);
     else if (expr instanceof OpSameExpr)
         emit_OpSameExpr(out, expr);
     else if (expr instanceof OpLessEqualExpr)

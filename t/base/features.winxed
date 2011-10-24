@@ -45,6 +45,10 @@ class Test
         print(self.inc_count());
         say(" - ", message, " # TODO");
     }
+    function ntodo(int check, string message)
+    {
+        self.todo(! check, message);
+    }
 
     function is(int value, int check, string message)
     {
@@ -174,8 +178,13 @@ function main [main] (args)
     i = -i;
     test.is(i, -1, "unary minus");
 
-    test.ok(test === test, "operator === : x === x");
     var vi2 = 42;
+    var vi3 = 7;
+    test.todo(vi1 == vi2, "operator == : x == same class, same value");
+    test.nok(vi1 == vi3, "operator == : x == same class, not same value");
+    test.ntodo(vi1 != vi2, "operator != : x != same class, same value");
+
+    test.ok(test === test, "operator === : x === x");
     test.nok(vi1 === vi2, "operator === : x === same class");
     test.nok(vi1 === test, "operator === : x === other class");
 
