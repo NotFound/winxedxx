@@ -87,6 +87,7 @@ public:
     WxxStringArray& push(const char *str);
     WxxStringArray& push(const std::string &str);
     void set_pmc_keyed(int i, const WxxObjectPtr &value);
+    WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
 private:
     std::vector<std::string> arr;
 };
@@ -340,6 +341,18 @@ WxxStringArray& WxxStringArray::push(const std::string &str)
 void WxxStringArray::set_pmc_keyed(int i, const WxxObjectPtr &value)
 {
     arr[i] = std::string(value);
+}
+
+WxxObjectPtr WxxStringArray::call_method(const std::string &methname, WxxObjectArray &args)
+{
+    if (methname == "shift") {
+        if (arr.size() == 0)
+            throw wxx_error("Can't shift from an empty array");
+        std::string result = this->operator[](0);
+        arr.erase(arr.begin());
+        return WxxObjectPtr(result);
+    }
+    return WxxDefault::call_method(methname, args);
 }
 
 //*************************************************************
