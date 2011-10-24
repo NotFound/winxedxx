@@ -9,6 +9,9 @@
 
 #include <sstream>
 
+#include <sys/types.h>
+#include <sys/wait.h>
+
 #include <dlfcn.h>
 
 namespace WinxedXX
@@ -113,8 +116,15 @@ WxxObjectPtr wxx_spawnw(WxxObjectPtr obj)
         argv[i] = args[i].c_str();
     }
     argv[len] = 0;
-    if (fork() != 0)
+    int pid = fork();
+    switch (pid) {
+    case 0:
         execvp(argv[0], (char**)argv);
+    case -1:
+        throw wxx_error("fork failed in spawnw");
+    default:
+        waitpid(pid, NULL, 0);
+    }
     return WxxObjectPtr(0);
 }
 
