@@ -887,6 +887,14 @@ function emit_memberexpr(out, expr)
     out.print("\")");
 }
 
+function emit_MemberRefExpr(out, expr)
+{
+    emit_expr(out, expr.left);
+    out.print(".get_attr_str(");
+    emit_expr(out, expr.right);
+    out.print(")");
+}
+
 function emit_expr(out, expr)
 {
     out.print("(");
@@ -1000,8 +1008,7 @@ function emit_expr(out, expr)
     else if (expr instanceof MemberExpr)
         emit_memberexpr(out, expr);
     else if (expr instanceof MemberRefExpr) {
-        // Fake implementation to allow some testing.
-        out.print("winxedxxnull");
+        emit_MemberRefExpr(out, expr);
     }
     else if (expr instanceof IndexExpr)
         emit_indexexpr(out, expr);

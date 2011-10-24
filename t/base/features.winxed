@@ -149,6 +149,13 @@ function test_try(test)
 
 //**********************************************************************
 
+class Cl
+{
+    var foo;
+}
+
+//**********************************************************************
+
 function main [main] (args)
 {
     var test = new Test();
@@ -202,6 +209,12 @@ function main [main] (args)
 
     var obj = new SomeClass;
     test.ok(obj instanceof SomeClass, "new and instanceof by identifier");
+
+    var cl = new Cl;
+    cl.foo = "Cl_foo";
+    s = "foo";
+    s = cl.*s;
+    test.is_string(s, "Cl_foo", "indirect get attribute");
 
     test.done_testing();
 }
