@@ -10,6 +10,10 @@
 namespace WinxedXX
 {
 
+std::string wxx_int_to_string(int i);
+std::string wxx_num_to_string(double value);
+std::string wxx_repeat_string(std::string s, int n);
+
 class WxxInteger : public WxxDefault
 {
 public:
@@ -68,6 +72,63 @@ public:
     WxxObjectPtr get_iter();
 };
 
+class WxxIntegerArray : public WxxArrayBase
+{
+public:
+    WxxIntegerArray();
+    ~WxxIntegerArray();
+    int elements();
+    int operator[](int i) const;
+    WxxObjectPtr get_pmc_keyed(int i);
+    WxxIntegerArray& push(WxxObjectPtr obj);
+    WxxIntegerArray& push(int i);
+    WxxIntegerArray& push(double value);
+    WxxIntegerArray& push(const char *str);
+    WxxIntegerArray& push(const std::string &str);
+    void set_pmc_keyed(int i, const WxxObjectPtr &value);
+private:
+    std::vector<int> arr;
+};
+
+class WxxFloatArray : public WxxArrayBase
+{
+public:
+    WxxFloatArray();
+    ~WxxFloatArray();
+    int elements();
+    double operator[](int i) const;
+    WxxObjectPtr get_pmc_keyed(int i);
+    WxxFloatArray& push(WxxObjectPtr obj);
+    WxxFloatArray& push(int i);
+    WxxFloatArray& push(double value);
+    WxxFloatArray& push(const char *str);
+    WxxFloatArray& push(const std::string &str);
+    void set_pmc_keyed(int i, const WxxObjectPtr &value);
+private:
+    std::vector<double> arr;
+};
+
+class WxxStringArray : public WxxArrayBase
+{
+public:
+    WxxStringArray();
+    WxxStringArray(char **argv);
+    ~WxxStringArray();
+    int elements();
+    std::string operator[](int i) const;
+    std::string get_string_keyed(int i);
+    WxxObjectPtr get_pmc_keyed(int i);
+    WxxStringArray& push(WxxObjectPtr obj);
+    WxxStringArray& push(int i);
+    WxxStringArray& push(double value);
+    WxxStringArray& push(const char *str);
+    WxxStringArray& push(const std::string &str);
+    void set_pmc_keyed(int i, const WxxObjectPtr &value);
+    WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
+private:
+    std::vector<std::string> arr;
+};
+
 class WxxObjectArray : public WxxArrayBase
 {
 public:
@@ -96,6 +157,48 @@ public:
 private:
     WxxObject *cnt;
     int current;
+};
+
+class WxxHash : public WxxDefault
+{
+public:
+    WxxHash();
+    WxxHash & set(const std::string &key, WxxObjectPtr value);
+    using WxxDefault::set_pmc_keyed;
+    WxxObjectPtr &set_pmc_keyed(const std::string &s, const WxxObjectPtr &value);
+    WxxObjectPtr get_pmc_keyed(const std::string &s);
+    WxxObjectPtr get_pmc_keyed(const char *s);
+    int exists(const std::string &key);
+private:
+    std::map<std::string, WxxObjectPtr> hsh;
+};
+
+class WxxClass : public WxxDefault
+{
+public:
+    typedef WxxObjectPtr (*memberfun)(WxxObjectPtr &, const WxxObjectArray &);
+
+    WxxClass(const std::string &name);
+    std::string class_name() const;
+    void addattribute(const std::string &attrname);
+    void addfunction(const std::string &fname, memberfun);
+    memberfun getfunction(const std::string &fname);
+    static WxxClass * getclass(const std::string &name);
+private:
+    std::string clname;
+    std::vector<std::string> attrs;
+    static std::map<std::string, WxxClass *> reg;
+    std::map<std::string, memberfun> regfun;
+};
+
+class WxxInstance : public WxxDefault
+{
+public:
+    WxxInstance(const std::string &clname);
+    std::string class_name() const;
+    WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
+private:
+    WxxClass *cl;
 };
 
 class WxxLibrary : public WxxDefault

@@ -10,6 +10,8 @@
 #include <iostream>
 #include <sstream>
 
+#include <stdlib.h>
+
 #include <dlfcn.h>
 
 namespace WinxedXX
@@ -499,6 +501,235 @@ WxxObjectPtr WxxArrayIterator::shift_pmc()
 
 //*************************************************************
 
+WxxIntegerArray::WxxIntegerArray() :
+        WxxArrayBase("ResizableIntegerArray")
+{
+}
+
+WxxIntegerArray::~WxxIntegerArray()
+{
+}
+
+int WxxIntegerArray::elements()
+{
+    return arr.size();
+}
+
+WxxObjectPtr WxxIntegerArray::get_pmc_keyed(int i)
+{
+    return this->operator[](i);
+}
+
+int WxxIntegerArray::operator[](int i) const
+{
+    int size = arr.size();
+    if (i < 0)
+        i += size;
+    if (i < 0)
+        throw wxx_error(getname() + ": index out of bounds!");
+    if (i >= size)
+         return winxedxxnull;
+    return arr[i];
+}
+
+WxxIntegerArray& WxxIntegerArray::push(WxxObjectPtr obj)
+{
+    arr.push_back(obj);
+    return *this;
+}
+
+WxxIntegerArray& WxxIntegerArray::push(int i)
+{
+    arr.push_back(i);
+    return *this;
+}
+
+WxxIntegerArray& WxxIntegerArray::push(double value)
+{
+    arr.push_back(value);
+    return *this;
+}
+
+WxxIntegerArray& WxxIntegerArray::push(const char *str)
+{
+    arr.push_back(atoi(str));
+    return *this;
+}
+
+WxxIntegerArray& WxxIntegerArray::push(const std::string &str)
+{
+    arr.push_back(atoi(str.c_str()));
+    return *this;
+}
+
+void WxxIntegerArray::set_pmc_keyed(int i, const WxxObjectPtr &value)
+{
+    arr[i] = value;
+}
+
+//*************************************************************
+
+WxxFloatArray::WxxFloatArray() :
+        WxxArrayBase("ResizableFloatArray")
+{
+}
+
+WxxFloatArray::~WxxFloatArray()
+{
+}
+
+int WxxFloatArray::elements()
+{
+    return arr.size();
+}
+
+WxxObjectPtr WxxFloatArray::get_pmc_keyed(int i)
+{
+    return this->operator[](i);
+}
+
+double WxxFloatArray::operator[](int i) const
+{
+    int size = arr.size();
+    if (i < 0)
+        i += size;
+    if (i < 0)
+        throw wxx_error(getname() + ": index out of bounds!");
+    if (i >= size)
+         return winxedxxnull;
+    return arr[i];
+}
+
+WxxFloatArray& WxxFloatArray::push(WxxObjectPtr obj)
+{
+    arr.push_back(obj);
+    return *this;
+}
+
+WxxFloatArray& WxxFloatArray::push(int i)
+{
+    arr.push_back(i);
+    return *this;
+}
+
+WxxFloatArray& WxxFloatArray::push(double value)
+{
+    arr.push_back(value);
+    return *this;
+}
+
+WxxFloatArray& WxxFloatArray::push(const char *str)
+{
+    arr.push_back(strtod(str, 0));
+    return *this;
+}
+
+WxxFloatArray& WxxFloatArray::push(const std::string &str)
+{
+    arr.push_back(strtod(str.c_str(), 0));
+    return *this;
+}
+
+void WxxFloatArray::set_pmc_keyed(int i, const WxxObjectPtr &value)
+{
+    arr[i] = value;
+}
+
+//*************************************************************
+
+WxxStringArray::WxxStringArray() :
+        WxxArrayBase("ResizableStringArray")
+{
+}
+
+// Special purpose initialization intended only for usage from main.
+WxxStringArray::WxxStringArray(char **argv) :
+        WxxArrayBase("ResizableStringArray")
+{
+    for (int argi = 0; argv[argi]; ++argi)
+        push(argv[argi]);
+}
+
+WxxStringArray::~WxxStringArray()
+{
+}
+
+int WxxStringArray::elements()
+{
+    return arr.size();
+}
+
+std::string WxxStringArray::get_string_keyed(int i)
+{
+    return this->operator[](i);
+}
+
+WxxObjectPtr WxxStringArray::get_pmc_keyed(int i)
+{
+    return this->operator[](i);
+}
+
+std::string WxxStringArray::operator[](int i) const
+{
+    int size = arr.size();
+    if (i < 0)
+        i += size;
+    if (i < 0)
+        throw wxx_error(getname() + ": index out of bounds!");
+    if (i >= size)
+         return winxedxxnull;
+    return arr[i];
+}
+
+WxxStringArray& WxxStringArray::push(WxxObjectPtr obj)
+{
+    arr.push_back(obj);
+    return *this;
+}
+
+WxxStringArray& WxxStringArray::push(int i)
+{
+    arr.push_back(wxx_int_to_string(i));
+    return *this;
+}
+
+WxxStringArray& WxxStringArray::push(double value)
+{
+    arr.push_back(wxx_num_to_string(value));
+    return *this;
+}
+
+WxxStringArray& WxxStringArray::push(const char *str)
+{
+    arr.push_back(std::string(str));
+    return *this;
+}
+
+WxxStringArray& WxxStringArray::push(const std::string &str)
+{
+    arr.push_back(str);
+    return *this;
+}
+
+void WxxStringArray::set_pmc_keyed(int i, const WxxObjectPtr &value)
+{
+    arr[i] = std::string(value);
+}
+
+WxxObjectPtr WxxStringArray::call_method(const std::string &methname, WxxObjectArray &args)
+{
+    if (methname == "shift") {
+        if (arr.size() == 0)
+            throw wxx_error("Can't shift from an empty array");
+        std::string result = this->operator[](0);
+        arr.erase(arr.begin());
+        return WxxObjectPtr(result);
+    }
+    return WxxDefault::call_method(methname, args);
+}
+
+//*************************************************************
+
 WxxObjectArray::WxxObjectArray() :
         WxxArrayBase("ResizablePMCArray")
 {
@@ -565,6 +796,103 @@ WxxObjectArray& WxxObjectArray::push(const std::string &str)
 void WxxObjectArray::set_pmc_keyed(int i, const WxxObjectPtr &value)
 {
     arr[i] = new WxxObjectPtr(value);
+}
+
+//*************************************************************
+
+WxxHash::WxxHash() : WxxDefault("Hash")
+{
+}
+
+WxxHash &WxxHash::set(const std::string &key, WxxObjectPtr value)
+{
+    hsh[key] = value;
+    return *this;
+}
+
+WxxObjectPtr WxxHash::get_pmc_keyed(const std::string &s)
+{
+    return hsh[s];
+}
+
+WxxObjectPtr WxxHash::get_pmc_keyed(const char *s)
+{
+    return hsh[s];
+}
+
+WxxObjectPtr & WxxHash::set_pmc_keyed(const std::string &s, const WxxObjectPtr &value)
+{
+    hsh[s] = value;
+    return hsh[s];
+}
+
+int WxxHash::exists(const std::string &key)
+{
+    return hsh.find(key) != hsh.end();
+}
+
+//*************************************************************
+
+std::map<std::string, WxxClass *> WxxClass::reg;
+
+WxxClass * WxxClass::getclass(const std::string &name)
+{
+    return reg[name];
+}
+
+WxxClass::WxxClass(const std::string &name) :
+        WxxDefault("Class"),
+        clname(name)
+{
+    reg[name] = this;
+}
+
+std::string WxxClass::class_name() const
+{
+    return clname;
+}
+
+void WxxClass::addattribute(const std::string &attrname)
+{
+    attrs.push_back(attrname);
+}
+
+void WxxClass::addfunction(const std::string &fname, memberfun fun)
+{
+    regfun[fname] = fun;
+}
+
+WxxClass::memberfun WxxClass::getfunction(const std::string &fname)
+{
+    return regfun[fname];
+}
+
+
+//*************************************************************
+
+WxxInstance::WxxInstance(const std::string &clname) :
+        WxxDefault(clname)
+{
+    cl = WxxClass::getclass(clname);
+    if (! cl)
+        throw wxx_error("class not found: " + clname);
+}
+
+std::string WxxInstance::class_name() const
+{
+    return cl->class_name();
+}
+
+WxxObjectPtr WxxInstance::call_method(const std::string &methname, WxxObjectArray &args)
+{
+    WxxClass::memberfun fun = cl->getfunction(methname);
+    if (fun) {
+        WxxObjectPtr obj(this);
+        return (*fun)(obj, args);
+    }
+    else
+        throw wxx_error("method '" + methname + "' not found in '" + class_name() + "'");
+    return winxedxxnull;
 }
 
 //*************************************************************
