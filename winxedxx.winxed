@@ -15,8 +15,6 @@
 namespace Winxed {
 namespace Compiler {
 
-extern function SyntaxError;
-
 class Token;
 class TokenQuoted;
 class TokenSingleQuoted;
@@ -911,7 +909,7 @@ function emit_OpExistsExpr(out, expr)
 {
     var subexpr = expr.subexpr;
     if (! (subexpr instanceof IndexExpr) || expr.checkresult() == REGstring)
-        SyntaxError("exits with invalid operator", expr);
+        WxxUnsupported(expr, "exits with invalid operator");
 
     // Fake implementation to allow some testing
     emit_expr(out, subexpr.left);

@@ -199,6 +199,12 @@ WxxObjectPtr & WxxObjectPtr::set_pmc_keyed(const std::string &s, const WxxObject
 {
     return object->set_pmc_keyed(s, value);
 }
+
+WxxObjectPtr & WxxObjectPtr::set_pmc_keyed(const WxxObjectPtr &key, const WxxObjectPtr &value)
+{
+    return object->set_pmc_keyed(std::string(key), value);
+}
+
 int WxxObjectPtr::exists(const std::string &key)
 {
     return object->exists(key);

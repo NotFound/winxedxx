@@ -67,6 +67,7 @@ public:
     WxxObjectPtr get_pmc_keyed(const char *s);
     void set_pmc_keyed(int i, const WxxObjectPtr &value);
     WxxObjectPtr & set_pmc_keyed(const std::string &s, const WxxObjectPtr &value);
+    WxxObjectPtr & set_pmc_keyed(const WxxObjectPtr &key, const WxxObjectPtr &value);
     int exists(const std::string &key);
     void print();
     WxxObjectPtr & get_attr_str(const std::string &s);
