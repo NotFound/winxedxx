@@ -641,11 +641,11 @@ int operator == (const std::string &str, const WxxObjectPtr &obj)
 {
     return obj.get_string() == str;
 }
-int operator != (WxxObjectPtr &obj, const std::string &str)
+int operator != (const WxxObjectPtr &obj, const std::string &str)
 {
     return obj.get_string() != str;
 }
-int operator != (const std::string &str, WxxObjectPtr &obj)
+int operator != (const std::string &str, const WxxObjectPtr &obj)
 {
     return obj.get_string() != str;
 }
