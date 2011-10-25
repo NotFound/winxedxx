@@ -29,9 +29,8 @@ function main [main](args)
 {
     args.shift();
 
-    for (string arg in args) {
-	runtest(arg);
-    }
+    for (string arg in args)
+        runtest(arg);
 }
 
 // End
