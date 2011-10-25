@@ -93,6 +93,8 @@ function test_hash(test)
     var key = "b";
     hash[key] = "y";
     test.is_string(hash["b"], "y", "hash kayed with String var - set");
+    hash["b"] = "z";
+    test.is_string(hash[key], "z", "hash kayed with String var - get");
 
     test.nok(exists hash["none"], "hash exists false case");
     test.ok(exists hash["a"], "hash exists true case");

@@ -190,6 +190,11 @@ WxxObjectPtr WxxObjectPtr::get_pmc_keyed(const char *s)
     return object->get_pmc_keyed(s);
 }
 
+WxxObjectPtr WxxObjectPtr::get_pmc_keyed(const WxxObjectPtr & key)
+{
+    return object->get_pmc_keyed(std::string(key));
+}
+
 void WxxObjectPtr::set_pmc_keyed(int i, const WxxObjectPtr &value)
 {
     object->set_pmc_keyed(i, value);
