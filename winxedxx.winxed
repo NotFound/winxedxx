@@ -1924,10 +1924,10 @@ class WinxedxxOptions : ["Getopt", "Obj" ]
         self.name = argv.shift();
         self.opts = self.get_options(argv);
     }
-    function getstring(string option, string default[optional])
+    function getstring(string option, string default_value[optional])
     {
         var value = self.opts[option];
-        return value != null ? string(value) : default;
+        return value != null ? string(value) : default_value;
     }
 }
 
