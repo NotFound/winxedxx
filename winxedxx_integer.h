@@ -187,7 +187,6 @@ public:
 private:
     std::string clname;
     std::vector<std::string> attrs;
-    static std::map<std::string, WxxClass *> reg;
     std::map<std::string, memberfun> regfun;
 };
 

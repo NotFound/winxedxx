@@ -833,18 +833,24 @@ int WxxHash::exists(const std::string &key)
 
 //*************************************************************
 
-std::map<std::string, WxxClass *> WxxClass::reg;
+typedef std::map<std::string, WxxClass *> WxxClassReg;
+static WxxClassReg *wxxclassreg = 0;
 
 WxxClass * WxxClass::getclass(const std::string &name)
 {
-    return reg[name];
+    if (wxxclassreg)
+        return (*wxxclassreg)[name];
+    else
+        return 0;
 }
 
 WxxClass::WxxClass(const std::string &name) :
         WxxDefault("Class"),
         clname(name)
 {
-    reg[name] = this;
+    if (! wxxclassreg)
+        wxxclassreg = new WxxClassReg();
+    (*wxxclassreg)[name] = this;
 }
 
 std::string WxxClass::class_name() const
