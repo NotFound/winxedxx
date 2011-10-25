@@ -54,6 +54,14 @@ WxxObjectPtr::~WxxObjectPtr()
         object->decref();
 }
 
+std::string WxxObjectPtr::class_name() const
+{
+    if (object)
+        return object->class_name();
+    else
+        return "Null";
+}
+
 WxxObjectPtr & WxxObjectPtr::set(int value)
 {
     object->set(value);

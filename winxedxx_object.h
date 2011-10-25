@@ -11,6 +11,7 @@ class WxxObject
 {
 public:
     virtual int is_null() const = 0;
+    virtual std::string class_name() const = 0;
     virtual int instanceof(const std::string &type) = 0;
     virtual int get_bool() = 0;
     virtual int get_integer() = 0;

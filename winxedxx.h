@@ -464,6 +464,7 @@ public:
     typedef WxxObjectPtr (*memberfun)(WxxObjectPtr &, const WxxObjectArray &);
 
     WxxClass(const std::string &name);
+    std::string class_name() const;
     void addattribute(const std::string &attrname);
     void addfunction(const std::string &fname, memberfun);
     memberfun getfunction(const std::string &fname);
@@ -489,6 +490,11 @@ WxxClass::WxxClass(const std::string &name) :
     reg[name] = this;
 }
 
+std::string WxxClass::class_name() const
+{
+    return clname;
+}
+
 void WxxClass::addattribute(const std::string &attrname)
 {
     attrs.push_back(attrname);
@@ -509,6 +515,7 @@ class WxxInstance : public WxxDefault
 {
 public:
     WxxInstance(const std::string &clname);
+    std::string class_name() const;
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
 private:
     WxxClass *cl;
@@ -522,6 +529,11 @@ WxxInstance::WxxInstance(const std::string &clname) :
         throw wxx_error("class not found: " + clname);
 }
 
+std::string WxxInstance::class_name() const
+{
+    return cl->class_name();
+}
+
 WxxObjectPtr WxxInstance::call_method(const std::string &methname, WxxObjectArray &args)
 {
     WxxClass::memberfun fun = cl->getfunction(methname);
@@ -530,7 +542,7 @@ WxxObjectPtr WxxInstance::call_method(const std::string &methname, WxxObjectArra
         return (*fun)(obj, args);
     }
     else
-        throw wxx_error("method not found");
+        throw wxx_error("method '" + methname + "' not found in '" + class_name() + "'");
     return winxedxxnull;
 }
 

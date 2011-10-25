@@ -15,6 +15,7 @@ protected:
     WxxDefault(const std::string &name);
     ~WxxDefault();
 public:
+    std::string class_name() const;
     int is_null() const;
     std::string getname() const;
     int instanceof(const std::string &type);

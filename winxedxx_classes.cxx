@@ -17,6 +17,11 @@ namespace WinxedXX
 
 //*************************************************************
 
+std::string WxxNull::class_name() const
+{
+    return "Null";
+}
+
 int WxxNull::is_null() const { return 1; }
 
 int WxxNull::instanceof(const std::string &type)
@@ -187,6 +192,11 @@ WxxDefault::~WxxDefault()
     //std::cerr << "~WxxDefault " << name << "\n";
 }
 
+std::string WxxDefault::class_name() const
+{
+    return name;
+}
+
 int WxxDefault::is_null() const
 { return 0; }
 
@@ -350,6 +360,11 @@ WxxInteger::WxxInteger(int value) : WxxDefault("Integer")
     i = value;
 }
 
+std::string WxxInteger::class_name() const
+{
+    return "Integer";
+}
+
 int WxxInteger::get_integer() { return i; };
 
 double WxxInteger::get_number() { return i; }
@@ -382,6 +397,11 @@ WxxFloat::WxxFloat(double value) : WxxDefault("Float")
     n = value;
 }
 
+std::string WxxFloat::class_name() const
+{
+    return "Float";
+}
+
 int WxxFloat::get_integer() { return n; };
 
 double WxxFloat::get_number() { return n; }
@@ -412,6 +432,11 @@ void WxxFloat::print() { std::cout << n; }
 WxxString::WxxString(std::string value) : WxxDefault("String")
 {
     str = value;
+}
+
+std::string WxxString::class_name() const
+{
+    return "String";
 }
 
 std::string WxxString::get_string() { return str; }

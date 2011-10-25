@@ -42,6 +42,7 @@ public:
     WxxObjectPtr(const WxxObjectPtr &old);
     WxxObjectPtr(WxxObject * obj);
     ~WxxObjectPtr();
+    std::string class_name() const;
     WxxObjectPtr & set(int value);
     WxxObjectPtr & set(double value);
     WxxObjectPtr & set(const char *s);

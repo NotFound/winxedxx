@@ -14,6 +14,7 @@ class WxxInteger : public WxxDefault
 {
 public:
     WxxInteger(int value);
+    std::string class_name() const;
     int get_integer();
     double get_number();
     std::string get_string();
@@ -28,6 +29,7 @@ class WxxFloat : public WxxDefault
 {
 public:
     WxxFloat(double value);
+    std::string class_name() const;
     int get_integer();
     double get_number();
     std::string get_string();
@@ -42,6 +44,7 @@ class WxxString : public WxxDefault
 {
 public:
     WxxString(std::string value);
+    std::string class_name() const;
     std::string get_string();
     WxxObject & set(const char *s);
     WxxObject & set(const std::string &s);
