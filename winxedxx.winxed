@@ -534,7 +534,6 @@ function emit_CallExpr(out, callexpr)
 {
     var funref = callexpr.funref;
     var args = callexpr.args;
-    int nargs = args == null ? 0 : args.numargs();
     if (! funref.isidentifier())
         WxxUnsupported(funref);
 
