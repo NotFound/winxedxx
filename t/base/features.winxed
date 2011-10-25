@@ -90,6 +90,10 @@ function test_hash(test)
 {
     var hash = { "a" : 1, "b" : "x" };
     test.is_string(hash["b"], "x", "hash element initialized");
+    var key = "b";
+    hash[key] = "y";
+    test.is_string(hash["b"], "y", "hash kayed with String var - set");
+
     test.nok(exists hash["none"], "hash exists false case");
     test.ok(exists hash["a"], "hash exists true case");
 }
