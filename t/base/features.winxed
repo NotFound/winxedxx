@@ -160,6 +160,18 @@ class Cl
 
 //**********************************************************************
 
+function miscellaneous(test, int runit)
+{
+    // Just do a full syntax check, do not execute.
+    // The variable condition is used to avoid being optimized out.
+    if (runit) {
+        exit(0);
+    }
+    test.ok(1, "some syntax checks");
+}
+
+//**********************************************************************
+
 function main [main] (args)
 {
     var test = new Test();
@@ -239,6 +251,8 @@ function main [main] (args)
     s = "foo";
     s = cl.*s;
     test.is_string(s, "Cl_foo", "indirect get attribute");
+
+    miscellaneous(test, false);
 
     test.done_testing();
 }

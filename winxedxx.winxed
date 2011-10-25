@@ -449,6 +449,9 @@ function emit_callbuiltinexpr(out, expr)
       case 'spawnw':
         emit_callbuiltin_simple(out, 'wxx_spawnw', arg0);
         break;
+      case 'exit':
+        emit_callbuiltin_simple(out, 'exit', arg0);
+        break;
       case 'sin':
       case 'cos':
       case 'tan':
@@ -464,6 +467,7 @@ function emit_callbuiltinexpr(out, expr)
         break;
 
       // Unsupported, always return null
+      case 'load_bytecode':
       case 'load_language':
       case 'compreg':
         out.print("winxedxxnull");
