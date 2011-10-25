@@ -191,6 +191,9 @@ function main [main] (args)
     test.is(vi1, 42, "var initialized with int");
     test.ok(vi1 != null, "var initialized with int is not null");
 
+    test.is(i == 1 ? vi1 : 44, 42, "conditional operator var - int");
+    test.is(i != 1 ? 44 : vi1, 42, "conditional operator int - var");
+
     i = -i;
     test.is(i, -1, "unary minus");
 

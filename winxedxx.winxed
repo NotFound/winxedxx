@@ -863,9 +863,14 @@ function emit_conditionalexpr(out, expr)
 {
     emit_expr(out, expr.condition.condexpr);
     out.print(" ? ");
+    string ttrue = expr.etrue.checkresult();
+    string tfalse = expr.efalse.checkresult();
     emit_expr(out, expr.etrue);
-    out.print(" : ");
+    out.print(" : (");
+    if (ttrue != tfalse)
+        out.print("(" + string(generatedType(ttrue)) + ")");
     emit_expr(out, expr.efalse);
+    out.print(")");
 }
 
 function emit_identifierexpr(out, expr)
