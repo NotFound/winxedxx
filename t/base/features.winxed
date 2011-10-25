@@ -172,8 +172,12 @@ function main [main] (args)
     int i = 1;
     test.ok(i == 1, "int initialization");
 
+    var n = null;
+    test.ok(n == null, "var null initialization");
+
     var vi1 = 42;
     test.is(vi1, 42, "var initialized with int");
+    test.ok(vi1 != null, "var initialized with int is not null");
 
     i = -i;
     test.is(i, -1, "unary minus");

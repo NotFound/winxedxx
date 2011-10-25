@@ -868,7 +868,7 @@ function emit_identifierexpr(out, expr)
 {
     string name = expr.name;
     if (name == "null")
-        out.print("winxednull");
+        out.print("winxedxxnull");
     else
         out.print(name);
 }
