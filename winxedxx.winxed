@@ -506,7 +506,7 @@ function emit_callbuiltinexpr(out, expr)
 
       // Unimplemented, just to allow some testing
       case 'get_class':
-        out.print("NULL");
+        out.print("winxedxxnull");
         break;
 
       // Unimplemented, just to allow some testing
