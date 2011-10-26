@@ -63,7 +63,7 @@ public:
     int instanceof(const std::string &type);
     std::string get_string() const;
     int elements() const;
-    std::string get_string_keyed(int i);
+    std::string get_string_keyed(int i) const;
     WxxObjectPtr get_pmc_keyed(int i);
     WxxObjectPtr get_pmc_keyed(const std::string &s);
     WxxObjectPtr get_pmc_keyed(const char *s);

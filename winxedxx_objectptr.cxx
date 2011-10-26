@@ -184,7 +184,7 @@ int WxxObjectPtr::elements() const
 return object->elements();
 }
 
-std::string WxxObjectPtr::get_string_keyed(int i)
+std::string WxxObjectPtr::get_string_keyed(int i) const
 {
     return object->get_string_keyed(i);
 }

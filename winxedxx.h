@@ -172,7 +172,7 @@ WxxObjectPtr wxx_typeof(WxxObjectPtr &thing)
     return winxedxxnull;
 }
 
-std::string wxx_join(const std::string &sep, WxxObjectPtr &arr)
+std::string wxx_join(const std::string &sep, const WxxObjectPtr &arr)
 {
     std::string result;
     int n = arr.elements();
