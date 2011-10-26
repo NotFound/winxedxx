@@ -190,6 +190,18 @@ function main [main] (args)
     int i = 1;
     test.ok(i == 1, "int initialization");
 
+    string str = "hi";
+    test.is_string(str, "hi", "string initialization");
+    str = "hello";
+    test.is_string(str, "hello", "string assign");
+    str = i;
+    test.is_string(str, "1", "string assign from int");
+    str = 42;
+    i = str;
+    test.is(i, 42, "int assign from string");
+    i = "44";
+    test.is(i, 44, "int assign from string literal");
+
     var n = null;
     test.ok(n == null, "var null initialization");
 
@@ -197,6 +209,7 @@ function main [main] (args)
     test.is(vi1, 42, "var initialized with int");
     test.ok(vi1 != null, "var initialized with int is not null");
 
+    i = 1;
     test.is(i == 1 ? vi1 : 44, 42, "conditional operator var - int");
     test.is(i != 1 ? 44 : vi1, 42, "conditional operator int - var");
 

@@ -398,6 +398,12 @@ function emit_callbuiltinexpr(out, expr)
       case 'join':
         emit_callbuiltin_simple_2(out, "wxx_join", arg0, arg1);
         break;
+
+      case 'downcase':
+        // Fake implementation, just copy the argument
+        emit_expr(out, arg0);
+        break;
+
       case 'push':
         emit_expr(out, arg0);
         out.print(".push");
@@ -405,6 +411,11 @@ function emit_callbuiltinexpr(out, expr)
         break;
       case 'split':
         emit_callbuiltin_simple_2(out, "wxx_split", arg0, arg1);
+        break;
+      case 'die':
+        out.print("wxx_error(");
+        emit_expr(out, arg0);
+        out.print(")");
         break;
       case 'Error':
         out.print("wxx_error(");
@@ -468,6 +479,7 @@ function emit_callbuiltinexpr(out, expr)
       case 'load_bytecode':
       case 'load_language':
       case 'compreg':
+      case 'getinterp':
         out.print("winxedxxnull");
         break;
 
@@ -624,12 +636,25 @@ function emit_assignexpr(out, assignexpr)
 {
     var lexpr = assignexpr.lexpr;
     var rexpr = assignexpr.rexpr;
+    string ltype = lexpr.checkresult();
+    string rtype = rexpr.checkresult();
     if (lexpr instanceof IdentifierExpr) {
         out.print(lexpr.name);
         out.print(" = ");
-        // Coerce result type to avoid ambiguities
-        out.print(generatedType(lexpr.checkresult()));
-        emit_expr(out, rexpr);
+        switch {
+          case ltype == REGstring && rtype == REGint:
+            out.print('wxx_int_to_string');
+            emit_expr(out, rexpr);
+            break;
+          case ltype == REGint && rtype == REGstring:
+            out.print('wxx_string_to_int');
+            emit_expr(out, rexpr);
+            break;
+          default:
+            // Coerce result type to avoid ambiguities
+            out.print(generatedType(lexpr.checkresult()));
+            emit_expr(out, rexpr);
+        }
     }
     else if (lexpr instanceof MemberExpr) {
         emit_expr(out, lexpr.left);

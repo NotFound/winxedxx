@@ -9,6 +9,8 @@
 
 #include <sstream>
 
+#include <stdlib.h>
+
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -60,6 +62,16 @@ std::string wxx_num_to_string(double value)
     std::ostringstream oss;
     oss << value;
     return oss.str();
+}
+
+int wxx_string_to_int(const std::string &src)
+{
+    return atoi(src.c_str());
+}
+
+int wxx_string_to_int(const char *src)
+{
+    return atoi(src);
 }
 
 std::string wxx_repeat_string(std::string s, int n)
