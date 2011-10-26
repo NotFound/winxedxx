@@ -251,35 +251,35 @@ int operator != (int i, WxxObjectPtr &obj)
 {
     return int(obj) != i;
 }
-int operator > (WxxObjectPtr &obj, int i)
+int operator > (const WxxObjectPtr &obj, int i)
 {
     return int(obj) > i;
 }
-int operator > (int i, WxxObjectPtr &obj)
+int operator > (int i, const WxxObjectPtr &obj)
 {
     return i > int(obj);
 }
-int operator < (WxxObjectPtr &obj, int i)
+int operator < (const WxxObjectPtr &obj, int i)
 {
     return int(obj) < i;
 }
-int operator < (int i, WxxObjectPtr &obj)
+int operator < (int i, const WxxObjectPtr &obj)
 {
     return i < int(obj);
 }
-int operator >= (WxxObjectPtr &obj, int i)
+int operator >= (const WxxObjectPtr &obj, int i)
 {
     return int(obj) >= i;
 }
-int operator >= (int i, WxxObjectPtr &obj)
+int operator >= (int i, const WxxObjectPtr &obj)
 {
     return i >= int(obj);
 }
-int operator <= (WxxObjectPtr &obj, int i)
+int operator <= (const WxxObjectPtr &obj, int i)
 {
     return int(obj) <= i;
 }
-int operator <= (int i, WxxObjectPtr &obj)
+int operator <= (int i, const WxxObjectPtr &obj)
 {
     return i <= int(obj);
 }
