@@ -371,7 +371,12 @@ function emit_callbuiltinexpr(out, expr)
       case 'ord':
         out.print("(unsigned char)(");
         emit_expr(out, arg0);
-        out.print(".c_str()[0])");
+        out.print(".c_str()[");
+        if (nargs > 1)
+            emit_expr(out, arg1);
+        else
+            out.print("0");
+        out.print("])");
         break;
       case 'chr':
         out.print("WxxObjectPtr(" + Type_String + "(1, int(");

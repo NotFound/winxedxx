@@ -87,6 +87,10 @@ function test_string_misc(test)
     string sep = "<<";
     s = join(sep, arr);
     test.is_string(s, "a<<b<<c", "join with string var");
+
+    s = "012";
+    test.is(ord(s), 0x30, "ord 1 arg");
+    test.is(ord(s, 1), 0x31, "ord 2 args");
 }
 
 function test_string_iter(test)
