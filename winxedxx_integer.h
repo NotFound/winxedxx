@@ -26,6 +26,7 @@ public:
     std::string get_string();
     WxxObject & set(int value);
     WxxObject & set(double value);
+    void increment();
     void print();
 private:
     int i;

@@ -295,6 +295,11 @@ function main [main] (args)
     test.nok(vi1 === test, "operator === : x === other class");
     test.ok(vi1 !== test, "operator !== : x !== other class");
 
+    ++vi1;
+    test.is(vi1, 43, "var preincrement");
+    i = ++vi1;
+    test.is(i, 44, "var preincrement with assignment");
+
     string s = "abc";
     test.is_string(s * 3, "abcabcabc", "repeat string");
 

@@ -164,6 +164,12 @@ WxxObjectPtr::operator std::string () const
     return object->get_string();
 }
 
+WxxObjectPtr & WxxObjectPtr::operator++()
+{
+    object->increment();
+    return *this;
+}
+
 int WxxObjectPtr::is_null() const
 {
     return object->is_null();

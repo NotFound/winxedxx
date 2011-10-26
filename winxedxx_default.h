@@ -28,6 +28,7 @@ public:
     WxxObject & set(double value);
     WxxObject & set(const char *s);
     WxxObject & set(const std::string &s);
+    void increment();
     std::string get_string_keyed(int i);
     WxxObjectPtr get_pmc_keyed(int i);
     WxxObjectPtr get_pmc_keyed(const std::string &s);
