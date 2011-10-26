@@ -271,6 +271,12 @@ function main [main] (args)
     n = str;
     test.is(n, 2.5, "float assign from string");
 
+    string stri = 42;
+    test.is_string(stri, "42", "string initialization from int");
+
+    string strn = 4.5;
+    test.is_string(strn, "4.5", "string initialization from float");
+
     var nothing = null;
     test.ok(nothing == null, "var null initialization");
 

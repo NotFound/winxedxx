@@ -1150,8 +1150,24 @@ function emit_nativetypestatement(out, st, string simpletype, string nullinit)
         out.print(nullinit);
     }
     else {
-        out.print(" = ");
+        string inittype = generatedType(init.checkresult());
+        out.print(" = (");
+        switch {
+          case simpletype == inittype:
+            break;
+          case simpletype == Type_String:
+            switch (inittype) {
+              case Type_Int:
+                out.print("wxx_int_to_string");
+                break;
+              case Type_Num:
+                out.print("wxx_num_to_string");
+                break;
+            }
+            break;
+        }
         emit_expr(out, init);
+        out.print(")");
     }
 }
 
