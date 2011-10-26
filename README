@@ -12,3 +12,12 @@ I'm building and testing only in Linux with g++. It may work in other *ix.
 
 The string type is currently implemented as a std::string, so there are
 no null strings.
+
+The types of key and value in hashed can't be changed. Keys are string
+and values are var.
+
+Multiple index (a[b, c]) is not avaiable.
+
+The order of evaluation of elements inside an expression is not granted
+to be the same than in winxed, and even than in winxedxx depending on
+the mood of the C++ compiler. So be extra careful with side effects.
