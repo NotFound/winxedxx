@@ -2,15 +2,22 @@
 // runtests.t
 // Compile and execute the tests
 
+function strip_ext(string src)
+{
+    int pos = indexof(src, '.');
+    for (int npos = pos; npos != -1; npos = indexof(src, pos, '.'))
+        pos = npos;
+    if (pos >= 0)
+        return substr(src, 0, pos);
+    else
+        return src;
+}
+
 function runtest(string srcname)
 {
-    const string EXT = ".winxed";
-    const int LEXT = length(EXT);
-
-    int l = length(srcname);
-    if (l <= LEXT || substr(srcname, -LEXT) != EXT)
-        throw "Invalid test file: " + srcname;
-    string objname = substr(srcname, 0, l - 7);
+    string objname = strip_ext(srcname);
+    if (objname == srcname)
+        objname += '.exe';
 
     string cmd[] = [
       "parrot", "winxedxx.pbc",
