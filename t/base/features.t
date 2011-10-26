@@ -79,6 +79,16 @@ class Test
 
 //**********************************************************************
 
+function test_string_misc(test)
+{
+    var arr = [ "a", "b", "c" ];
+    string s = join("-", arr);
+    test.is_string(s, "a-b-c", "join with literal string");
+    string sep = "<<";
+    s = join(sep, arr);
+    test.is_string(s, "a<<b<<c", "join with string var");
+}
+
 function test_string_iter(test)
 {
     string s = "hello";
@@ -252,6 +262,19 @@ function main [main] (args)
     test.is(vi1, 42, "var initialized with int");
     test.ok(vi1 != null, "var initialized with int is not null");
 
+    i = 42;
+    test.ok(i == vi1, "operator == int var - true");
+    test.ok(vi1 == i, "operator == var int - true");
+    i = 44;
+    test.nok(i == vi1, "operator == int var - false");
+    test.nok(vi1 == i, "operator == var int - false");
+
+    test.ok(i != vi1, "operator != int var - true");
+    test.ok(vi1 != i, "operator != var int - true");
+    i = 42;
+    test.nok(i != vi1, "operator != int var - false");
+    test.nok(vi1 != i, "operator != var int - false");
+
     i = 1;
     test.is(i == 1 ? vi1 : 44, 42, "conditional operator var - int");
     test.is(i != 1 ? 44 : vi1, 42, "conditional operator int - var");
@@ -299,6 +322,7 @@ function main [main] (args)
         j += i;
     test.is(j, 16, "for in");
 
+    test_string_misc(test);
     test_string_iter(test);
     test_array(test);
     test_hash(test);
