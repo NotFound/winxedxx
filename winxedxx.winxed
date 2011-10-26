@@ -509,9 +509,12 @@ function emit_callbuiltinexpr(out, expr)
         out.print("winxedxxnull");
         break;
 
+      case 'escape':
+        emit_callbuiltin_simple(out, 'wxx_escape', arg0);
+        break;
+
       // Unimplemented, just to allow some testing
       case 'unescape':
-      case 'escape':
         emit_expr(out, arg0);
         break;
 

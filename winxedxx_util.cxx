@@ -119,6 +119,28 @@ WxxObjectPtr wxx_getstderr()
     return WxxObjectPtr(new WxxFileHandle(3));
 }
 
+std::string wxx_escape(const std::string &src)
+{
+    std::ostringstream oss;
+    for (std::string::size_type i = 0; i < src.size(); ++i) {
+        unsigned char c = src[i];
+        switch (c) {
+        case '\n':
+            oss << "\\n"; break;
+        case '\t':
+            oss << "\\t"; break;
+        case '\\':
+            oss << "\\\\"; break;
+        default:
+            if (c < 0x20 || c >= 0x80)
+                oss << "\\x{" << std::hex << (int) c << "}";
+            else
+                oss << c;
+        }
+    }
+    return oss.str();
+}
+
 WxxObjectPtr wxx_loadlib(const std::string &libname)
 {
     void *dl_handle = dlopen(libname.c_str(), RTLD_LAZY);

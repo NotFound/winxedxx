@@ -96,6 +96,9 @@ function test_string_misc(test)
     test.is(pos, 2, "indexof 2 args");
     pos = indexof(s, "2", pos + 1);
     test.is(pos, 5, "indexof 3 args");
+
+    s = "a\t\nb\\c";
+    test.is_string(escape(s), 'a\t\nb\\c', "escape");
 }
 
 function test_string_iter(test)
