@@ -415,7 +415,8 @@ function emit_callbuiltinexpr(out, expr)
         break;
 
       case 'downcase':
-        // Fake implementation, just copy the argument
+        // Fake implementation, just cast to string the argument
+        out.print(Type_String);
         emit_expr(out, arg0);
         break;
 
