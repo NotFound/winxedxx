@@ -388,6 +388,10 @@ function emit_callbuiltinexpr(out, expr)
         emit_expr(out, arg0);
         out.print(").find(");
         emit_expr(out, arg1);
+        if (nargs > 2) {
+            out.print(", ");
+            emit_expr(out, arg2);
+        }
         out.print("))");
         break;
       case 'substr':

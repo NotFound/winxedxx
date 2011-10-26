@@ -88,9 +88,14 @@ function test_string_misc(test)
     s = join(sep, arr);
     test.is_string(s, "a<<b<<c", "join with string var");
 
-    s = "012";
+    s = "012012";
     test.is(ord(s), 0x30, "ord 1 arg");
     test.is(ord(s, 1), 0x31, "ord 2 args");
+
+    int pos = indexof(s, "2");
+    test.is(pos, 2, "indexof 2 args");
+    pos = indexof(s, "2", pos + 1);
+    test.is(pos, 5, "indexof 3 args");
 }
 
 function test_string_iter(test)
