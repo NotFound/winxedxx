@@ -48,6 +48,12 @@ WxxObjectPtr::WxxObjectPtr(WxxObject * obj) : object(obj)
     object->incref();
 }
 
+WxxObjectPtr::WxxObjectPtr(WxxObjectPtr (*fn)(const WxxObjectArray&)) :
+        object(new WxxSub(fn))
+{
+    object->incref();
+}
+
 WxxObjectPtr::~WxxObjectPtr()
 {
     if (object)

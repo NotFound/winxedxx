@@ -41,6 +41,7 @@ public:
     WxxObjectPtr(const char *value);
     WxxObjectPtr(const WxxObjectPtr &old);
     WxxObjectPtr(WxxObject * obj);
+    WxxObjectPtr(WxxObjectPtr (*)(const WxxObjectArray&));
     ~WxxObjectPtr();
     std::string class_name() const;
     WxxObjectPtr & set(int value);

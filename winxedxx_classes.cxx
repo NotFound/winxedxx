@@ -861,6 +861,19 @@ int WxxHash::exists(const std::string &key)
 
 //*************************************************************
 
+WxxSub::WxxSub(WxxObjectPtr(*fnarg)(const WxxObjectArray &)) :
+        WxxDefault("Sub"),
+	fn(fnarg)
+{
+}
+
+WxxObjectPtr WxxSub::operator()(WxxObjectArray &args)
+{
+    return (*fn)(args);
+}
+
+//*************************************************************
+
 typedef std::map<std::string, WxxClass *> WxxClassReg;
 static WxxClassReg *wxxclassreg = 0;
 

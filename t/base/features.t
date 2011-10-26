@@ -92,6 +92,21 @@ function test_string_iter(test)
     test.is_string(r, "olleh", "string iterator gives chars");
 }
 
+function aux0()
+{
+    return "aux0";
+}
+
+function aux1()
+{
+    return "aux1";
+}
+
+function aux2()
+{
+    return "aux2";
+}
+
 function test_array(test)
 {
     var arr = [ "a", "b", "c", "d" ];
@@ -111,6 +126,21 @@ function test_hash(test)
 
     test.nok(exists hash["none"], "hash exists false case");
     test.ok(exists hash["a"], "hash exists true case");
+}
+
+function test_func(test)
+{
+    var f = aux1;
+    string s = f();
+    test.is_string(s, "aux1", "assign function to var");
+
+    var h = { "a" : aux1, "b" : aux2 };
+    f = h["b"];
+    test.is_string(f(), "aux2", "initialize hash value with function");
+
+    var a = [ aux0, aux1, aux2 ];
+    f = a[0];
+    test.is_string(f(), "aux0", "initialize array value with function");
 }
 
 namespace Foo
@@ -272,6 +302,7 @@ function main [main] (args)
     test_string_iter(test);
     test_array(test);
     test_hash(test);
+    test_func(test);
 
     test.is_string(Foo.bar(), "Foo.bar", "call function in namespace");
     test.is_string(bar(), "bar", "call function out of namespace with same name");

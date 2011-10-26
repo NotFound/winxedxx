@@ -528,8 +528,14 @@ function emit_CallMemberExpr(out, callexpr)
         emit_callargs(out, args);
     }
     else {
+        var left = funref.left;
+        int is_var = left.checkresult() == REGvar;
+        if (!is_var)
+            out.print("WxxObjectPtr(");
         emit_expr(out, funref.left);
-        out.print("./* CallMemberExpr*/call_method(\"");
+        if (!is_var)
+            out.print(")");
+        out.print(".call_method(\"");
         out.print(funref.right.getidentifier());
         out.print("\"");
         if (nargs > 0) {

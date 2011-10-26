@@ -188,6 +188,15 @@ private:
     std::map<std::string, WxxObjectPtr> hsh;
 };
 
+class WxxSub : public WxxDefault
+{
+public:
+    WxxSub(WxxObjectPtr(*)(const WxxObjectArray &));
+    WxxObjectPtr operator()(WxxObjectArray &args);
+private:
+    WxxObjectPtr(*fn)(const WxxObjectArray &);
+};
+
 class WxxClass : public WxxDefault
 {
 public:
