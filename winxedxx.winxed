@@ -298,6 +298,7 @@ function emit_callbuiltinexpr(out, expr)
     var arg0 = nargs > 0 ? args[0].arg : null;
     var arg1 = nargs > 1 ? args[1].arg : null;
     var arg2 = nargs > 2 ? args[2].arg : null;
+    string type0;
     int i;
     switch (name) {
       case '__ASSERT__':
@@ -395,7 +396,12 @@ function emit_callbuiltinexpr(out, expr)
         out.print("))");
         break;
       case 'substr':
+        type0 = arg0.checkresult();
+        if (type0 != REGstring)
+            out.print(Type_String + "(");
         emit_expr(out, arg0);
+        if (type0 != REGstring)
+            out.print(")");
         out.print(".substr(");
         emit_expr(out, arg1);
         if (nargs > 2) {
