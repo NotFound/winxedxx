@@ -79,6 +79,19 @@ class Test
 
 //**********************************************************************
 
+function test_string_iter(test)
+{
+    string s = "hello";
+    string r = '';
+    int count = 0;
+    for (string c in s) {
+        ++count;
+        r = c + r;
+    }
+    test.is(count, length(s), "string iterator - length");
+    test.is_string(r, "olleh", "string iterator gives chars");
+}
+
 function test_array(test)
 {
     var arr = [ "a", "b", "c", "d" ];
@@ -256,6 +269,7 @@ function main [main] (args)
         j += i;
     test.is(j, 16, "for in");
 
+    test_string_iter(test);
     test_array(test);
     test_hash(test);
 

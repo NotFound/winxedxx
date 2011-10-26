@@ -1305,7 +1305,13 @@ function emit_foreachstatement(out, forst)
     var varname = forst.varname;
     var container = forst.container;
     out.print("{\nWxxObjectPtr wxx_it = ");
+    string ctype = container.checkresult();
+    if (ctype == REGstring)
+        out.print("WxxObjectPtr(");
     emit_expr(out, container);
+    if (ctype == REGstring)
+        out.print(")");
+
     out.print(".get_iter();\nwhile (bool(wxx_it)) {\n");
     string type = forst.deftype == null ? '' : string(forst.deftype);
 

@@ -54,6 +54,7 @@ public:
     std::string get_string();
     WxxObject & set(const char *s);
     WxxObject & set(const std::string &s);
+    WxxObjectPtr get_iter();
     void print();
 private:
     std::string str;
@@ -158,6 +159,18 @@ public:
     WxxObjectPtr shift_pmc();
 private:
     WxxObject *cnt;
+    int current;
+};
+
+class WxxStringIterator : public WxxDefault
+{
+public:
+    WxxStringIterator(const std::string &container);
+    ~WxxStringIterator();
+    int get_bool();
+    WxxObjectPtr shift_pmc();
+private:
+    std::string cnt;
     int current;
 };
 

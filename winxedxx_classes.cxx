@@ -455,6 +455,11 @@ WxxObject & WxxString::set(const std::string &s)
     return *this;
 }
 
+WxxObjectPtr WxxString::get_iter()
+{
+    return WxxObjectPtr(new WxxStringIterator(str));
+}
+
 void WxxString::print() { std::cout << str; }
 
 //*************************************************************
@@ -497,6 +502,29 @@ int WxxArrayIterator::get_bool()
 WxxObjectPtr WxxArrayIterator::shift_pmc()
 {
     return cnt->get_pmc_keyed(current++);
+}
+
+//*************************************************************
+
+WxxStringIterator::WxxStringIterator(const std::string &container) :
+        WxxDefault("StringIterator"),
+        cnt(container),
+        current(0)
+{
+}
+
+WxxStringIterator::~WxxStringIterator()
+{
+}
+
+int WxxStringIterator::get_bool()
+{
+    return current < int(cnt.size());
+}
+
+WxxObjectPtr WxxStringIterator::shift_pmc()
+{
+    return std::string(1, cnt.at(current++));
 }
 
 //*************************************************************
