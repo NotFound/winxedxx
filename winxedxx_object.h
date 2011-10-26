@@ -18,6 +18,7 @@ public:
     virtual double get_number() = 0;
     virtual int elements() = 0;
     virtual std::string get_string() = 0;
+    virtual int is_equal(const WxxObject &to) = 0;
     virtual WxxObject & set(int value) = 0;
     virtual WxxObject & set(double value) = 0;
     virtual WxxObject & set(const char *s) = 0;

@@ -19,6 +19,7 @@ public:
     double get_number();
     int elements();
     std::string get_string();
+    int is_equal(const WxxObject &to);
     WxxObject & set(int value);
     WxxObject & set(double value);
     WxxObject & set(const char *s);

@@ -306,9 +306,9 @@ function main [main] (args)
 
     var vi2 = 42;
     var vi3 = 7;
-    test.todo(vi1 == vi2, "operator == : x == same class, same value");
+    test.ok(vi1 == vi2, "operator == : x == same class, same value");
     test.nok(vi1 == vi3, "operator == : x == same class, not same value");
-    test.ntodo(vi1 != vi2, "operator != : x != same class, same value");
+    test.nok(vi1 != vi2, "operator != : x != same class, same value");
 
     test.ok(test === test, "operator === : x === x");
     test.nok(test !== test, "operator !== : x !== x");

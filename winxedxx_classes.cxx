@@ -62,6 +62,12 @@ std::string WxxNull::get_string()
     return std::string();
 }
 
+int WxxNull::is_equal(const WxxObject &to)
+{
+    nullaccess("is_equal");
+    return 0;
+}
+
 WxxObject & WxxNull::set(int value)
 {
     nullaccess("set");
@@ -243,6 +249,12 @@ std::string WxxDefault::get_string()
     return std::string();
 }
 
+int WxxDefault::is_equal(const WxxObject &to)
+{
+    notimplemented("is_equal");
+    return 0;
+}
+
 WxxObject & WxxDefault::set(int value)
 {
     notimplemented("set");
@@ -386,6 +398,14 @@ std::string WxxInteger::get_string()
     std::ostringstream oss;
     oss << i;
     return oss.str();
+}
+
+int WxxInteger::is_equal(const WxxObject &to)
+{
+    if (const WxxInteger *fromint = dynamic_cast<const WxxInteger *>(& to))
+        return i == fromint->i;
+    else
+        return false;
 }
 
 WxxObject & WxxInteger::set(int value)

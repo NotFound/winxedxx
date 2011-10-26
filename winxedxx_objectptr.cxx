@@ -136,7 +136,7 @@ int WxxObjectPtr::is_equal (const WxxObjectPtr &from) const
 {
     if (object == from.object)
         return true;
-    return false;
+    return object->is_equal(*from.object);
 }
 
 int WxxObjectPtr::is_same(const WxxObjectPtr &from) const
