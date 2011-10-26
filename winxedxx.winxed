@@ -656,6 +656,14 @@ function emit_assignexpr(out, assignexpr)
             out.print('wxx_string_to_int');
             emit_expr(out, rexpr);
             break;
+          case ltype == REGstring && rtype == REGfloat:
+            out.print('wxx_num_to_string');
+            emit_expr(out, rexpr);
+            break;
+          case ltype == REGfloat && rtype == REGstring:
+            out.print('wxx_string_to_num');
+            emit_expr(out, rexpr);
+            break;
           default:
             // Coerce result type to avoid ambiguities
             out.print(generatedType(lexpr.checkresult()));

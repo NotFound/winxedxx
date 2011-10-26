@@ -57,13 +57,6 @@ std::string wxx_int_to_string(int i)
     return oss.str();
 }
 
-std::string wxx_num_to_string(double value)
-{
-    std::ostringstream oss;
-    oss << value;
-    return oss.str();
-}
-
 int wxx_string_to_int(const std::string &src)
 {
     return atoi(src.c_str());
@@ -72,6 +65,23 @@ int wxx_string_to_int(const std::string &src)
 int wxx_string_to_int(const char *src)
 {
     return atoi(src);
+}
+
+std::string wxx_num_to_string(double value)
+{
+    std::ostringstream oss;
+    oss << value;
+    return oss.str();
+}
+
+double wxx_string_to_num(const std::string &src)
+{
+    return atof(src.c_str());
+}
+
+double wxx_string_to_num(const char *src)
+{
+    return atof(src);
 }
 
 std::string wxx_repeat_string(std::string s, int n)

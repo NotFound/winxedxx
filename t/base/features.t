@@ -255,8 +255,15 @@ function main [main] (args)
     i = "44";
     test.is(i, 44, "int assign from string literal");
 
-    var n = null;
-    test.ok(n == null, "var null initialization");
+    float n = 4.5;
+    str = n;
+    test.is_string(str, "4.5", "string assign from float");
+    str = "2.5";
+    n = str;
+    test.is(n, 2.5, "float assign from string");
+
+    var nothing = null;
+    test.ok(nothing == null, "var null initialization");
 
     var vi1 = 42;
     test.is(vi1, 42, "var initialized with int");

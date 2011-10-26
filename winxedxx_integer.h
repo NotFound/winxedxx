@@ -11,9 +11,13 @@ namespace WinxedXX
 {
 
 std::string wxx_int_to_string(int i);
-std::string wxx_num_to_string(double value);
 int wxx_string_to_int(const std::string &src);
 int wxx_string_to_int(const char *src);
+
+std::string wxx_num_to_string(double value);
+double wxx_string_to_num(const std::string &src);
+double wxx_string_to_num(const char *src);
+
 std::string wxx_repeat_string(std::string s, int n);
 
 class WxxInteger : public WxxDefault
