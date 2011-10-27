@@ -169,7 +169,8 @@ int wxx_boolor(int li, int ri)
 
 WxxObjectPtr wxx_typeof(WxxObjectPtr &thing)
 {
-    return winxedxxnull;
+    // Bogus implementation that allows some tests
+    return thing.class_name();
 }
 
 std::string wxx_join(const std::string &sep, const WxxObjectPtr &arr)
