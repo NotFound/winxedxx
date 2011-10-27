@@ -21,14 +21,7 @@ OBJS = \
 
 #-----------------------------------------------------------------------
 
-all: simple
-	./simple
-
-simple: simple.cxx winxedxx.h $(OBJS)
-	$(CXX) $(CXXOPTS) -o simple simple.cxx $(OBJS) $(LDOPTS)
-
-simple.cxx: simple.winxed winxedxx.pbc
-	$(PARROT) $(WINXEDLIB) winxedxx.pbc -o simple.cxx simple.winxed
+all: winxedxx.pbc
 
 #-----------------------------------------------------------------------
 
@@ -65,7 +58,6 @@ clean:
 		winxedxx.pir \
 		$(OBJS) \
 		t/base/features \
-		t/base/features.cxx \
-		simple simple.cxx
+		t/base/features.cxx
 
 # End
