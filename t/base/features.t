@@ -87,6 +87,8 @@ function test_string_misc(test)
     string sep = "<<";
     s = join(sep, arr);
     test.is_string(s, "a<<b<<c", "join with string var");
+    var arr2 = split("<<", s);
+    test.is(elements(arr2), 3, "split");
 
     s = "012012";
     test.is(ord(s), 0x30, "ord 1 arg");
