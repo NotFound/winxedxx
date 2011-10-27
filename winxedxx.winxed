@@ -54,6 +54,8 @@ class OpAssignExpr;
 class OpAssignToExpr;
 class OpAddExpr;
 class OpAddToExpr;
+class OpSubToExpr;
+class OpMulToExpr;
 class OpSubExpr;
 class RepeatString;
 class OpMulExpr;
@@ -778,6 +780,34 @@ function emit_addtoexpr(out, assignexpr)
         WxxUnsupported(lexpr);
 }
 
+function emit_OpSubToExpr(out, assignexpr)
+{
+    var lexpr = assignexpr.lexpr;
+    if (lexpr instanceof IdentifierExpr) {
+        out.print(lexpr.name);
+        out.print(" -= ");
+        if (lexpr.checkresult() == REGstring)
+            out.print(Type_String);
+        emit_expr(out, assignexpr.rexpr);
+    }
+    else
+        WxxUnsupported(lexpr);
+}
+
+function emit_OpMulToExpr(out, assignexpr)
+{
+    var lexpr = assignexpr.lexpr;
+    if (lexpr instanceof IdentifierExpr) {
+        out.print(lexpr.name);
+        out.print(" *= ");
+        if (lexpr.checkresult() == REGstring)
+            out.print(Type_String);
+        emit_expr(out, assignexpr.rexpr);
+    }
+    else
+        WxxUnsupported(lexpr);
+}
+
 function emit_addexpr(out, expr)
 {
     var lexpr = expr.lexpr;
@@ -1019,6 +1049,10 @@ function emit_expr(out, expr)
         emit_assigntoexpr(out, expr);
     else if (expr instanceof OpAddToExpr)
         emit_addtoexpr(out, expr);
+    else if (expr instanceof OpSubToExpr)
+        emit_OpSubToExpr(out, expr);
+    else if (expr instanceof OpMulToExpr)
+        emit_OpMulToExpr(out, expr);
     else if (expr instanceof IdentifierExpr)
         emit_identifierexpr(out, expr);
     else if (expr instanceof IntegerLiteral)
