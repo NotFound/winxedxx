@@ -324,6 +324,10 @@ function main [main] (args)
     test.is(vi1, 43, "var preincrement");
     i = ++vi1;
     test.is(i, 44, "var preincrement with assignment");
+    --vi1;
+    test.is(vi1, 43, "var peedecrement");
+    i = --vi1;
+    test.is(i, 42, "var predecrement with assignment");
 
     string s = "abc";
     test.is_string(s * 3, "abcabcabc", "repeat string");

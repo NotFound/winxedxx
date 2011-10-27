@@ -32,6 +32,7 @@ public:
     WxxObject & set(int value);
     WxxObject & set(double value);
     void increment();
+    void decrement();
     void print();
 private:
     int i;

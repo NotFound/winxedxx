@@ -170,6 +170,12 @@ WxxObjectPtr & WxxObjectPtr::operator++()
     return *this;
 }
 
+WxxObjectPtr & WxxObjectPtr::operator--()
+{
+    object->decrement();
+    return *this;
+}
+
 int WxxObjectPtr::is_null() const
 {
     return object->is_null();

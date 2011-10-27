@@ -24,6 +24,7 @@ public:
     virtual WxxObject & set(const char *s) = 0;
     virtual WxxObject & set(const std::string &s) = 0;
     virtual void increment() = 0;
+    virtual void decrement() = 0;
     virtual std::string get_string_keyed(int i) = 0;
     virtual WxxObjectPtr get_pmc_keyed(int i) = 0;
     virtual WxxObjectPtr get_pmc_keyed(const std::string &s) = 0;

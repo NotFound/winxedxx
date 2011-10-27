@@ -97,6 +97,11 @@ void WxxNull::increment()
     nullaccess("increment");
 }
 
+void WxxNull::decrement()
+{
+    nullaccess("decrement");
+}
+
 std::string WxxNull::get_string_keyed(int i)
 {
     nullaccess("get_pmc_keyed");
@@ -284,6 +289,11 @@ void WxxDefault::increment()
     notimplemented("increment");
 }
 
+void WxxDefault::decrement()
+{
+    notimplemented("decrement");
+}
+
 std::string WxxDefault::get_string_keyed(int i)
 {
     return get_pmc_keyed(i);
@@ -423,6 +433,11 @@ WxxObject & WxxInteger::set(double value)
 void WxxInteger::increment()
 {
     ++i;
+}
+
+void WxxInteger::decrement()
+{
+    --i;
 }
 
 void WxxInteger::print() { std::cout << i; }

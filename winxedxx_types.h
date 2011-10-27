@@ -60,6 +60,7 @@ public:
     operator double() const;
     operator std::string() const;
     WxxObjectPtr & operator++();
+    WxxObjectPtr & operator--();
     int is_null() const;
     int instanceof(const std::string &type);
     std::string get_string() const;
