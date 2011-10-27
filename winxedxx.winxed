@@ -274,6 +274,10 @@ function ncisigtoc(string sig)
     return csig;
 }
 
+function emit_callbuiltin_void(out, string name)
+{
+    out.print(name + "()");
+}
 function emit_callbuiltin_simple(out, string name, arg)
 {
     out.print(name);
@@ -489,6 +493,13 @@ function emit_callbuiltinexpr(out, expr)
         break;
       case 'ln':
         emit_callbuiltin_simple(out, 'log', arg0);
+        break;
+
+      case 'time':
+        emit_callbuiltin_void(out, 'wxx_time');
+        break;
+      case 'floattime':
+        emit_callbuiltin_void(out, 'wxx_floattime');
         break;
 
       // Unsupported, always return null

@@ -238,6 +238,14 @@ function miscellaneous(test, int runit)
     if (runit) {
         exit(0);
     }
+
+    int t = time();
+    float ft = floattime();
+    float diff = ft - t * 1000.0;
+
+    // Half second should be enough even in slow conditions?
+    test.ok(diff < 0.5, "time and floattime results looks reasonable");
+
     test.ok(1, "some syntax checks");
 }
 

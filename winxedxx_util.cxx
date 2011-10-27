@@ -11,6 +11,8 @@
 
 #include <stdlib.h>
 
+#include <time.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -117,6 +119,18 @@ WxxObjectPtr wxx_getstdout()
 WxxObjectPtr wxx_getstderr()
 {
     return WxxObjectPtr(new WxxFileHandle(3));
+}
+
+int wxx_time()
+{
+    return time(0);
+}
+
+double wxx_floattime()
+{
+    struct timeval t;
+    gettimeofday(&t, 0);
+    return (double)t.tv_sec + (double)t.tv_usec / 1.0e6;
 }
 
 std::string wxx_escape(const std::string &src)

@@ -99,6 +99,8 @@ WxxObjectPtr wxx_error(const std::string &message);
 WxxObjectPtr wxx_error(const std::string &message, int severity);
 WxxObjectPtr wxx_error(const std::string &message, int severity, int type);
 
+int wxx_time();
+double wxx_floattime();
 std::string wxx_escape(const std::string &src);
 
 } // namespace WinxedXX
