@@ -101,6 +101,8 @@ WxxObjectPtr wxx_error(const std::string &message, int severity, int type);
 
 int wxx_time();
 double wxx_floattime();
+int wxx_sleep(int t);
+int wxx_sleep(double t);
 std::string wxx_escape(const std::string &src);
 
 } // namespace WinxedXX

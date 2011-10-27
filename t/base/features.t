@@ -240,11 +240,14 @@ function miscellaneous(test, int runit)
     }
 
     int t = time();
-    float ft = floattime();
-    float diff = ft - t * 1000.0;
+    float ft1 = floattime();
+    sleep(0.1);
+    float ft2 = floattime();
+    float diff = ft2 - ft1;
 
-    // Half second should be enough even in slow conditions?
-    test.ok(diff < 0.5, "time and floattime results looks reasonable");
+    // Should work except unless system exceptionally slow.
+    test.ok(diff >= 0.1 && diff < 0.5 && t <= ft2 + 1.0,
+        "time and floattime with sleep results looks reasonable");
 
     test.ok(1, "some syntax checks");
 }

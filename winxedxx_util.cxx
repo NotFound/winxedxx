@@ -10,6 +10,7 @@
 #include <sstream>
 
 #include <stdlib.h>
+#include <math.h>
 
 #include <time.h>
 #include <sys/time.h>
@@ -131,6 +132,23 @@ double wxx_floattime()
     struct timeval t;
     gettimeofday(&t, 0);
     return (double)t.tv_sec + (double)t.tv_usec / 1.0e6;
+}
+
+int wxx_sleep(int t)
+{
+    sleep(t);
+    return 0;
+}
+
+int wxx_sleep(double t)
+{
+    if (t >= 1.0) {
+        int seconds = floor(t);
+	sleep(seconds);
+	t -= seconds;
+    }
+    usleep(t * 1.0e6);
+    return 0;
 }
 
 std::string wxx_escape(const std::string &src)

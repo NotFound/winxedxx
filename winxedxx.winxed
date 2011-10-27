@@ -503,6 +503,9 @@ function emit_callbuiltinexpr(out, expr)
       case 'floattime':
         emit_callbuiltin_void(out, 'wxx_floattime');
         break;
+      case 'sleep':
+        emit_callbuiltin_simple(out, 'wxx_sleep', arg0);
+        break;
 
       // Unsupported, always return null
       case 'load_bytecode':
