@@ -252,10 +252,13 @@ function miscellaneous(test, int runit)
 
     string s = "abc\n";
     string sc = chomp(s);
-    test.ok(length(s) == 4 && length(sc) == 3, "chomp - yes");
+    test.ok(length(s) == 4 && length(sc) == 3, "chomp - yes \\n");
     s = "abc\t";
     sc = chomp(s);
-    test.ok(length(s) == 4 && length(sc) == 4, "chomp - no");
+    test.ok(length(s) == 4 && length(sc) == 4, "chomp - no \\t");
+    s = "abc\r";
+    sc = chomp(s);
+    test.ok(length(s) == 4 && length(sc) == 4, "chomp - no \\r");
 
     int t = time();
     float ft1 = floattime();
