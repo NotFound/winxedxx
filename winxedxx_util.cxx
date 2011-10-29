@@ -151,6 +151,14 @@ int wxx_sleep(double t)
     return 0;
 }
 
+std::string wxx_chomp(const std::string &src)
+{
+    if (std::string::size_type l = src.size())
+        if (src[l - 1] == '\n')
+            return src.substr(0, l - 1);
+    return src;
+}
+
 std::string wxx_escape(const std::string &src)
 {
     std::ostringstream oss;

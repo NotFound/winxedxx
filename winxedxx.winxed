@@ -416,6 +416,9 @@ function emit_callbuiltinexpr(out, expr)
         }
         out.print(")");
         break;
+      case 'chomp':
+        emit_callbuiltin_simple(out, "wxx_chomp", arg0);
+        break;
       case 'join':
         emit_callbuiltin_simple_2(out, "wxx_join", arg0, arg1);
         break;
