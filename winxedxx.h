@@ -112,6 +112,42 @@ private:
     NciSig fun;
 };
 
+template <typename NciSig>
+class WxxNCIcall<NciSig, 2> : public WxxNCI
+{
+public:
+    WxxNCIcall(WxxObjectPtr lib, const std::string &funcname) :
+        WxxNCI(funcname),
+        fun((NciSig)wxxncigetfunc(lib, funcname))
+    { }
+    WxxObjectPtr operator()(WxxObjectArray &args)
+    {
+        if (! fun)
+            throw wxx_error("dynamic function -2- is null: " + name);
+        return (*fun)(args[0], args[1]);
+    }
+private:
+    NciSig fun;
+};
+
+template <typename NciSig>
+class WxxNCIcall<NciSig, 3> : public WxxNCI
+{
+public:
+    WxxNCIcall(WxxObjectPtr lib, const std::string &funcname) :
+        WxxNCI(funcname),
+        fun((NciSig)wxxncigetfunc(lib, funcname))
+    { }
+    WxxObjectPtr operator()(WxxObjectArray &args)
+    {
+        if (! fun)
+            throw wxx_error("dynamic function -2- is null: " + name);
+        return (*fun)(args[0], args[1], args[2]);
+    }
+private:
+    NciSig fun;
+};
+
 template <typename NciSig, int nargs>
 WxxObjectPtr WxxNCIcall<NciSig, nargs>::operator()(WxxObjectArray &args)
 {
