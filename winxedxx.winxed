@@ -200,49 +200,46 @@ function generatedType(string ptype)
 
 //**************************************************************
 
-function tokstringtoxx(strval)
+function strtoxx(string str)
 {
-    string str = strval.str;
-    if (strval instanceof TokenQuoted)
-        return str;
-    if (strval instanceof TokenSingleQuoted)
-    {
-        string result = '';
-        int n = length(str);
-        int i;
-        for (i = 0 ; i < n; ++i) {
-            string c = substr(str, i, 1);
-            if (c ==  '"' || c == '\')
-                result += '\' + c;
+    string result = '';
+    str = unescape(str);
+    for (string c in str) {
+        switch (c) {
+          case '"':
+          case '\':
+            result += '\' + c; break;
+          case "\t":
+            result += '\t'; break;
+          case "\r":
+            result += '\r'; break;
+          case "\n":
+            result += '\n'; break;
+          default:
+            int code = ord(c);
+            if (code < 32)
+                result += '\x' + substr(("0" + string(code.get_as_base(16))), -2);
+            else if (code > 65535)
+                result += '\U' + substr(("0000000" + string(code.get_as_base(16))), -8);
+            else if (code > 127)
+                result += '\u' + substr(("000" + string(code.get_as_base(16))), -4);
             else
                 result += c;
-        }
-        return result;
+          }
     }
-    throw Error('Unexpected literal string type');
+    return result;
+}
+
+function tokstringtoxx(strval)
+{
+    __ASSERT__(strval instanceof 'TokenString');
+    return strtoxx(strval.getasquoted());
 }
 
 function stringtoxx(literal)
 {
-    var strval = literal.strval;
-    string str = strval.str;
-    if (strval instanceof TokenQuoted)
-        return str;
-    if (strval instanceof TokenSingleQuoted)
-    {
-        string result = '';
-        int n = length(str);
-        int i;
-        for (i = 0 ; i < n; ++i) {
-            string c = substr(str, i, 1);
-            if (c ==  '"' || c == '\')
-                result += '\' + c;
-            else
-                result += c;
-        }
-        return result;
-    }
-    throw Error('Unexpected literal string type');
+    __ASSERT__(literal instanceof 'StringLiteral');
+    return tokstringtoxx(literal.strval);
 }
 
 function nciitemtoc(string item)
