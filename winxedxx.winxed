@@ -273,6 +273,10 @@ function ncisigtoc(string sig)
     return csig;
 }
 
+//**********************************************************************
+//                  Builtins
+//**********************************************************************
+
 function emit_callbuiltin_void(out, string name)
 {
     out.print(name + "()");
@@ -292,7 +296,7 @@ function emit_callbuiltin_simple_2(out, string name, arg0, arg1)
     out.print(")");
 }
 
-function emit_callbuiltinexpr(out, expr)
+function emit_CallBuiltinExpr(out, expr)
 {
     var builtin = expr.builtin;
     string name = builtin.name;
@@ -539,6 +543,8 @@ function emit_callbuiltinexpr(out, expr)
     }
 }
 
+//**********************************************************************
+
 function emit_callargs(out, args)
 {
     out.print("WinxedXX::WxxObjectArray()");
@@ -599,7 +605,7 @@ function emit_CallExpr(out, callexpr)
     out.print(")");
 }
 
-function emit_arrayexpr(out, expr)
+function emit_ArrayExpr(out, expr)
 {
     var values = expr.values;
     int nvalues = values == null ? 0 : elements(values);
@@ -612,7 +618,7 @@ function emit_arrayexpr(out, expr)
     out.print("))");
 }
 
-function emit_hashexpr(out, expr)
+function emit_HashExpr(out, expr)
 {
     var keys = expr.keys;
     var values = expr.values;
@@ -635,7 +641,7 @@ function emit_FunctionExpr(out, expr)
     out.print("winxedxxnull");
 }
 
-function emit_newexpr(out, expr)
+function emit_NewExpr(out, expr)
 {
     var value = expr.value;
     if (value.isidentifier()) {
@@ -673,7 +679,7 @@ function emit_NewIndexedExpr(out, expr)
     out.print("WxxObjectPtr(new WxxInstance(\"" + name + "\"))");
 }
 
-function emit_assignexpr(out, assignexpr)
+function emit_OpAssignExpr(out, assignexpr)
 {
     var lexpr = assignexpr.lexpr;
     var rexpr = assignexpr.rexpr;
@@ -730,7 +736,7 @@ function emit_assignexpr(out, assignexpr)
         WxxUnsupported(lexpr);
 }
 
-function emit_assigntoexpr(out, expr)
+function emit_OpAssignToExpr(out, expr)
 {
     var lexpr = expr.lexpr;
     var rexpr = expr.rexpr;
@@ -753,7 +759,7 @@ function emit_assigntoexpr(out, expr)
         WxxUnsupported(lexpr);
 }
 
-function emit_instanceofexpr(out, instanceofexpr)
+function emit_InstanceOfExpr(out, instanceofexpr)
 {
     var lexpr = instanceofexpr.lexpr;
     var checked = instanceofexpr.checked;
@@ -769,7 +775,7 @@ function emit_instanceofexpr(out, instanceofexpr)
     out.print(")");
 }
 
-function emit_addtoexpr(out, assignexpr)
+function emit_OpAddToExpr(out, assignexpr)
 {
     var lexpr = assignexpr.lexpr;
     if (lexpr instanceof IdentifierExpr) {
@@ -811,7 +817,7 @@ function emit_OpMulToExpr(out, assignexpr)
         WxxUnsupported(lexpr);
 }
 
-function emit_addexpr(out, expr)
+function emit_OpAddExpr(out, expr)
 {
     var lexpr = expr.lexpr;
     var rexpr = expr.rexpr;
@@ -820,7 +826,7 @@ function emit_addexpr(out, expr)
     emit_expr(out, rexpr);
 }
 
-function emit_subexpr(out, expr)
+function emit_OpSubExpr(out, expr)
 {
     var lexpr = expr.lexpr;
     var rexpr = expr.rexpr;
@@ -840,7 +846,7 @@ function emit_RepeatString(out, expr)
     out.print(")");
 }
 
-function emit_mulexpr(out, expr)
+function emit_OpMulExpr(out, expr)
 {
     var lexpr = expr.lexpr;
     var rexpr = expr.rexpr;
@@ -849,7 +855,7 @@ function emit_mulexpr(out, expr)
     emit_expr(out, rexpr);
 }
 
-function emit_divexpr(out, expr)
+function emit_OpDivExpr(out, expr)
 {
     var lexpr = expr.lexpr;
     var rexpr = expr.rexpr;
@@ -858,7 +864,7 @@ function emit_divexpr(out, expr)
     emit_expr(out, rexpr);
 }
 
-function emit_concatstring(out, concatstr)
+function emit_ConcatString(out, concatstr)
 {
     var values = concatstr.values;
     emit_expr(out, values[0]);
@@ -869,7 +875,7 @@ function emit_concatstring(out, concatstr)
     }
 }
 
-function emit_nullchecker(out, expr)
+function emit_NullCheckerExpr(out, expr)
 {
     if (! expr.positive)
         out.print("!");
@@ -879,13 +885,13 @@ function emit_nullchecker(out, expr)
     out.print(")");
 }
 
-function emit_opnot(out, expr)
+function emit_OpNotExpr(out, expr)
 {
     out.print("!");
     emit_expr(out, expr.subexpr);
 }
 
-function emit_OpBinNot(out, expr)
+function emit_OpBinNotExpr(out, expr)
 {
     out.print("~");
     emit_expr(out, expr.subexpr);
@@ -940,7 +946,7 @@ function emit_commonop(out, expr, string opstr)
     emit_expr(out, expr.rexpr);
 }
 
-function emit_boolorexpr(out, lessexpr)
+function emit_OpBoolOrExpr(out, lessexpr)
 {
     out.print("wxx_boolor(");
     emit_expr(out, lessexpr.lexpr);
@@ -949,7 +955,7 @@ function emit_boolorexpr(out, lessexpr)
     out.print(")");
 }
 
-function emit_boolandexpr(out, lessexpr)
+function emit_OpBoolAndExpr(out, lessexpr)
 {
     out.print("wxx_booland(");
     emit_expr(out, lessexpr.lexpr);
@@ -958,7 +964,7 @@ function emit_boolandexpr(out, lessexpr)
     out.print(")");
 }
 
-function emit_conditionalexpr(out, expr)
+function emit_OpConditionalExpr(out, expr)
 {
     emit_expr(out, expr.condition.condexpr);
     out.print(" ? ");
@@ -972,7 +978,7 @@ function emit_conditionalexpr(out, expr)
     out.print(")");
 }
 
-function emit_identifierexpr(out, expr)
+function emit_IdentifierExpr(out, expr)
 {
     string name = expr.name;
     if (name == "null")
@@ -981,7 +987,7 @@ function emit_identifierexpr(out, expr)
         out.print(name);
 }
 
-function emit_indexexpr(out, expr)
+function emit_IndexExpr(out, expr)
 {
     var left = expr.left;
     emit_expr(out, left);
@@ -1020,7 +1026,7 @@ function emit_OpExistsExpr(out, expr)
     emit_expr(out, arg);
 }
 
-function emit_memberexpr(out, expr)
+function emit_MemberExpr(out, expr)
 {
     emit_expr(out, expr.left);
     out.print(".get_attr_str(\"");
@@ -1041,23 +1047,23 @@ function emit_expr(out, expr)
     out.print("(");
 
     if (expr instanceof CallBuiltinExpr)
-        emit_callbuiltinexpr(out, expr);
+        emit_CallBuiltinExpr(out, expr);
     else if (expr instanceof CallMemberExpr)
         emit_CallMemberExpr(out, expr);
     else if (expr instanceof CallExpr)
         emit_CallExpr(out, expr);
     else if (expr instanceof OpAssignExpr)
-        emit_assignexpr(out, expr);
+        emit_OpAssignExpr(out, expr);
     else if (expr instanceof OpAssignToExpr)
-        emit_assigntoexpr(out, expr);
+        emit_OpAssignToExpr(out, expr);
     else if (expr instanceof OpAddToExpr)
-        emit_addtoexpr(out, expr);
+        emit_OpAddToExpr(out, expr);
     else if (expr instanceof OpSubToExpr)
         emit_OpSubToExpr(out, expr);
     else if (expr instanceof OpMulToExpr)
         emit_OpMulToExpr(out, expr);
     else if (expr instanceof IdentifierExpr)
-        emit_identifierexpr(out, expr);
+        emit_IdentifierExpr(out, expr);
     else if (expr instanceof IntegerLiteral)
         out.print(expr.getIntegerValue());
     else if (expr instanceof FloatLiteral)
@@ -1068,24 +1074,24 @@ function emit_expr(out, expr)
         out.print('")');
     }
     else if (expr instanceof NewExpr)
-        emit_newexpr(out, expr);
+        emit_NewExpr(out, expr);
     else if (expr instanceof NewIndexedExpr)
         emit_NewIndexedExpr(out, expr);
     else if (expr instanceof ArrayExpr)
-        emit_arrayexpr(out, expr);
+        emit_ArrayExpr(out, expr);
     else if (expr instanceof HashExpr)
-        emit_hashexpr(out, expr);
+        emit_HashExpr(out, expr);
     else if (expr instanceof FunctionExpr) {
         emit_FunctionExpr(out, expr);
     }
     else if (expr instanceof OpNotExpr)
-        emit_opnot(out, expr);
+        emit_OpNotExpr(out, expr);
     else if (expr instanceof OpBinNotExpr)
-        emit_OpBinNot(out, expr);
+        emit_OpBinNotExpr(out, expr);
     else if (expr instanceof NullCheckerExpr)
-        emit_nullchecker(out, expr);
+        emit_NullCheckerExpr(out, expr);
     else if (expr instanceof OpInstanceOfExpr)
-        emit_instanceofexpr(out, expr);
+        emit_InstanceOfExpr(out, expr);
     else if (expr instanceof OpPreIncExpr) {
         out.print('++');
         emit_expr(out, expr.subexpr);
@@ -1107,17 +1113,17 @@ function emit_expr(out, expr)
         emit_expr(out, expr.subexpr);
     }
     else if (expr instanceof OpAddExpr)
-        emit_addexpr(out, expr);
+        emit_OpAddExpr(out, expr);
     else if (expr instanceof OpSubExpr)
-        emit_subexpr(out, expr);
+        emit_OpSubExpr(out, expr);
     else if (expr instanceof RepeatString)
         emit_RepeatString(out, expr);
     else if (expr instanceof OpMulExpr)
-        emit_mulexpr(out, expr);
+        emit_OpMulExpr(out, expr);
     else if (expr instanceof OpDivExpr)
-        emit_divexpr(out, expr);
+        emit_OpDivExpr(out, expr);
     else if (expr instanceof ConcatString)
-        emit_concatstring(out, expr);
+        emit_ConcatString(out, expr);
     else if (expr instanceof ZeroCheckerExpr)
         emit_ZeroCheckerExpr(out, expr);
     else if (expr instanceof OpEqualExpr)
@@ -1133,9 +1139,9 @@ function emit_expr(out, expr)
     else if (expr instanceof OpGreaterEqualExpr)
         emit_commonop(out, expr, ">=");
     else if (expr instanceof OpBoolOrExpr)
-        emit_boolorexpr(out, expr);
+        emit_OpBoolOrExpr(out, expr);
     else if (expr instanceof OpBoolAndExpr)
-        emit_boolandexpr(out, expr);
+        emit_OpBoolAndExpr(out, expr);
     else if (expr instanceof OpBinOrExpr)
         emit_commonop(out, expr, '|');
     else if (expr instanceof OpBinAndExpr)
@@ -1151,14 +1157,14 @@ function emit_expr(out, expr)
     else if (expr instanceof OpCModExpr)
         emit_commonop(out, expr, "%");
     else if (expr instanceof OpConditionalExpr)
-        emit_conditionalexpr(out, expr);
+        emit_OpConditionalExpr(out, expr);
     else if (expr instanceof MemberExpr)
-        emit_memberexpr(out, expr);
+        emit_MemberExpr(out, expr);
     else if (expr instanceof MemberRefExpr) {
         emit_MemberRefExpr(out, expr);
     }
     else if (expr instanceof IndexExpr)
-        emit_indexexpr(out, expr);
+        emit_IndexExpr(out, expr);
     else if (expr instanceof StringIndexExpr)
         emit_StringIndexExpr(out, expr);
     else if (expr instanceof OpExistsExpr)
@@ -1928,6 +1934,8 @@ FOOTER3:>>
     }
     out.print("// End\n");
 }
+
+//**********************************************************************
 
 function get_winxed_compiler()
 {
