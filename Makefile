@@ -4,6 +4,7 @@
 # Configurable values
 
 PARROT = parrot
+PBC_TO_EXE = pbc_to_exe
 WINXED = winxed
 WINXEDLIB =
 
@@ -21,7 +22,16 @@ OBJS = \
 
 #-----------------------------------------------------------------------
 
-all: winxedxx.pbc
+default: pbc $(OBJS)
+
+exe: winxedxx $(OBJS)
+
+pbc: winxedxx.pbc
+
+#-----------------------------------------------------------------------
+
+winxedxx: winxedxx.pbc
+	$(PBC_TO_EXE) winxedxx.pbc
 
 #-----------------------------------------------------------------------
 
@@ -52,11 +62,24 @@ test: winxedxx.pbc winxedxx.h $(OBJS)
 
 #-----------------------------------------------------------------------
 
+exetest: t/runtests
+	prove -v -e t/runtests t/base/features.t
+
+t/runtests: t/runtests.winxed exe
+	./winxedxx --target=exe -o t/runtests t/runtests.winxed
+
+#-----------------------------------------------------------------------
+
 clean:
 	rm -f \
+		winxedxx \
+		winxedxx.c \
+		winxedxx.o \
 		winxedxx.pbc \
 		winxedxx.pir \
 		$(OBJS) \
+		t/runtests \
+		t/runtests.cxx \
 		t/base/features \
 		t/base/features.cxx
 
