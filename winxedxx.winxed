@@ -1200,8 +1200,8 @@ function emit_varstatement(out, st)
     string name = st.name;
     var init = st.init;
 
-    var local = st.owner.getlocalvar(name);
-    int is_lex = local.getlex() != null;
+    var local = st.owner.getvar(name);
+    int is_lex = local != null && local.getlex() != null;
 
     // If lexical, declare a reference to the data struct
     // Else, declare plain var
