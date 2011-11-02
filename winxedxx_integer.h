@@ -204,6 +204,15 @@ private:
     WxxObjectPtr(*fn)(const WxxObjectArray &);
 };
 
+class WxxClosure : public WxxDefault
+{
+public:
+    WxxClosure(WxxInnerFunction *);
+    WxxObjectPtr operator()(WxxObjectArray &args);
+private:
+    WxxInnerFunction *fn;
+};
+
 class WxxClass : public WxxDefault
 {
 public:

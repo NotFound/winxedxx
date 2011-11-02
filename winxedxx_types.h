@@ -13,6 +13,7 @@ namespace WinxedXX
 class WxxObject;
 class WxxObjectArray;
 class WxxLibrary;
+class WxxInnerFunction;
 
 class WxxFunctionVars
 {
@@ -22,6 +23,7 @@ protected:
     {
     }
 public:
+    void incref() { ++refcount; }
     void decref()
     {
         if (--refcount == 0)
@@ -29,6 +31,15 @@ public:
     }
 private:
     size_t refcount;
+};
+
+class WxxDataHolder
+{
+public:
+    WxxDataHolder(WxxFunctionVars *newdata) : data(newdata) { data->incref(); }
+    ~WxxDataHolder() { data->decref(); }
+private:
+    WxxFunctionVars *data;
 };
 
 class WxxObjectPtr
@@ -42,6 +53,7 @@ public:
     WxxObjectPtr(const WxxObjectPtr &old);
     WxxObjectPtr(WxxObject * obj);
     WxxObjectPtr(WxxObjectPtr (*)(const WxxObjectArray&));
+    WxxObjectPtr(WxxInnerFunction * obj);
     ~WxxObjectPtr();
     std::string class_name() const;
     WxxObjectPtr & set(int value);
@@ -94,6 +106,15 @@ private:
 };
 
 extern WxxObjectPtr winxedxxnull;
+
+class WxxInnerFunction
+{
+public:
+    virtual WxxObjectPtr operator()(const WxxObjectArray &args) = 0;
+    virtual void incref() = 0;
+    virtual void decref() = 0;
+};
+
 
 WxxObjectPtr wxx_error(const std::string &message);
 WxxObjectPtr wxx_error(const std::string &message, int severity);

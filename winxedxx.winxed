@@ -174,6 +174,8 @@ function foreach(params, func)
 
 // Types
 
+const string DATA = '__data';
+
 const string
     // Parrot types
     REGint      = 'I',
@@ -591,15 +593,23 @@ function emit_CallExpr(out, callexpr)
 {
     var funref = callexpr.funref;
     var args = callexpr.args;
-    if (! funref.isidentifier())
-        WxxUnsupported(funref);
 
-    if ((callexpr instanceof CallMemberExpr) && callexpr.subid != null)
-        out.print(callexpr.subid);
-    else {
-        string callname = funref.getName();
-        out.print(callname);
+    if (funref instanceof FunctionExpr) {
+        out.print("WxxObjectPtr");
+        emit_expr(out, funref);
     }
+    else {
+        if (! funref.isidentifier())
+            WxxUnsupported(funref);
+
+        if ((callexpr instanceof CallMemberExpr) && callexpr.subid != null)
+            out.print(callexpr.subid);
+        else {
+            string callname = funref.getName();
+            out.print(callname);
+        }
+    }
+
     out.print("(");
     emit_callargs(out, args);
     out.print(")");
@@ -637,8 +647,9 @@ function emit_HashExpr(out, expr)
 
 function emit_FunctionExpr(out, expr)
 {
-    // For initial tests
-    out.print("winxedxxnull");
+    var funst = expr.fn;
+    string name = funst.name;
+    out.print("new " + name + "(* " + DATA + ")");
 }
 
 function emit_NewExpr(out, expr)
@@ -1186,9 +1197,23 @@ function emit_conststatement(out, st)
 
 function emit_varstatement(out, st)
 {
-    out.print("WxxObjectPtr ");
-    out.print(st.name);
+    string name = st.name;
     var init = st.init;
+
+    var local = st.owner.getlocalvar(name);
+    int is_lex = local.getlex() != null;
+
+    // If lexical, declare a reference to the data struct
+    // Else, declare plain var
+    out.print("WxxObjectPtr ");
+    if (is_lex)
+        out.print("&");
+    out.print(st.name);
+    if (is_lex) {
+        out.print(" = " + DATA + "->");
+        out.print(st.name);
+    }
+
     if (init != null) {
         out.print(" = ");
         emit_expr(out, init);
@@ -1574,9 +1599,6 @@ function emit_declare_function_subid(out, funst, key)
 
 //**********************************************************************
 
-const string DATA = '__data';
-const string DECREFDATA = DATA + "->decref();";
-
 function declareFunctionData(string name)
 {
     return "struct " + name + " : public WinxedXX::WxxFunctionVars";
@@ -1621,6 +1643,15 @@ function declareReferenceToData(out, string name, string type)
     out.print(";\n");
 }
 
+function declareReferenceToOuter(out, string name, string type)
+{
+    out.print(generatedType(type));
+    out.print(" &");
+    out.print(name);
+    out.print(" = " + DATA + "." + name);
+    out.print(";\n");
+}
+
 function foreachparam(params, funst, func)
 {
     foreach(params,
@@ -1633,8 +1664,123 @@ function foreachparam(params, funst, func)
     );
 }
 
+function emit_declare_local(out, funst, string dataname)
+{
+    string name = funst.name;
+    out.print("\n\n// declare local " + name + "\n\n");
+
+    out.print("\nclass " + name + " : public WxxInnerFunction\n{\n");
+
+    out.print(dataname + "& " + DATA + ";\n");
+    out.print("public:\n");
+    out.print(name + "(" + dataname + " & outer) : "+ DATA + "(outer)\n" );
+    out.print("{\n");
+    out.print(DATA + ".incref();\n");
+    out.print("}\n");
+    out.print("~" + name + "()\n" );
+    out.print("{\n");
+    out.print(DATA + ".decref();\n");
+    out.print("}\n");
+    out.print("void incref() { " + DATA + ".incref(); }\n");
+    out.print("void decref() { " + DATA + ".decref(); }\n");
+
+    out.print("\nWxxObjectPtr operator() (const WxxObjectArray &);\n" );
+
+    out.print("\n};\n");
+}
+
+function emit_define_local(out, funst, string dataname)
+{
+    string name = funst.name;
+    out.print("\nWxxObjectPtr " + name + "::operator() (const WxxObjectArray &)\n");
+
+    out.print("{\n" );
+    var emitlocal = new EmitFunction(funst);
+    emitlocal.emit_params(out);
+
+    var usedlexicals = funst.usedlexicals;
+    var locals = funst.locals;
+    for (string varname in locals) {
+        var local = locals[varname];
+        string reg = local.getreg();
+        if (exists usedlexicals[reg])
+            declareReferenceToOuter(out, varname, local.gettype());
+    }
+
+    emitlocal.emit_body(out);
+    out.print("\nreturn winxedxxnull;\n\n}\n");
+}
+
+class EmitFunction
+{
+    var funst;
+    var name;
+    var dataname;
+    var isconstructor;
+    var localfuncs;
+    var body;
+    function EmitFunction(funst)
+    {
+        self.funst = funst;
+        string name = funst.name;
+        self.name = name;
+        int isconstructor = false;
+        if (funst.ismethod()) {
+            var cl = funst.owner;
+            string clname = cl.name;
+            if (clname == name)
+                isconstructor = true;
+        }
+        self.isconstructor = isconstructor;
+        self.localfuncs = funst.localfun;
+        self.body = funst.body;
+        string newname = isconstructor ? "__Winxedxx_constructor" : name;
+        string dataname = newname + DATA;
+        self.dataname = dataname;
+    }
+
+    function emit_params(out)
+    {
+        var funst = self.funst;
+        var params = funst.params;
+        int nparams = params == null ? 0 : elements(params);
+        if (self.localfuncs != null) {
+            string dataname = self.dataname;
+            out.print(declareDataInstance(dataname));
+            out.print("WxxDataHolder __holder(" + dataname + ")\n;");
+            for (int i = 0; i < nparams; ++i) {
+                var param = params[i];
+                string name = param.name;
+                setDataVarFromArg(out, name, funst.getvar(name).gettype(), i);
+            }
+            foreachparam(params, funst,
+                function(string name, string type)
+                {
+                    declareReferenceToData(out, name, type);
+                }
+            );
+        }
+        else
+        {
+            for (int i = 0; i < nparams; ++i) {
+                var param = params[i];
+                string name = param.name;
+                declareDataVar(out, name, funst.getvar(name).gettype());
+                getArgValue(out, i);
+            }
+        }
+    }
+
+    function emit_body(out)
+    {
+        emit_statement(out, self.body);
+    }
+}
+
 function emit_FunctionStatement(out, funst)
 {
+    var emitfun = new EmitFunction(funst);
+
     string name = funst.name;
     int ismethod = funst.ismethod();
     int haslocals = funst.localfun != null;
@@ -1677,6 +1823,9 @@ function emit_FunctionStatement(out, funst)
             }
         );
         out.print("};\n\n");
+        for (var localfn in funst.localfun) {
+            emit_declare_local(out, localfn, dataname);
+        }
     }
 
     if (ismethod)
@@ -1691,39 +1840,15 @@ function emit_FunctionStatement(out, funst)
     out.print("const WxxObjectArray &wxx_fun_args");
     out.print(")\n{\n");
 
-    if (haslocals) {
-        out.print(declareDataInstance(dataname));
-        for (int i = 0; i < nparams; ++i) {
-            var param = params[i];
-            string name = param.name;
-            setDataVarFromArg(out, name, funst.getvar(name).gettype(), i);
-        }
-        foreachparam(params, funst,
-            function(string name, string type)
-            {
-                declareReferenceToData(out, name, type);
-            }
-        );
-    }
-    else
-    {
-        for (int i = 0; i < nparams; ++i) {
-            var param = params[i];
-            string name = param.name;
-            declareDataVar(out, name, funst.getvar(name).gettype());
-            getArgValue(out, i);
-        }
-    }
+    emitfun.emit_params(out);
 
-    // Get body. Should be a CompundStatement
-    if (haslocals)
-        out.print("try {\n");
-    var body = funst.body;
-    emit_statement(out, body);
-    if (haslocals)
-        out.print("} catch (...) {" + DECREFDATA + " throw; }\n " +
-                DECREFDATA + "\n");
+    emitfun.emit_body(out);
+
     out.print("\nreturn winxedxxnull;\n\n} // function " + name + "\n\n");
+
+    for (var localfn in funst.localfun) {
+        emit_define_local(out, localfn, dataname);
+    }
 }
 
 //**************************************************************
@@ -1969,7 +2094,7 @@ function get_winxed_compiler()
 function winxedxx_cxx(string cxxfile, string outfile)
 {
     int r = spawnw( [
-        "g++", "-Wall", "-O2", "-I.", "-o",
+        "g++", "-g", "-Wall", "-O2", "-I.", "-o",
         outfile, cxxfile,
         'winxedxx_objectptr.o',
         'winxedxx_classes.o',

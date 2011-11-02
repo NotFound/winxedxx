@@ -924,6 +924,20 @@ WxxObjectPtr WxxSub::operator()(WxxObjectArray &args)
 
 //*************************************************************
 
+WxxClosure::WxxClosure(WxxInnerFunction * fnarg) :
+        WxxDefault("Sub"),
+	fn(fnarg)
+{
+    fn->incref();
+}
+
+WxxObjectPtr WxxClosure::operator()(WxxObjectArray &args)
+{
+    return (*fn)(args);
+}
+
+//*************************************************************
+
 typedef std::map<std::string, WxxClass *> WxxClassReg;
 static WxxClassReg *wxxclassreg = 0;
 
