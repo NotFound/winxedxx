@@ -15,10 +15,7 @@ class Test
     }
     function inc_count()
     {
-        int count = self.count;
-        ++count;
-        self.count =: count;
-        return count;
+        return int(++self.count);
     }
 
     function ok(int check, string message)
