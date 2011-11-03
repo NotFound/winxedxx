@@ -87,6 +87,15 @@ function test_string_misc(test)
     var arr2 = split("<<", s);
     test.is(elements(arr2), 3, "split");
 
+    s = chr(0x30);
+    test.is_string(s, "0", "chr literal int");
+    int i = 0x31;
+    s = chr(i);
+    test.is_string(s, "1", "chr int");
+    var code = 0x32;
+    s = chr(code);
+    test.is_string(s, "2", "chr var");
+
     s = "012012";
     test.is(ord(s), 0x30, "ord 1 arg");
     test.is(ord(s, 1), 0x31, "ord 2 args");

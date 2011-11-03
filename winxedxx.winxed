@@ -389,9 +389,7 @@ function emit_CallBuiltinExpr(out, expr)
         out.print("])");
         break;
       case 'chr':
-        out.print("WxxObjectPtr(" + Type_String + "(1, int(");
-        emit_expr(out, arg0);
-        out.print(")))");
+        emit_callbuiltin_simple(out, "wxx_chr", arg0);
         break;
       case 'indexof':
         out.print(Type_Int + "((");

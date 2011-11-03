@@ -151,6 +151,11 @@ int wxx_sleep(double t)
     return 0;
 }
 
+std::string wxx_chr(int code)
+{
+    return std::string(1, code);
+}
+
 std::string wxx_chomp(const std::string &src)
 {
     if (std::string::size_type l = src.size())
