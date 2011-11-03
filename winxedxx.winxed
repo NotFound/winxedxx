@@ -1583,6 +1583,24 @@ function emit_declare_function(out, funst)
     out.print("(const WxxObjectArray &wxx_fun_args);\n");
 }
 
+function emit_declare_method(out, funst)
+{
+    string name = funst.name;
+    out.print('static WxxObjectPtr ');
+
+    int isconstructor = false;
+    var cl = funst.owner;
+    string clname = cl.name;
+    if (clname == name)
+        isconstructor = true;
+    if (! isconstructor)
+        out.print(name);
+    else
+        out.print('__Winxedxx_constructor');
+    out.print("(WxxObjectPtr &, ");
+    out.print("const WxxObjectArray &wxx_fun_args);\n");
+}
+
 function emit_declare_function_subid(out, funst, key)
 {
     string name = funst.name;
@@ -1692,7 +1710,7 @@ function emit_declare_local(out, funst, string dataname)
 function emit_define_local(out, funst, string dataname)
 {
     string name = funst.name;
-    out.print("\nWxxObjectPtr " + name + "::operator() (const WxxObjectArray &)\n");
+    out.print("\nWxxObjectPtr " + name + "::operator() (const WxxObjectArray & wxx_fun_args)\n");
 
     out.print("{\n" );
     var emitlocal = new EmitFunction(funst);
@@ -1777,7 +1795,7 @@ class EmitFunction
     }
 }
 
-function emit_FunctionStatement(out, funst)
+function emit_FunctionStatement(out, funst, string prefix[optional])
 {
     var emitfun = new EmitFunction(funst);
 
@@ -1828,10 +1846,9 @@ function emit_FunctionStatement(out, funst)
         }
     }
 
-    if (ismethod)
-        out.print("static ");
-
     out.print('WxxObjectPtr ');
+    if (prefix != null)
+        out.print(prefix);
     out.print(newname);
     out.print("(");
 
@@ -1867,9 +1884,9 @@ function emit_classst(out, clst)
 
     int nfunctions = elements(functions);
     int i;
-    foreach(functions,
-        function(f) { emit_FunctionStatement(out, f); }
-    );
+
+    for (var meth in functions)
+        emit_declare_method(out, meth);
 
     out.print(<<:CLINIT
 static WxxClass * init_class()
@@ -1899,6 +1916,11 @@ CLINIT:>>
     out.print("static WxxClass *clreg;\n};\n");
 
     out.print("WxxClass * " + name + "::clreg = " + name + "::init_class();");
+
+    var prefix = name + "::";
+    foreach(functions,
+        function(f) { emit_FunctionStatement(out, f, prefix); }
+    );
 }
 
 function emit_namespacest(out, ns)
