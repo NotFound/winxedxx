@@ -958,6 +958,11 @@ WxxClosure::WxxClosure(WxxInnerFunction * fnarg) :
     fn->incref();
 }
 
+WxxClosure::~WxxClosure()
+{
+    fn->decref();
+}
+
 WxxObjectPtr WxxClosure::operator()(WxxObjectArray &args)
 {
     return (*fn)(args);

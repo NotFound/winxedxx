@@ -208,6 +208,7 @@ class WxxClosure : public WxxDefault
 {
 public:
     WxxClosure(WxxInnerFunction *);
+    ~WxxClosure();
     WxxObjectPtr operator()(WxxObjectArray &args);
 private:
     WxxInnerFunction *fn;
