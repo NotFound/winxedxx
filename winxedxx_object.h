@@ -7,7 +7,7 @@
 namespace WinxedXX
 {
 
-class WxxObject
+class WxxObject : public WxxRefcounted
 {
 public:
     virtual int is_null() const = 0;
@@ -41,20 +41,6 @@ public:
     virtual WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args) = 0;
     virtual void print() = 0;
     virtual void print(WxxObjectPtr obj) = 0;
-    void incref() { ++numrefs; }
-    void decref()
-    {
-        --numrefs;
-        if (numrefs <= 0)
-            delete this;
-    }
-protected:
-    int numrefs;
-    WxxObject()
-    {
-        numrefs = 0;
-    }
-    virtual ~WxxObject() { }
 };
 
 WxxObjectPtr wxx_getstdin();

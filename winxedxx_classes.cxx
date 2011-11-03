@@ -19,6 +19,33 @@ namespace WinxedXX
 
 //*************************************************************
 
+WxxRefcounted::WxxRefcounted() : refcount(0)
+{
+}
+
+WxxRefcounted::WxxRefcounted(size_t initial) : refcount(initial)
+{
+}
+
+WxxRefcounted::~WxxRefcounted()
+{
+}
+
+void WxxRefcounted::incref()
+{
+    ++refcount;
+}
+
+void WxxRefcounted::decref()
+{
+    if (refcount <= 0)
+        throw "Byebye";
+    if (--refcount == 0)
+        delete this;
+}
+
+//*************************************************************
+
 std::string WxxNull::class_name() const
 {
     return "Null";

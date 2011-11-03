@@ -10,27 +10,30 @@
 namespace WinxedXX
 {
 
+class WxxRefcounted
+{
+protected:
+    WxxRefcounted();
+    WxxRefcounted(size_t initial);
+    virtual ~WxxRefcounted();
+public:
+    void incref();
+    void decref();
+private:
+    size_t refcount;
+};
+
 class WxxObject;
 class WxxObjectArray;
 class WxxLibrary;
 class WxxInnerFunction;
 
-class WxxFunctionVars
+class WxxFunctionVars : public WxxRefcounted
 {
 protected:
-    WxxFunctionVars() :
-        refcount(1)
+    WxxFunctionVars() : WxxRefcounted(1)
     {
     }
-public:
-    void incref() { ++refcount; }
-    void decref()
-    {
-        if (--refcount == 0)
-            delete this;
-    }
-private:
-    size_t refcount;
 };
 
 class WxxDataHolder
@@ -107,12 +110,10 @@ private:
 
 extern WxxObjectPtr winxedxxnull;
 
-class WxxInnerFunction
+class WxxInnerFunction : public WxxRefcounted
 {
 public:
     virtual WxxObjectPtr operator()(const WxxObjectArray &args) = 0;
-    virtual void incref() = 0;
-    virtual void decref() = 0;
 };
 
 

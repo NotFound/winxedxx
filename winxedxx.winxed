@@ -1690,15 +1690,7 @@ function emit_declare_local(out, funst, string dataname)
     out.print("public:\n");
     out.print(name + "(" + dataname + " & outer) : "+ DATA + "(outer)\n" );
     out.print("{\n");
-    out.print(DATA + ".incref();\n");
     out.print("}\n");
-    out.print("~" + name + "()\n" );
-    out.print("{\n");
-    out.print(DATA + ".decref();\n");
-    out.print("}\n");
-    out.print("void incref() { " + DATA + ".incref(); }\n");
-    out.print("void decref() { " + DATA + ".decref(); }\n");
-
     out.print("\nWxxObjectPtr operator() (const WxxObjectArray &);\n" );
 
     out.print("\n};\n");
