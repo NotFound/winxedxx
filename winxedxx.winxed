@@ -379,14 +379,13 @@ function emit_CallBuiltinExpr(out, expr)
         out.print(".length())");
         break;
       case 'ord':
-        out.print("(unsigned char)(");
+        out.print("wxx_ord(");
         emit_expr(out, arg0);
-        out.print(".c_str()[");
-        if (nargs > 1)
+        if (nargs > 1) {
+            out.print(", ");
             emit_expr(out, arg1);
-        else
-            out.print("0");
-        out.print("])");
+        }
+        out.print(")");
         break;
       case 'chr':
         emit_callbuiltin_simple(out, "wxx_chr", arg0);

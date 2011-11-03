@@ -156,6 +156,16 @@ std::string wxx_chr(int code)
     return std::string(1, code);
 }
 
+int wxx_ord(std::string src)
+{
+    return (unsigned char)src.at(0);
+}
+
+int wxx_ord(std::string src, int pos)
+{
+    return (unsigned char)src.at(pos);
+}
+
 std::string wxx_chomp(const std::string &src)
 {
     if (std::string::size_type l = src.size())
