@@ -361,6 +361,13 @@ function main [main] (args)
     string s = "abc";
     test.is_string(s * 3, "abcabcabc", "repeat string");
 
+    vi1 = 7;
+    vi2 = vi1;
+    vi2 =: 1;
+    test.ok(vi1 === vi2, "var =: int does not create a new object");
+    vi2 = 1;
+    test.ok(vi1 !== vi2, "var = int create a new object");
+
     i = 1;
 
     test.is(~i, -2, "bitwise not");
