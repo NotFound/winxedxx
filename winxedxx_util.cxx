@@ -232,6 +232,18 @@ WxxObjectPtr wxx_spawnw(WxxObjectPtr obj)
     return WxxObjectPtr(0);
 }
 
+//*************************************************************
+
+void * wxx_ncigetfunc(WxxObjectPtr lib, const std::string &funcname)
+{
+    void *fun = 0;
+    if (lib.is_null())
+        fun = dlsym(NULL, funcname.c_str());
+    else if (WxxLibrary *dlib = lib.getlib())
+        fun = dlib->getsym(funcname.c_str());
+    return fun;
+}
+
 } // namespace WinxedXX
 
 // End

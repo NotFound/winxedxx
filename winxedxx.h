@@ -22,8 +22,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <dlfcn.h>
-
 namespace WinxedXX
 {
 
@@ -65,15 +63,7 @@ WxxObjectPtr WxxNCI::operator()(WxxObjectArray &args)
     return winxedxxnull;
 }
 
-void * wxxncigetfunc(WxxObjectPtr lib, const std::string &funcname)
-{
-    void *fun = 0;
-    if (lib.is_null())
-        fun = dlsym(NULL, funcname.c_str());
-    else if (WxxLibrary *dlib = lib.getlib())
-        fun = dlib->getsym(funcname.c_str());
-    return fun;
-}
+void * wxx_ncigetfunc(WxxObjectPtr lib, const std::string &funcname);
 
 
 template <typename NciSig>
@@ -82,7 +72,7 @@ class WxxNCIcall<NciSig, 0> : public WxxNCI
 public:
     WxxNCIcall(WxxObjectPtr lib, const std::string &funcname) :
         WxxNCI(funcname),
-        fun((NciSig)wxxncigetfunc(lib, funcname))
+        fun((NciSig)wxx_ncigetfunc(lib, funcname))
     { }
     WxxObjectPtr operator()(WxxObjectArray &args)
     {
@@ -100,7 +90,7 @@ class WxxNCIcall<NciSig, 1> : public WxxNCI
 public:
     WxxNCIcall(WxxObjectPtr lib, const std::string &funcname) :
         WxxNCI(funcname),
-        fun((NciSig)wxxncigetfunc(lib, funcname))
+        fun((NciSig)wxx_ncigetfunc(lib, funcname))
     { }
     WxxObjectPtr operator()(WxxObjectArray &args)
     {
@@ -118,7 +108,7 @@ class WxxNCIcall<NciSig, 2> : public WxxNCI
 public:
     WxxNCIcall(WxxObjectPtr lib, const std::string &funcname) :
         WxxNCI(funcname),
-        fun((NciSig)wxxncigetfunc(lib, funcname))
+        fun((NciSig)wxx_ncigetfunc(lib, funcname))
     { }
     WxxObjectPtr operator()(WxxObjectArray &args)
     {
@@ -136,7 +126,7 @@ class WxxNCIcall<NciSig, 3> : public WxxNCI
 public:
     WxxNCIcall(WxxObjectPtr lib, const std::string &funcname) :
         WxxNCI(funcname),
-        fun((NciSig)wxxncigetfunc(lib, funcname))
+        fun((NciSig)wxx_ncigetfunc(lib, funcname))
     { }
     WxxObjectPtr operator()(WxxObjectArray &args)
     {
