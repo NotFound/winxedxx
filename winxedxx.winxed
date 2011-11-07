@@ -2108,6 +2108,8 @@ function winxedxx_cxx(string cxxfile, string outfile)
         "g++", "-g", "-Wall", "-O2", "-I.", "-o",
         outfile, cxxfile,
         'winxedxx_objectptr.o',
+        'winxedxx_null.o',
+        'winxedxx_default.o',
         'winxedxx_classes.o',
         'winxedxx_handle.o',
         'winxedxx_util.o',

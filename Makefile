@@ -15,6 +15,8 @@ LDOPTS = -ldl
 #-----------------------------------------------------------------------
 
 OBJS = \
+                winxedxx_null.o \
+                winxedxx_default.o \
 		winxedxx_objectptr.o \
 		winxedxx_classes.o \
 		winxedxx_handle.o \
@@ -42,6 +44,12 @@ winxedxx.pir: winxedxx.winxed
 	$(WINXED) $(WINXEDLIB) --target=pir -o winxedxx.pir winxedxx.winxed
 
 #-----------------------------------------------------------------------
+
+winxedxx_null.o: winxedxx_null.cxx
+	$(CXX) $(CXXOPTS) -c winxedxx_null.cxx
+
+winxedxx_default.o: winxedxx_default.cxx
+	$(CXX) $(CXXOPTS) -c winxedxx_default.cxx
 
 winxedxx_objectptr.o: winxedxx_objectptr.cxx
 	$(CXX) $(CXXOPTS) -c winxedxx_objectptr.cxx
