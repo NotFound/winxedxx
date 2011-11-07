@@ -254,6 +254,7 @@ function miscellaneous(test, int runit)
     // The variable condition is used to avoid being optimized out.
     if (runit) {
         exit(0);
+        die("message");
     }
 
     string s = "abc\n";

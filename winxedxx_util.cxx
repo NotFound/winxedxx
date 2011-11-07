@@ -109,6 +109,11 @@ WxxObjectPtr wxx_error(const std::string &message, int severity, int type)
     return WxxObjectPtr((WxxObject *)new WxxException(message, severity, type));
 }
 
+WxxObjectPtr wxx_die(const std::string &message)
+{
+    return WxxObjectPtr((WxxObject *)new WxxException(message));
+}
+
 WxxObjectPtr wxx_getstdin()
 {
     return WxxObjectPtr(new WxxFileHandle(1));

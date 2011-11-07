@@ -121,6 +121,8 @@ WxxObjectPtr wxx_error(const std::string &message);
 WxxObjectPtr wxx_error(const std::string &message, int severity);
 WxxObjectPtr wxx_error(const std::string &message, int severity, int type);
 
+WxxObjectPtr wxx_die(const std::string &message);
+
 int wxx_time();
 double wxx_floattime();
 int wxx_sleep(int t);

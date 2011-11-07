@@ -438,7 +438,7 @@ function emit_CallBuiltinExpr(out, expr)
         emit_callbuiltin_simple_2(out, "wxx_split", arg0, arg1);
         break;
       case 'die':
-        out.print("wxx_error(");
+        out.print("wxx_die(");
         emit_expr(out, arg0);
         out.print(")");
         break;
