@@ -246,6 +246,16 @@ class Cl
     var foo;
 }
 
+class Bar
+{
+    var msg;
+    function Bar()
+    {
+        self.msg = "class Bar";
+    }
+    function get() { return self.msg; }
+}
+
 //**********************************************************************
 
 function miscellaneous(test, int runit)
@@ -422,6 +432,9 @@ function main [main] (args)
     s = "foo";
     s = cl.*s;
     test.is_string(s, "Cl_foo", "indirect get attribute");
+
+    var fbar = new Bar();
+    test.is_string(fbar.get(), "class Bar", "constructor");
 
     miscellaneous(test, false);
 
