@@ -276,14 +276,10 @@ function nciitemtoc(string item)
 
 function ncisigtoc(string sig)
 {
-    string ret = sig[0];
-    string args = substr(sig, 1);
-    string csig;
-    csig = nciitemtoc(ret);
+    string csig = nciitemtoc(sig[0]);
     csig += "(*)(";
     string sep = '';
-    for (int i = 0; i < length(args); ++i) {
-        string item = args[i];
+    for (string item in substr(sig, 1)) {
         csig += sep;
         sep = ", ";
         csig += nciitemtoc(item);
@@ -298,7 +294,7 @@ function ncisigtoc(string sig)
 
 function emit_callbuiltin_void(out, string name)
 {
-    out.print(name + "()");
+    out.print(name, "()");
 }
 function emit_callbuiltin_simple(out, string name, arg)
 {
@@ -362,8 +358,7 @@ function emit_CallBuiltinExpr(out, expr)
         break;
       case 'print':
       case 'say':
-        for (i = 0;  i < nargs; ++i) {
-            var arg = args[i];
+        for (var arg in args) {
             var argexp = arg.arg;
             out.print('wxx_print');
             emit_expr(out, argexp);
@@ -374,15 +369,13 @@ function emit_CallBuiltinExpr(out, expr)
         out.print('0');
         break;
       case 'cry':
-        for (i = 0;  i < nargs; ++i) {
-            var arg = args[i];
+        for (var arg in args) {
             var argexp = arg.arg;
             out.print('wxx_eprint');
             emit_expr(out, argexp);
             out.print(',');
         }
-        out.print('wxx_eprint("\n"),');
-        out.print('0');
+        out.print('wxx_eprint("\n"), 0');
         break;
       case 'elements':
         emit_expr(out, arg0);
@@ -390,10 +383,9 @@ function emit_CallBuiltinExpr(out, expr)
         break;
       case 'length':
       case 'bytelength':
-        out.print("(" + Type_Int + ")(" + Type_String + "(");
+        out.print("(", Type_Int, ")(", Type_String, "(");
         emit_expr(out, arg0);
-        out.print(")");
-        out.print(".length())");
+        out.print(").length())");
         break;
       case 'ord':
         out.print("wxx_ord(");
@@ -491,7 +483,7 @@ function emit_CallBuiltinExpr(out, expr)
         int nsigargs = length(sig.strval.rawstring()) - 1;
         string csig = ncisigtoc(sig.strval.rawstring());
 
-        out.print("wxx_dlfunc<" + csig + ", " + string(nsigargs) + ">(");
+        out.print("wxx_dlfunc<", csig, ", ", string(nsigargs), ">(");
         emit_expr(out, arg0);
         out.print(", ");
         emit_expr(out, arg1);
@@ -580,8 +572,7 @@ function emit_CallMemberExpr(out, callexpr)
     int nargs = args == null ? 0 : args.numargs();
 
     if (callexpr.subid != null) {
-        out.print(callexpr.subid);
-        out.print("(");
+        out.print(callexpr.subid, "(");
         emit_callargs(out, args);
     }
     else {
@@ -592,9 +583,7 @@ function emit_CallMemberExpr(out, callexpr)
         emit_expr(out, funref.left);
         if (!is_var)
             out.print(")");
-        out.print(".call_method(\"");
-        out.print(funref.right.getidentifier());
-        out.print("\"");
+        out.print(".call_method(\"", funref.right.getidentifier(), "\"");
         if (nargs > 0) {
             out.print(", ");
             emit_callargs(out, args);
@@ -662,8 +651,7 @@ function emit_HashExpr(out, expr)
 function emit_FunctionExpr(out, expr)
 {
     var funst = expr.fn;
-    string name = funst.name;
-    out.print("new " + name + "(* " + DATA + ")");
+    out.print("new ", funst.name, "(* ", DATA, ")");
 }
 
 function emit_NewExpr(out, expr)
@@ -672,7 +660,7 @@ function emit_NewExpr(out, expr)
     if (value.isidentifier()) {
         var initializer = expr.initializer;
         int numinits = initializer == null ? -1 : initializer.numargs();
-        out.print("wxx_new(\"" + string(value) + "\"");
+        out.print("wxx_new(\"", value, "\"");
         if (numinits >= 0) {
             out.print(", ");
             emit_callargs(out, initializer);
@@ -686,7 +674,7 @@ function emit_NewExpr(out, expr)
             out.print("WxxObjectPtr(new WxxFileHandle())");
             break;
           default:
-            out.print("WxxObjectPtr(new WxxInstance(\"" + name + "\"))");
+            out.print("WxxObjectPtr(new WxxInstance(\"", name, "\"))");
         }
     }
     else
@@ -701,7 +689,7 @@ function emit_NewIndexedExpr(out, expr)
 
     // TESTING
     string name = key[0];
-    out.print("WxxObjectPtr(new WxxInstance(\"" + name + "\"))");
+    out.print("WxxObjectPtr(new WxxInstance(\"", name, "\"))");
 }
 
 function emit_OpAssignExpr(out, assignexpr)
@@ -711,8 +699,7 @@ function emit_OpAssignExpr(out, assignexpr)
     string ltype = lexpr.checkresult();
     string rtype = rexpr.checkresult();
     if (lexpr instanceof IdentifierExpr) {
-        out.print(lexpr.name);
-        out.print(" = ");
+        out.print(lexpr.name, " = ");
         switch {
           case ltype == REGstring && rtype == REGint:
             out.print('wxx_int_to_string');
@@ -766,14 +753,13 @@ function emit_OpAssignToExpr(out, expr)
     var lexpr = expr.lexpr;
     var rexpr = expr.rexpr;
     if (lexpr instanceof IdentifierExpr) {
-        out.print(lexpr.name);
-        out.print(".set");
+        out.print(lexpr.name, ".set");
         emit_expr(out, rexpr);
     }
     else if (lexpr instanceof MemberExpr) {
         emit_expr(out, lexpr.left);
         string ident = lexpr.right.getidentifier();
-        out.print(".get_attr_str(\"" + ident + "\").set");
+        out.print(".get_attr_str(\"", ident, "\").set");
         emit_expr(out, rexpr);
     }
     else if (lexpr instanceof MemberRefExpr) {
@@ -792,11 +778,11 @@ function emit_InstanceOfExpr(out, instanceofexpr)
     emit_expr(out, lexpr);
     out.print(", ");
     if (checked instanceof ClassSpecifierStr)
-        out.print('"' + string(checked.name) + '"');
+        out.print('"', checked.name, '"');
     else if (checked instanceof ClassSpecifierId)
-        out.print('"' + string(checked.last()) + '"');
+        out.print('"', checked.last(), '"');
     else
-        out.print('"' + string(tokstringtoxx(checked)) + '"');
+        out.print('"', tokstringtoxx(checked), '"');
     out.print(")");
 }
 
@@ -804,8 +790,7 @@ function emit_OpAddToExpr(out, assignexpr)
 {
     var lexpr = assignexpr.lexpr;
     if (lexpr instanceof IdentifierExpr) {
-        out.print(lexpr.name);
-        out.print(" += ");
+        out.print(lexpr.name, " += ");
         if (lexpr.checkresult() == REGstring)
             out.print(Type_String);
         emit_expr(out, assignexpr.rexpr);
@@ -818,8 +803,7 @@ function emit_OpSubToExpr(out, assignexpr)
 {
     var lexpr = assignexpr.lexpr;
     if (lexpr instanceof IdentifierExpr) {
-        out.print(lexpr.name);
-        out.print(" -= ");
+        out.print(lexpr.name, " -= ");
         if (lexpr.checkresult() == REGstring)
             out.print(Type_String);
         emit_expr(out, assignexpr.rexpr);
@@ -832,8 +816,7 @@ function emit_OpMulToExpr(out, assignexpr)
 {
     var lexpr = assignexpr.lexpr;
     if (lexpr instanceof IdentifierExpr) {
-        out.print(lexpr.name);
-        out.print(" *= ");
+        out.print(lexpr.name, " *= ");
         if (lexpr.checkresult() == REGstring)
             out.print(Type_String);
         emit_expr(out, assignexpr.rexpr);
@@ -844,49 +827,39 @@ function emit_OpMulToExpr(out, assignexpr)
 
 function emit_OpAddExpr(out, expr)
 {
-    var lexpr = expr.lexpr;
-    var rexpr = expr.rexpr;
-    emit_expr(out, lexpr);
+    emit_expr(out, expr.lexpr);
     out.print(" + ");
-    emit_expr(out, rexpr);
+    emit_expr(out, expr.rexpr);
 }
 
 function emit_OpSubExpr(out, expr)
 {
-    var lexpr = expr.lexpr;
-    var rexpr = expr.rexpr;
-    emit_expr(out, lexpr);
+    emit_expr(out, expr.lexpr);
     out.print(" - ");
-    emit_expr(out, rexpr);
+    emit_expr(out, expr.rexpr);
 }
 
 function emit_RepeatString(out, expr)
 {
-    var lexpr = expr.lexpr;
-    var rexpr = expr.rexpr;
     out.print("wxx_repeat_string(");
-    emit_expr(out, lexpr);
+    emit_expr(out, expr.lexpr);
     out.print(", ");
-    emit_expr(out, rexpr);
+    emit_expr(out, expr.rexpr);
     out.print(")");
 }
 
 function emit_OpMulExpr(out, expr)
 {
-    var lexpr = expr.lexpr;
-    var rexpr = expr.rexpr;
-    emit_expr(out, lexpr);
+    emit_expr(out, expr.lexpr);
     out.print(" * ");
-    emit_expr(out, rexpr);
+    emit_expr(out, expr.rexpr);
 }
 
 function emit_OpDivExpr(out, expr)
 {
-    var lexpr = expr.lexpr;
-    var rexpr = expr.rexpr;
-    emit_expr(out, lexpr);
+    emit_expr(out, expr.lexpr);
     out.print(" / ");
-    emit_expr(out, rexpr);
+    emit_expr(out, expr.rexpr);
 }
 
 function emit_ConcatString(out, concatstr)
@@ -926,8 +899,7 @@ function emit_ZeroCheckerExpr(out, expr)
 {
     out.print("(");
     emit_expr(out, expr.expr);
-    out.print(expr.positive ? "=" : "!");
-    out.print("= 0)");
+    out.print(expr.positive ? "=" : "!", "= 0)");
 }
 
 function emit_OpEqualExpr(out, expr)
@@ -965,9 +937,7 @@ function emit_OpSameExpr(out, expr)
 function emit_commonop(out, expr, string opstr)
 {
     emit_expr(out, expr.lexpr);
-    out.print(" ");
-    out.print(opstr);
-    out.print(" ");
+    out.print(" ", opstr, " ");
     emit_expr(out, expr.rexpr);
 }
 
@@ -1054,9 +1024,7 @@ function emit_OpExistsExpr(out, expr)
 function emit_MemberExpr(out, expr)
 {
     emit_expr(out, expr.left);
-    out.print(".get_attr_str(\"");
-    out.print(expr.right.getidentifier());
-    out.print("\")");
+    out.print(".get_attr_str(\"", expr.right.getidentifier(), "\")");
 }
 
 function emit_MemberRefExpr(out, expr)
@@ -1201,8 +1169,7 @@ function emit_expr(out, expr)
 
 function emit_exprst(out, exprst)
 {
-    var expr = exprst.expr;
-    emit_expr(out, expr);
+    emit_expr(out, exprst.expr);
 }
 
 function emit_conststatement(out, st)
@@ -1224,8 +1191,7 @@ function emit_varstatement(out, st)
         out.print("&");
     out.print(st.name);
     if (is_lex) {
-        out.print(" = " + DATA + "->");
-        out.print(st.name);
+        out.print(" = ", DATA, "->", st.name);
     }
 
     if (init != null) {
@@ -1239,12 +1205,9 @@ function emit_nativetypestatement(out, st, string simpletype, string nullinit)
     string name = st.name;
     var init = st.init;
 
-    out.print(simpletype);
-    out.print(" ");
-    out.print(name);
+    out.print(simpletype, " ", name);
     if (init == null) {
-        out.print(" = ");
-        out.print(nullinit);
+        out.print(" = ", nullinit);
     }
     else {
         string inittype = generatedType(init.checkresult());
@@ -1273,11 +1236,7 @@ function emit_nativearraystatement(out, st, string arraytype)
     string name = st.name;
     var init = st.initarray;
 
-    out.print("WxxObjectPtr ");
-    out.print(name);
-    out.print("(&((*new Wxx");
-    out.print(arraytype);
-    out.print("Array())");
+    out.print("WxxObjectPtr ", name, "(&((*new Wxx", arraytype, "Array())");
     if (init != null) {
         for (var item in init) {
             out.print(".push(");
@@ -1306,8 +1265,7 @@ function emit_ContinueStatement(out, gotost)
 
 function emit_gotostatement(out, gotost)
 {
-    out.print("goto ");
-    out.print(gotost.label);
+    out.print("goto ", gotost.label);
 }
 
 function emit_ifstatement(out, ifst)
@@ -1408,8 +1366,7 @@ function emit_trystatement(out, tryst)
     if (tryst.exname == null)
         out.print("...");
     else {
-        out.print("WxxObjectPtr &");
-        out.print(string(tryst.exname));
+        out.print("WxxObjectPtr &", tryst.exname);
     }
     out.print(")\n{\n");
     emit_statement(out, tryst.scatch);
@@ -1513,10 +1470,8 @@ function emit_UsingStatement(out, st)
     if (st.subid != null) {
         var path = st.path;
         string name = path[-1];
-        out.print('static WxxObjectPtr (*const ');
-        out.print(name);
-        out.print(")(const WxxObjectArray &wxx_fun_args) =  ");
-        out.print(st.subid);
+        out.print('static WxxObjectPtr (*const ', name,
+            ")(const WxxObjectArray &wxx_fun_args) =  ", st.subid);
     }
 }
 
@@ -1592,9 +1547,7 @@ function emit_statement(out, st)
 function emit_declare_function(out, funst)
 {
     string name = funst.name;
-    out.print('WxxObjectPtr ');
-    out.print(name);
-    out.print("(const WxxObjectArray &wxx_fun_args);\n");
+    out.print('WxxObjectPtr ', name, "(const WxxObjectArray &wxx_fun_args);\n");
 }
 
 function emit_declare_method(out, funst)
@@ -1611,8 +1564,7 @@ function emit_declare_method(out, funst)
         out.print(name);
     else
         out.print('__Winxedxx_constructor');
-    out.print("(WxxObjectPtr &, ");
-    out.print("const WxxObjectArray &wxx_fun_args);\n");
+    out.print("(WxxObjectPtr &, const WxxObjectArray &wxx_fun_args);\n");
 }
 
 function emit_declare_function_subid(out, funst, key)
@@ -1624,8 +1576,7 @@ function emit_declare_function_subid(out, funst, key)
         out.print(")(const WxxObjectArray &wxx_fun_args) =  &");
         if (elements(key) > 0)
             out.print(join("::", key) + "::");
-        out.print(name);
-        out.print(";\n");
+        out.print(name, ";\n");
     }
 }
 
@@ -1643,24 +1594,18 @@ function declareDataInstance(string name)
 
 function declareDataVar(out, string varname, string vartype)
 {
-    out.print(generatedType(vartype));
-    out.print(" ");
-    out.print(varname);
+    out.print(generatedType(vartype), " ", varname);
     //out.print(";\n");
 }
 
 function getArgValue(out, int i)
 {
-    out.print("(wxx_fun_args[");
-    out.print(i);
-    out.print("]);\n");
+    out.print("(wxx_fun_args[", i, "]);\n");
 }
 
 function setDataVarFromArg(out, string name, string type, int i)
 {
-    out.print(DATA + "->");
-    out.print(name);
-    out.print(" = ");
+    out.print(DATA + "->", name, " = ");
     if (type == REGstring)
         out.print(Type_String);
     getArgValue(out, i);
@@ -1668,20 +1613,14 @@ function setDataVarFromArg(out, string name, string type, int i)
 
 function declareReferenceToData(out, string name, string type)
 {
-    out.print(generatedType(type));
-    out.print(" &");
-    out.print(name);
-    out.print(" = " + DATA + "->" + name);
-    out.print(";\n");
+    out.print(generatedType(type), " &", name,
+            " = " + DATA + "->", name, ";\n");
 }
 
 function declareReferenceToOuter(out, string name, string type)
 {
-    out.print(generatedType(type));
-    out.print(" &");
-    out.print(name);
-    out.print(" = " + DATA + "." + name);
-    out.print(";\n");
+    out.print(generatedType(type)," &", name,
+            " = " + DATA + ".", name, ";\n");
 }
 
 function foreachparam(params, funst, func)
@@ -2015,8 +1954,28 @@ function get_main(ns)
     return result != null ? string(result.name) : "";
 }
 
-function emit(out, parsed)
+//**********************************************************************
+
+class Output
 {
+    var handle;
+    function Output(handle)
+    {
+        self.handle = handle;
+    }
+    function print(args[slurpy])
+    {
+        var handle = self.handle;
+        for (var arg in args)
+            handle.print(arg);
+    }
+}
+
+//**********************************************************************
+
+function emit(outhandle, parsed)
+{
+    var out = new Output(outhandle);
     var ns = parsed.rootns;
     string mainfunc = get_main(ns);
 
