@@ -161,15 +161,32 @@ function WxxUnsupported(thing, string msg[optional])
 
 //**************************************************************
 
-// Generic functions
+// Algorithms and binders
 
-function foreach(params, func)
+function for_each(params, func)
 {
     if (params != null) {
-        for (var param in params) {
+        for (var param in params)
             func(param);
-        }
     }
+}
+
+function find_if(params, func)
+{
+    for (var item in params)
+        if (func(item))
+            return item;
+    return null;
+}
+
+function bindfirst(func, argfirst[slurpy])
+{
+    return function (arg2 [slurpy]) { func(argfirst:[flat], arg2:[flat]); };
+}
+
+function bindlast(func, arglast[slurpy])
+{
+    return function (arg2 [slurpy]) { func(arg2:[flat], arglast:[flat]); };
 }
 
 // Types
@@ -227,7 +244,7 @@ function strtoxx(string str)
                 result += '\u' + substr(("000" + string(code.get_as_base(16))), -4);
             else
                 result += c;
-          }
+        }
     }
     return result;
 }
@@ -1669,7 +1686,7 @@ function declareReferenceToOuter(out, string name, string type)
 
 function foreachparam(params, funst, func)
 {
-    foreach(params,
+    for_each(params,
         function(param)
         {
             string name = param.name;
@@ -1819,7 +1836,7 @@ function emit_FunctionStatement(out, funst, string prefix[optional])
            }
         );
         var locals = funst.body.locals;
-        foreach(locals,
+        for_each(locals,
             function(string name)
             {
                 var local = locals[name];
@@ -1830,9 +1847,8 @@ function emit_FunctionStatement(out, funst, string prefix[optional])
             }
         );
         out.print("};\n\n");
-        for (var localfn in funst.localfun) {
-            emit_declare_local(out, localfn, dataname);
-        }
+        for_each(funst.localfun,
+                bindlast(bindfirst(emit_declare_local, out), dataname));
     }
 
     out.print('WxxObjectPtr ');
@@ -1852,9 +1868,8 @@ function emit_FunctionStatement(out, funst, string prefix[optional])
 
     out.print("\nreturn winxedxxnull;\n\n} // function " + name + "\n\n");
 
-    for (var localfn in funst.localfun) {
-        emit_define_local(out, localfn, dataname);
-    }
+    for_each(funst.localfun,
+            bindlast(bindfirst(emit_define_local, out), dataname));
 }
 
 //**************************************************************
@@ -1862,7 +1877,6 @@ function emit_FunctionStatement(out, funst, string prefix[optional])
 function emit_classst(out, clst)
 {
     string name = clst.name;
-    var members = clst.members;
     var functions = clst.functions;
 
     out.print("\n// class " + name + "\n\n");
@@ -1871,11 +1885,7 @@ function emit_classst(out, clst)
     out.print(name);
     out.print("\n{\n");
 
-    int nfunctions = elements(functions);
-    int i;
-
-    for (var meth in functions)
-        emit_declare_method(out, meth);
+    for_each(functions, bindfirst(emit_declare_method, out));
 
     out.print(<<:CLINIT
 static WxxClass * init_class()
@@ -1888,17 +1898,19 @@ CLINIT:>>
         );
 CLINIT:>>
     );
-    for (i = 0; i < elements(members); ++i) {
-        string member = members[i];
-        out.print("cl->addattribute(\"" + member + "\");\n");
-    }
-    for (i = 0; i < nfunctions; ++i) {
-        var fun = functions[i];
-        string fname = fun.name;
-        string cxxname = fname == name  ? "__Winxedxx_constructor" : fname;
-        out.print("cl->addfunction(\"" + fname +
-                "\", &" + name + "::" + cxxname + ");\n");
-    }
+    for_each(clst.members, function(string member)
+        {
+            out.print("cl->addattribute(\"" + member + "\");\n");
+        }
+    );
+    for_each(functions, function(fun)
+        {
+            string fname = fun.name;
+            string cxxname = fname == name  ? "__Winxedxx_constructor" : fname;
+            out.print("cl->addfunction(\"" + fname +
+                    "\", &" + name + "::" + cxxname + ");\n");
+        }
+    );
 
     out.print("return cl;\n}\n");
 
@@ -1907,8 +1919,10 @@ CLINIT:>>
     out.print("WxxClass * " + name + "::clreg = " + name + "::init_class();");
 
     var prefix = name + "::";
-    foreach(functions,
-        function(f) { emit_FunctionStatement(out, f, prefix); }
+    for_each(functions, function(f)
+        {
+            emit_FunctionStatement(out, f, prefix);
+        }
     );
 }
 
@@ -1954,8 +1968,7 @@ function emit_declare_namespacest(out, ns)
     }
 
     // Declare child namespaces
-    for (var childns in ns.namespaces)
-        emit_declare_namespacest(out, childns);
+    for_each(ns.namespaces, bindfirst(emit_declare_namespacest, out));
 
     if (! (ns instanceof RootNamespace))
         out.print("\n}\n");
@@ -1988,24 +2001,18 @@ function emit_declare_subid(out, ns, key[optional], seen[optional])
     }
 
     // Declare child functions
-    for (var childns in ns.namespaces)
-        emit_declare_subid(out, childns, key, seen);
+    for_each(ns.namespaces,
+            bindlast(bindfirst(emit_declare_subid, out), key, seen));
 }
 
 function get_main(ns)
 {
-    int i;
-    var functions = ns.functions;
-    int nfunctions = elements(functions);
-    for (i = 0; i < nfunctions; ++i) {
-        var fun = functions[i];
+    var result = find_if(ns.functions, function(fun) {
         var modifiers = fun.modifiers;
-        if (modifiers != null && modifiers.pick('main') != null)
-            return fun.name;
-        if (fun.name == 'main')
-            return 'main';
-    }
-    return '';
+        return (modifiers != null && modifiers.pick('main') != null) ||
+                fun.name == 'main';
+    });
+    return result != null ? string(result.name) : "";
 }
 
 function emit(out, parsed)
