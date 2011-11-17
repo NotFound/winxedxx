@@ -16,6 +16,7 @@ namespace Winxed {
 namespace Compiler {
 
 class Token;
+class TokenString;
 class TokenQuoted;
 class TokenSingleQuoted;
 
@@ -42,6 +43,7 @@ class FunctionExpr;
 class NullCheckerExpr;
 class ConcatString;
 class CallExpr;
+class CallSubid;
 class CallMemberExpr;
 class CallBuiltinExpr;
 
@@ -251,13 +253,14 @@ function strtoxx(string str)
 
 function tokstringtoxx(strval)
 {
-    __ASSERT__(strval instanceof 'TokenString');
+    __ASSERT__(strval instanceof TokenString);
     return strtoxx(strval.getasquoted());
 }
 
 function stringtoxx(literal)
 {
-    __ASSERT__(literal instanceof 'StringLiteral');
+    if (!(literal instanceof StringLiteral)) die("UUU");
+    __ASSERT__(literal instanceof StringLiteral);
     return tokstringtoxx(literal.strval);
 }
 
@@ -565,29 +568,30 @@ function emit_callargs(out, args)
     }
 }
 
+function emit_CallSubid(out, callexpr)
+{
+    out.print(callexpr.subid, "(");
+    emit_callargs(out, callexpr.args);
+    out.print(")");
+}
+
 function emit_CallMemberExpr(out, callexpr)
 {
     var funref = callexpr.funref;
     var args = callexpr.args;
     int nargs = args == null ? 0 : args.numargs();
 
-    if (callexpr.subid != null) {
-        out.print(callexpr.subid, "(");
+    var left = funref.left;
+    int is_var = left.checkresult() == REGvar;
+    if (!is_var)
+        out.print("WxxObjectPtr(");
+    emit_expr(out, funref.left);
+    if (!is_var)
+        out.print(")");
+    out.print(".call_method(\"", funref.right.getidentifier(), "\"");
+    if (nargs > 0) {
+        out.print(", ");
         emit_callargs(out, args);
-    }
-    else {
-        var left = funref.left;
-        int is_var = left.checkresult() == REGvar;
-        if (!is_var)
-            out.print("WxxObjectPtr(");
-        emit_expr(out, funref.left);
-        if (!is_var)
-            out.print(")");
-        out.print(".call_method(\"", funref.right.getidentifier(), "\"");
-        if (nargs > 0) {
-            out.print(", ");
-            emit_callargs(out, args);
-        }
     }
     out.print(")");
 }
@@ -1041,6 +1045,8 @@ function emit_expr(out, expr)
 
     if (expr instanceof CallBuiltinExpr)
         emit_CallBuiltinExpr(out, expr);
+    else if (expr instanceof CallSubid)
+        emit_CallSubid(out, expr);
     else if (expr instanceof CallMemberExpr)
         emit_CallMemberExpr(out, expr);
     else if (expr instanceof CallExpr)
@@ -1569,6 +1575,8 @@ function emit_declare_method(out, funst)
 
 function emit_declare_function_subid(out, funst, key)
 {
+    __ASSERT__(funst instanceof FunctionStatement);
+
     string name = funst.name;
     if (funst.subid != null) {
         out.print('static WxxObjectPtr (*const ');
@@ -1816,7 +1824,13 @@ function emit_FunctionStatement(out, funst, string prefix[optional])
 function emit_classst(out, clst)
 {
     string name = clst.name;
-    var functions = clst.functions;
+    var functions [];
+    for_each(clst.items, function(item)
+            {
+                if ((item instanceof FunctionStatement) ||
+                        (item instanceof FunctionExtern))
+                    push(functions, item);
+            });
 
     out.print("\n// class " + name + "\n\n");
 
@@ -1873,8 +1887,11 @@ function emit_namespacest(out, ns)
         out.print("\n{\n");
     }
 
-    for (var item in ns.items) {
+    var functions = ns.items;
+    for (var item in functions) {
         if (item instanceof FunctionStatement)
+            emit_FunctionStatement(out, item);
+        else if (item instanceof FunctionExtern)
             emit_FunctionStatement(out, item);
         else if (item instanceof NamespaceStatement)
             emit_namespacest(out, item);
@@ -1900,8 +1917,15 @@ function emit_declare_namespacest(out, ns)
     }
 
     // Declare functions
-    for (var fun in ns.functions) {
-        if (fun instanceof Winxed.Compiler.Builtin)
+    var functions [];
+    for_each(ns.items, function(item)
+            { if (item instanceof FunctionStatement) push(functions, item); });
+    for (var fun in functions) {
+        if (fun instanceof Builtin)
+            continue;
+        if (fun instanceof FunctionExtern)
+            continue;
+        if (fun instanceof ConstStatement)
             continue;
         emit_declare_function(out, fun);
     }
@@ -1928,10 +1952,14 @@ function emit_declare_subid(out, ns, key[optional], seen[optional])
         push(key, ns.name);
     }
     // Declare own functions
-    for (var fun in ns.functions) {
-        if (fun instanceof Winxed.Compiler.Builtin)
+    for (var fun in ns.items) {
+        if (fun instanceof Builtin)
             continue;
-        if (fun instanceof FunctionExtern)
+        if (fun instanceof NamespaceStatement)
+            continue;
+        if (fun instanceof ConstStatement)
+            continue;
+        if (fun instanceof ClassStatement)
             continue;
         if (! exists seen[fun]) {
             emit_declare_function_subid(out, fun, key);
@@ -1946,12 +1974,13 @@ function emit_declare_subid(out, ns, key[optional], seen[optional])
 
 function get_main(ns)
 {
-    var result = find_if(ns.functions, function(fun) {
-        var modifiers = fun.modifiers;
+    var functions = ns.funcont.functions;
+    var result = find_if(functions, function(string name) {
+        var modifiers = functions[name].modifiers;
         return (modifiers != null && modifiers.pick('main') != null) ||
-                fun.name == 'main';
+                name == 'main';
     });
-    return result != null ? string(result.name) : "";
+    return result != null ? string(result) : "";
 }
 
 //**********************************************************************
