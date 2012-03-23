@@ -1191,7 +1191,8 @@ function emit_expr(out, expr)
 
 function emit_exprst(out, exprst)
 {
-    emit_expr(out, exprst.expr);
+    for (var expr in exprst.expr)
+        emit_expr(out, expr);
 }
 
 function emit_conststatement(out, st)
