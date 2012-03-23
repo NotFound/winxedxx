@@ -606,8 +606,10 @@ function emit_CallExpr(out, callexpr)
         emit_expr(out, funref);
     }
     else {
-        if (! funref.isidentifier())
+        if (! funref.isidentifier()) {
+            if (__DEBUG__) cry("In Call expression:");
             WxxUnsupported(funref);
+        }
 
         if ((callexpr instanceof CallMemberExpr) && callexpr.subid != null)
             out.print(callexpr.subid);
@@ -681,8 +683,10 @@ function emit_NewExpr(out, expr)
             out.print("WxxObjectPtr(new WxxInstance(\"", name, "\"))");
         }
     }
-    else
+    else {
+        if (__DEBUG__) cry("In new expression:");
         WxxUnsupported(expr);
+    }
 }
 
 function emit_NewIndexedExpr(out, expr)
@@ -748,8 +752,10 @@ function emit_OpAssignExpr(out, assignexpr)
         emit_expr(out, rexpr);
         out.print(")");
     }
-    else
+    else {
+        if (__DEBUG__) cry("In assignment:");
         WxxUnsupported(lexpr);
+    }
 }
 
 function emit_OpAssignToExpr(out, expr)
@@ -770,8 +776,10 @@ function emit_OpAssignToExpr(out, expr)
         // Fake implementation to allow some testing.
         out.print("winxedxxnull");
     }
-    else
+    else {
+        if (__DEBUG__) cry("In assign to:");
         WxxUnsupported(lexpr);
+    }
 }
 
 function emit_InstanceOfExpr(out, instanceofexpr)
@@ -799,8 +807,10 @@ function emit_OpAddToExpr(out, assignexpr)
             out.print(Type_String);
         emit_expr(out, assignexpr.rexpr);
     }
-    else
+    else {
+        if (__DEBUG__) cry("In " + __FUNCTION__);
         WxxUnsupported(lexpr);
+    }
 }
 
 function emit_OpSubToExpr(out, assignexpr)
@@ -812,8 +822,10 @@ function emit_OpSubToExpr(out, assignexpr)
             out.print(Type_String);
         emit_expr(out, assignexpr.rexpr);
     }
-    else
+    else {
+        if (__DEBUG__) cry("In " + __FUNCTION__);
         WxxUnsupported(lexpr);
+    }
 }
 
 function emit_OpMulToExpr(out, assignexpr)
@@ -825,8 +837,10 @@ function emit_OpMulToExpr(out, assignexpr)
             out.print(Type_String);
         emit_expr(out, assignexpr.rexpr);
     }
-    else
+    else {
+        if (__DEBUG__) cry("In " + __FUNCTION__);
         WxxUnsupported(lexpr);
+    }
 }
 
 function emit_OpAddExpr(out, expr)
@@ -1168,8 +1182,10 @@ function emit_expr(out, expr)
         emit_StringIndexExpr(out, expr);
     else if (expr instanceof OpExistsExpr)
         emit_OpExistsExpr(out, expr);
-    else
+    else {
+        if (__DEBUG__) cry("In " + __FUNCTION__);
         WxxUnsupported(expr);
+    }
     out.print(")");
 }
 
@@ -1443,6 +1459,7 @@ function emit_returnstatement(out, returnst)
         emit_expr(out, expr);
         break;
       default:
+        if (__DEBUG__) cry("In " + __FUNCTION__);
         WxxUnsupported(returnst);
     }
 }
@@ -1543,8 +1560,10 @@ function emit_statement(out, st)
         emit_UsingStatement(out, st);
     else if (st instanceof UsingNamespaceStatement)
         /* Do nothing */ ;
-    else
+    else {
+        if (__DEBUG__) cry("In " + __FUNCTION__);
         WxxUnsupported(st);
+    }
 
     if (! (st instanceof CompoundStatement))
         out.print(";\n");
@@ -2215,13 +2234,13 @@ function winxedxx_get_options(argv)
 function main(argv)
 {
     int r = 1;
-    try [handle_types(__WINXED_ERROR__)] {
+//    try [handle_types(__WINXED_ERROR__)] {
         var options = winxedxx_get_options(argv);
         r = winxedxx_compile(options);
-    }
+/*    }
     catch (e) {
         cry("Winxedxx: ", e.message);
-    }
+    }*/
     exit(r);
 }
 
