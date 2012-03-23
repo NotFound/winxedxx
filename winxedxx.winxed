@@ -40,6 +40,7 @@ class NewIndexedExpr;
 class ArrayExpr;
 class HashExpr;
 class FunctionExpr;
+class FunctionId;
 class NullCheckerExpr;
 class ConcatString;
 class CallExpr;
@@ -601,22 +602,25 @@ function emit_CallExpr(out, callexpr)
     var funref = callexpr.funref;
     var args = callexpr.args;
 
-    if (funref instanceof FunctionExpr) {
+    switch {
+      case funref instanceof FunctionExpr:
         out.print("WxxObjectPtr");
         emit_expr(out, funref);
-    }
-    else {
-        if (! funref.isidentifier()) {
-            if (__DEBUG__) cry("In Call expression:");
-            WxxUnsupported(funref);
-        }
-
+        break;
+      case funref instanceof FunctionId:
+        out.print(funref.subid);
+        break;
+      case funref.isidentifier():
         if ((callexpr instanceof CallMemberExpr) && callexpr.subid != null)
             out.print(callexpr.subid);
         else {
             string callname = funref.getName();
             out.print(callname);
         }
+        break;
+      default:
+        if (__DEBUG__) cry("In Call expression:");
+        WxxUnsupported(funref);
     }
 
     out.print("(");
@@ -658,6 +662,11 @@ function emit_FunctionExpr(out, expr)
 {
     var funst = expr.fn;
     out.print("new ", funst.name, "(* ", DATA, ")");
+}
+
+function emit_FunctionId(out, funid)
+{
+    out.print(funid.subid);
 }
 
 function emit_NewExpr(out, expr)
@@ -1094,9 +1103,10 @@ function emit_expr(out, expr)
         emit_ArrayExpr(out, expr);
     else if (expr instanceof HashExpr)
         emit_HashExpr(out, expr);
-    else if (expr instanceof FunctionExpr) {
+    else if (expr instanceof FunctionExpr)
         emit_FunctionExpr(out, expr);
-    }
+    else if (expr instanceof FunctionId)
+        emit_FunctionId(out, expr);
     else if (expr instanceof OpNotExpr)
         emit_OpNotExpr(out, expr);
     else if (expr instanceof OpBinNotExpr)
@@ -1413,10 +1423,12 @@ function emit_forstatement(out, forst)
     else
         out.print(";");
     if (condexpr != null)
-        emit_expr(out, forst.condexpr);
+        emit_expr(out, condexpr);
     out.print(";");
-    if (iteration != null)
-        emit_expr(out, forst.iteration);
+    if (iteration != null) {
+        for (var expr in iteration)
+            emit_expr(out, expr);
+    }
     out.print(") {\n");
     emit_statement(out, forst.body);
     out.print("}\n");
