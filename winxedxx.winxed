@@ -2247,13 +2247,13 @@ function winxedxx_get_options(argv)
 function main(argv)
 {
     int r = 1;
-//    try [handle_types(__WINXED_ERROR__)] {
+    try [handle_types(__WINXED_ERROR__)] {
         var options = winxedxx_get_options(argv);
         r = winxedxx_compile(options);
-/*    }
+    }
     catch (e) {
         cry("Winxedxx: ", e.message);
-    }*/
+    }
     exit(r);
 }
 
