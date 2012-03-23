@@ -2,7 +2,7 @@
 
 // winxedxx.winxed
 // C++ backend for winxed
-// (C) 2011 Julián Albo "NotFound"
+// (C) 2011-2012 Julián Albo "NotFound"
 
 // This code uses and abuses winxed compiler internals.
 // Not a good example on how to write winxed compiler extensions,
