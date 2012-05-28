@@ -859,9 +859,43 @@ function emit_OpMulToExpr(out, assignexpr)
 
 function emit_OpAddExpr(out, expr)
 {
-    emit_expr(out, expr.lexpr);
-    out.print(" + ");
-    emit_expr(out, expr.rexpr);
+    var lexpr = expr.lexpr;
+    var rexpr = expr.rexpr;
+    string ltype = lexpr.checkresult();
+    string rtype = rexpr.checkresult();
+    switch {
+      case ltype == rtype:
+        emit_expr(out, lexpr);
+        out.print(" + ");
+        emit_expr(out, rexpr);
+        break;
+      case ltype == REGvar && rtype == REGint:
+        out.print(Type_Int + "(");
+        emit_expr(out, lexpr);
+        out.print(") + ");
+        emit_expr(out, rexpr);
+        break;
+      case ltype == REGint && rtype == REGvar:
+        emit_expr(out, lexpr);
+        out.print(" + " + Type_Int + "(");
+        emit_expr(out, rexpr);
+        out.print(")");
+        break;
+      case ltype == REGstring && rtype == REGint:
+        emit_expr(out, lexpr);
+        out.print(" + wxx_int_to_string(");
+        emit_expr(out, rexpr);
+        out.print(")");
+        break;
+      case ltype == REGint && rtype == REGstring:
+        out.print("wxx_int_to_string(");
+        emit_expr(out, lexpr);
+        out.print(") + ");
+        emit_expr(out, rexpr);
+        break;
+      default:
+        WxxUnsupported("operator + (" + ltype + ", " + rtype + ")");
+    }
 }
 
 function emit_OpSubExpr(out, expr)
