@@ -16,8 +16,11 @@ int wxx_int_cast(const std::string &str);
 int wxx_int_cast(const char *str);
 int wxx_int_cast(const WxxObjectPtr &obj);
 
-double wxx_string_to_num(const std::string &src);
-double wxx_string_to_num(const char *src);
+double wxx_num_cast(int i);
+double wxx_num_cast(double n);
+double wxx_num_cast(const std::string &str);
+double wxx_num_cast(const char *str);
+double wxx_num_cast(const WxxObjectPtr &obj);
 
 std::string www_string_cast(int i);
 std::string www_string_cast(double n);

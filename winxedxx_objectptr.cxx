@@ -198,6 +198,11 @@ int WxxObjectPtr::get_integer() const
     return object->get_integer();
 }
 
+double WxxObjectPtr::get_number() const
+{
+    return object->get_number();
+}
+
 std::string WxxObjectPtr::get_string() const
 {
     return object->get_string();

@@ -59,15 +59,19 @@ int wxx_int_cast(const std::string &str)  { return atoi(str.c_str()); }
 int wxx_int_cast(const char *str)         { return atoi(str); }
 int wxx_int_cast(const WxxObjectPtr &obj) { return obj.get_integer(); }
 
-double wxx_string_to_num(const std::string &src)
-{
-    return atof(src.c_str());
-}
 
-double wxx_string_to_num(const char *src)
+double wxx_num_cast(int i)                   { return i; }
+double wxx_num_cast(double n)                { return n; }
+double wxx_num_cast(const std::string &str)
 {
-    return atof(src);
+    return atof(str.c_str());
 }
+double wxx_num_cast(const char *str)
+{
+    return atof(str);
+}
+double wxx_num_cast(const WxxObjectPtr &obj) { return obj.get_number(); }
+
 
 std::string www_string_cast(int i)
 {

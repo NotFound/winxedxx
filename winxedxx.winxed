@@ -348,8 +348,7 @@ function emit_CallBuiltinExpr(out, expr)
         emit_plainfun1(out, "wxx_int_cast", arg0);
         break;
       case 'float':
-        out.print(Type_Num);
-        emit_expr(out, arg0);
+        emit_plainfun1(out, "wxx_num_cast", arg0);
         break;
       case 'typeof':
         out.print("wxx_typeof");
@@ -731,7 +730,7 @@ function emit_OpAssignExpr(out, assignexpr)
             emit_expr(out, rexpr);
             break;
           case ltype == REGfloat && rtype == REGstring:
-            out.print('wxx_string_to_num');
+            out.print('wxx_num_cast');
             emit_expr(out, rexpr);
             break;
           default:
