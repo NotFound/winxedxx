@@ -1458,8 +1458,15 @@ function emit_trystatement(out, tryst)
 
 function emit_throwstatement(out, throwst)
 {
+    var excep = throwst.excep;
     out.print("throw ");
-    emit_expr(out, throwst.excep);
+    if (excep.checkresult() == REGstring) {
+        out.print("wxx_error(");
+        emit_expr(out, excep);
+        out.print(")");
+    }
+    else
+        emit_expr(out, excep);
 }
 
 function emit_forstatement(out, forst)
