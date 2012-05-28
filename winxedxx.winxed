@@ -2135,6 +2135,14 @@ FOOTER2:>>
         std::cerr << "Error: " << e.what() << '\n';
         return 1;
     }
+    catch (const std::string &s) {
+        std::cerr << "Error(string): " << s << '\n';
+        return 1;
+    }
+    catch (const char *s) {
+        std::cerr << "Error(cstring): " << s << '\n';
+        return 1;
+    }
 }
 FOOTER3:>>
 
