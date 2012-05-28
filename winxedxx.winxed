@@ -804,7 +804,7 @@ function emit_InstanceOfExpr(out, instanceofexpr)
     emit_expr(out, lexpr);
     out.print(", ");
     if (checked instanceof ClassSpecifierStr)
-        out.print('"', checked.name, '"');
+        out.print('"', checked.name.getasquoted(), '"');
     else if (checked instanceof ClassSpecifierId)
         out.print('"', checked.last(), '"');
     else
