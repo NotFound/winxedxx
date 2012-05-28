@@ -298,26 +298,30 @@ function ncisigtoc(string sig)
 }
 
 //**********************************************************************
+
+function emit_plainfun1(var out, string name, var arg)
+{
+    out.print(name, "(");
+    emit_expr(out, arg);
+    out.print(")");
+}
+
+function emit_plainfun2(var out, string name, var arg1, var arg2)
+{
+    out.print(name, "(");
+    emit_expr(out, arg1);
+    out.print(", ");
+    emit_expr(out, arg2);
+    out.print(")");
+}
+
+//**********************************************************************
 //                  Builtins
 //**********************************************************************
 
 function emit_callbuiltin_void(out, string name)
 {
     out.print(name, "()");
-}
-function emit_callbuiltin_simple(out, string name, arg)
-{
-    out.print(name);
-    emit_expr(out, arg);
-}
-function emit_callbuiltin_simple_2(out, string name, arg0, arg1)
-{
-    out.print(name);
-    out.print("(");
-    emit_expr(out, arg0);
-    out.print(", ");
-    emit_expr(out, arg1);
-    out.print(")");
 }
 
 function emit_CallBuiltinExpr(out, expr)
@@ -406,7 +410,7 @@ function emit_CallBuiltinExpr(out, expr)
         out.print(")");
         break;
       case 'chr':
-        emit_callbuiltin_simple(out, "wxx_chr", arg0);
+        emit_plainfun1(out, "wxx_chr", arg0);
         break;
       case 'indexof':
         out.print(Type_Int + "((");
@@ -435,10 +439,10 @@ function emit_CallBuiltinExpr(out, expr)
         out.print(")");
         break;
       case 'chomp':
-        emit_callbuiltin_simple(out, "wxx_chomp", arg0);
+        emit_plainfun1(out, "wxx_chomp", arg0);
         break;
       case 'join':
-        emit_callbuiltin_simple_2(out, "wxx_join", arg0, arg1);
+        emit_plainfun2(out, "wxx_join", arg0, arg1);
         break;
 
       case 'downcase':
@@ -453,7 +457,7 @@ function emit_CallBuiltinExpr(out, expr)
         emit_expr(out, arg1);
         break;
       case 'split':
-        emit_callbuiltin_simple_2(out, "wxx_split", arg0, arg1);
+        emit_plainfun2(out, "wxx_split", arg0, arg1);
         break;
       case 'die':
         out.print("wxx_die(");
@@ -483,7 +487,7 @@ function emit_CallBuiltinExpr(out, expr)
         out.print("))");
         break;
       case 'loadlib':
-        emit_callbuiltin_simple(out, 'wxx_loadlib', arg0);
+        emit_plainfun1(out, 'wxx_loadlib', arg0);
         break;
       case 'dlfunc':
         var sig = arg2;
@@ -499,10 +503,10 @@ function emit_CallBuiltinExpr(out, expr)
         out.print(")");
         break;
       case 'spawnw':
-        emit_callbuiltin_simple(out, 'wxx_spawnw', arg0);
+        emit_plainfun1(out, 'wxx_spawnw', arg0);
         break;
       case 'exit':
-        emit_callbuiltin_simple(out, 'exit', arg0);
+        emit_plainfun1(out, 'exit', arg0);
         break;
       case 'sin':
       case 'cos':
@@ -512,10 +516,10 @@ function emit_CallBuiltinExpr(out, expr)
       case 'atan':
       case 'exp':
       case 'sqrt':
-        emit_callbuiltin_simple(out, name, arg0);
+        emit_plainfun1(out, name, arg0);
         break;
       case 'ln':
-        emit_callbuiltin_simple(out, 'log', arg0);
+        emit_plainfun1(out, 'log', arg0);
         break;
 
       case 'time':
@@ -525,7 +529,7 @@ function emit_CallBuiltinExpr(out, expr)
         emit_callbuiltin_void(out, 'wxx_floattime');
         break;
       case 'sleep':
-        emit_callbuiltin_simple(out, 'wxx_sleep', arg0);
+        emit_plainfun1(out, 'wxx_sleep', arg0);
         break;
 
       // Unsupported, always return null
@@ -547,7 +551,7 @@ function emit_CallBuiltinExpr(out, expr)
         break;
 
       case 'escape':
-        emit_callbuiltin_simple(out, 'wxx_escape', arg0);
+        emit_plainfun1(out, 'wxx_escape', arg0);
         break;
 
       // Unimplemented, just to allow some testing
@@ -561,22 +565,6 @@ function emit_CallBuiltinExpr(out, expr)
 }
 
 //**********************************************************************
-
-function emit_plainfun1(var out, string name, var arg)
-{
-    out.print(name, "(");
-    emit_expr(out, arg);
-    out.print(")");
-}
-
-function emit_plainfun2(var out, string name, var arg1, var arg2)
-{
-    out.print(name, "(");
-    emit_expr(out, arg1);
-    out.print(", ");
-    emit_expr(out, arg2);
-    out.print(")");
-}
 
 function emit_callargs(out, args)
 {
