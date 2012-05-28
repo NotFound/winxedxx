@@ -193,6 +193,11 @@ int WxxObjectPtr::instanceof(const std::string &type)
     return object->instanceof(type);
 }
 
+int WxxObjectPtr::get_integer() const
+{
+    return object->get_integer();
+}
+
 std::string WxxObjectPtr::get_string() const
 {
     return object->get_string();

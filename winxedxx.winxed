@@ -342,19 +342,10 @@ function emit_CallBuiltinExpr(out, expr)
         out.print("(void)0");
         break;
       case 'string':
-        switch (arg0.checkresult()) {
-          case REGint:
-            out.print("wxx_int_to_string");
-            break;
-          case REGvar:
-            out.print(Type_String);
-            break;
-        }
-        emit_expr(out, arg0);
+        emit_plainfun1(out, "wxx_string_cast", arg0);
         break;
       case 'int':
-        out.print(Type_Int);
-        emit_expr(out, arg0);
+        emit_plainfun1(out, "wxx_int_cast", arg0);
         break;
       case 'float':
         out.print(Type_Num);
@@ -728,15 +719,15 @@ function emit_OpAssignExpr(out, assignexpr)
         out.print(lexpr.name, " = ");
         switch {
           case ltype == REGstring && rtype == REGint:
-            out.print('wxx_int_to_string');
+            out.print('wxx_string_cast');
             emit_expr(out, rexpr);
             break;
           case ltype == REGint && rtype == REGstring:
-            out.print('wxx_string_to_int');
+            out.print('wxx_int_cast');
             emit_expr(out, rexpr);
             break;
           case ltype == REGstring && rtype == REGfloat:
-            out.print('wxx_num_to_string');
+            out.print('wxx_string_cast');
             emit_expr(out, rexpr);
             break;
           case ltype == REGfloat && rtype == REGstring:
@@ -1253,10 +1244,8 @@ function emit_nativetypestatement(out, st, string simpletype, string nullinit)
           case simpletype == Type_String:
             switch (inittype) {
               case Type_Int:
-                out.print("wxx_int_to_string");
-                break;
               case Type_Num:
-                out.print("wxx_num_to_string");
+                out.print("wxx_string_cast");
                 break;
             }
             break;

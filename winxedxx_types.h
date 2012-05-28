@@ -79,6 +79,7 @@ public:
     int is_null() const;
     int instanceof(const std::string &type);
     std::string get_string() const;
+    int get_integer() const;
     int elements() const;
     WxxObjectPtr add(const WxxObjectPtr &value);
     WxxObjectPtr sub(const WxxObjectPtr &value);

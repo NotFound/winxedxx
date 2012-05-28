@@ -428,13 +428,13 @@ WxxStringArray& WxxStringArray::push(WxxObjectPtr obj)
 
 WxxStringArray& WxxStringArray::push(int i)
 {
-    arr.push_back(wxx_int_to_string(i));
+    arr.push_back(wxx_string_cast(i));
     return *this;
 }
 
 WxxStringArray& WxxStringArray::push(double value)
 {
-    arr.push_back(wxx_num_to_string(value));
+    arr.push_back(wxx_string_cast(value));
     return *this;
 }
 

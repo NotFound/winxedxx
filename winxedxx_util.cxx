@@ -53,29 +53,11 @@ std::string WxxException::get_string()
 
 //*************************************************************
 
-std::string wxx_int_to_string(int i)
-{
-    std::ostringstream oss;
-    oss << i;
-    return oss.str();
-}
-
-int wxx_string_to_int(const std::string &src)
-{
-    return atoi(src.c_str());
-}
-
-int wxx_string_to_int(const char *src)
-{
-    return atoi(src);
-}
-
-std::string wxx_num_to_string(double value)
-{
-    std::ostringstream oss;
-    oss << value;
-    return oss.str();
-}
+int wxx_int_cast(int i)                   { return i; }
+int wxx_int_cast(double n)                { return n; }
+int wxx_int_cast(const std::string &str)  { return atoi(str.c_str()); }
+int wxx_int_cast(const char *str)         { return atoi(str); }
+int wxx_int_cast(const WxxObjectPtr &obj) { return obj.get_integer(); }
 
 double wxx_string_to_num(const std::string &src)
 {
@@ -86,6 +68,22 @@ double wxx_string_to_num(const char *src)
 {
     return atof(src);
 }
+
+std::string www_string_cast(int i)
+{
+    std::ostringstream oss;
+    oss << i;
+    return oss.str();
+}
+std::string www_string_cast(double n)
+{
+    std::ostringstream oss;
+    oss << n;
+    return oss.str();
+}
+std::string wxx_string_cast(const std::string &str)  { return str; }
+std::string wxx_string_cast(const char *str)         { return str; }
+std::string wxx_string_cast(const WxxObjectPtr &obj) { return obj.get_string(); }
 
 std::string wxx_repeat_string(std::string s, int n)
 {

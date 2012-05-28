@@ -314,12 +314,12 @@ double wxx_add(int i1, double f2)
 
 std::string wxx_add(int i1, std::string s2)
 {
-    return wxx_int_to_string(i1) + s2;
+    return wxx_string_cast(i1) + s2;
 }
 
 std::string wxx_add(std::string s1, int i2)
 {
-    return s1 + wxx_int_to_string(i2);
+    return s1 + wxx_string_cast(i2);
 }
 
 WxxObjectPtr wxx_add(int i1, const WxxObjectPtr &o2)

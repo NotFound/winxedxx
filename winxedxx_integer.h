@@ -3,20 +3,27 @@
 
 // winxedxx_integer.h
 
-// (C) 2011 Julián Albo "NotFound"
+// (C) 2011-2012 Julián Albo "NotFound"
 
 #include <vector>
 
 namespace WinxedXX
 {
 
-std::string wxx_int_to_string(int i);
-int wxx_string_to_int(const std::string &src);
-int wxx_string_to_int(const char *src);
+int wxx_int_cast(int i);
+int wxx_int_cast(double n);
+int wxx_int_cast(const std::string &str);
+int wxx_int_cast(const char *str);
+int wxx_int_cast(const WxxObjectPtr &obj);
 
-std::string wxx_num_to_string(double value);
 double wxx_string_to_num(const std::string &src);
 double wxx_string_to_num(const char *src);
+
+std::string www_string_cast(int i);
+std::string www_string_cast(double n);
+std::string wxx_string_cast(const std::string &str);
+std::string wxx_string_cast(const char *str);
+std::string wxx_string_cast(const WxxObjectPtr &obj);
 
 std::string wxx_repeat_string(std::string s, int n);
 
