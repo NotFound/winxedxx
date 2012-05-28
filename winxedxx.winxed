@@ -122,6 +122,11 @@ class ClassStatement;
 class NamespaceStatement;
 class RootNamespace;
 
+// Constants
+
+const int
+    VAR_is_lexical = 2;
+
 } // namespace Compiler
 } // namespace Winxed
 
@@ -1215,7 +1220,7 @@ function emit_varstatement(out, st)
     var init = st.init;
 
     var local = st.owner.getvar(name);
-    int is_lex = local != null && local.getlex() != null;
+    int is_lex = local != null && (local.getflags() & VAR_is_lexical);
 
     // If lexical, declare a reference to the data struct
     // Else, declare plain var
@@ -1746,6 +1751,8 @@ class EmitFunction
     {
         var funst = self.funst;
         var params = funst.params;
+        if (params != null)
+            params = params.paramlist;
         int nparams = params == null ? 0 : elements(params);
         if (self.localfuncs != null) {
             string dataname = self.dataname;
@@ -1802,6 +1809,8 @@ function emit_FunctionStatement(out, funst, string prefix[optional])
     string newname = isconstructor ? "__Winxedxx_constructor" : name;
     string dataname = newname + DATA;
     var params = funst.params;
+    if (params != null)
+        params = params.paramlist;
     int nparams = params == null ? 0 : elements(params);
 
     if (haslocals) {
