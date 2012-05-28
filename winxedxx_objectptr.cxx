@@ -248,11 +248,6 @@ int WxxObjectPtr::exists(const std::string &key)
     return object->exists(key);
 }
 
-void WxxObjectPtr::print()
-{
-    object->print();
-}
-
 WxxObjectPtr & WxxObjectPtr::get_attr_str(const std::string &s)
 {
     return object->get_attr_str(s);
@@ -321,14 +316,7 @@ WxxObjectPtr WxxObjectPtr::call_method(const std::string &methname)
 
 WxxObjectPtr WxxObjectPtr::call_method(const std::string &methname, WxxObjectArray &args)
 {
-    if (methname == "print") {
-        int n = args.elements();
-        for (int i = 0; i < n; ++i)
-            object->print(args[i]);
-        return WxxObjectPtr();
-    }
-    else
-        return object->call_method(methname, args);
+    return object->call_method(methname, args);
 }
 
 WxxLibrary * WxxObjectPtr::getlib()

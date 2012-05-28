@@ -386,6 +386,10 @@ function main [main] (args)
     test.is_string(str + vi1, "2.542", "string + var");
     test.is_string(vi1 + str, "422.5", "var + string");
 
+    test.is(i - 2, 40, "int - int");
+    test.is(i - vi1, 0, "int - var");
+    test.is(vi1 - i, 0, "var - int");
+
     string s = "abc";
     test.is_string(s * 3, "abcabcabc", "repeat string");
 

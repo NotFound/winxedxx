@@ -97,7 +97,15 @@ void WxxInteger::decrement()
     --i;
 }
 
-void WxxInteger::print() { std::cout << i; }
+WxxObjectPtr WxxInteger::add(const WxxObjectPtr &value)
+{
+    return new WxxInteger(i + int(value));
+}
+
+WxxObjectPtr WxxInteger::sub(const WxxObjectPtr &value)
+{
+    return new WxxInteger(i - int(value));
+}
 
 //*************************************************************
 
@@ -134,8 +142,6 @@ WxxObject & WxxFloat::set(double value)
     return *this;
 }
 
-void WxxFloat::print() { std::cout << n; }
-
 //*************************************************************
 
 WxxString::WxxString(std::string value) : WxxDefault("String")
@@ -166,8 +172,6 @@ WxxObjectPtr WxxString::get_iter()
 {
     return WxxObjectPtr(new WxxStringIterator(str));
 }
-
-void WxxString::print() { std::cout << str; }
 
 //*************************************************************
 

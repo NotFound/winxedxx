@@ -11,6 +11,7 @@ namespace WinxedXX
 class WxxDefault : public WxxObject
 {
 protected:
+    WxxDefault();
     WxxDefault(const char *name);
     WxxDefault(const std::string &name);
     ~WxxDefault();
@@ -31,6 +32,8 @@ public:
     WxxObject & set(const std::string &s);
     void increment();
     void decrement();
+    WxxObjectPtr add(const WxxObjectPtr &value);
+    WxxObjectPtr sub(const WxxObjectPtr &value);
     std::string get_string_keyed(int i);
     WxxObjectPtr get_pmc_keyed(int i);
     WxxObjectPtr get_pmc_keyed(const std::string &s);
@@ -44,8 +47,6 @@ public:
     WxxObjectPtr shift_pmc();
     WxxObjectPtr operator()(WxxObjectArray &args);
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
-    void print();
-    void print(WxxObjectPtr);
 private:
     std::string name;
     std::map<std::string, WxxObjectPtr> attributes;

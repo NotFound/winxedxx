@@ -25,6 +25,8 @@ public:
     virtual WxxObject & set(const std::string &s) = 0;
     virtual void increment() = 0;
     virtual void decrement() = 0;
+    virtual WxxObjectPtr add(const WxxObjectPtr &value) = 0;
+    virtual WxxObjectPtr sub(const WxxObjectPtr &value) = 0;
     virtual std::string get_string_keyed(int i) = 0;
     virtual WxxObjectPtr get_pmc_keyed(int i) = 0;
     virtual WxxObjectPtr get_pmc_keyed(const std::string &s) = 0;
@@ -39,8 +41,6 @@ public:
 
     virtual WxxObjectPtr operator()(WxxObjectArray &args) = 0;
     virtual WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args) = 0;
-    virtual void print() = 0;
-    virtual void print(WxxObjectPtr obj) = 0;
 };
 
 WxxObjectPtr wxx_getstdin();

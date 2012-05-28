@@ -167,14 +167,13 @@ int wxx_print(int i) { std::cout << i; return 0; }
 int wxx_print(const char *s) { std::cout << s; return 0; }
 int wxx_print(const std::string &s) { std::cout << s; return 0; }
 int wxx_print(double n) { std::cout << n; return 0; }
-int wxx_print(WxxObjectPtr obj) { obj.print(); return 0; }
+int wxx_print(WxxObjectPtr obj) { std::cout << obj.get_string(); return 0; }
 
 int wxx_eprint(int i) { std::cerr << i; return 0; }
 int wxx_eprint(const char *s) { std::cerr << s; return 0; }
 int wxx_eprint(const std::string &s) { std::cerr << s; return 0; }
 int wxx_eprint(double n) { std::cerr << n; return 0; }
-// TODO
-int wxx_eprint(WxxObjectPtr obj) { obj.print(); return 0; }
+int wxx_eprint(WxxObjectPtr obj) { std::cerr << obj.get_string(); return 0; }
 
 int wxx_instanceof(WxxObjectPtr &obj, const std::string &type)
 {
@@ -290,6 +289,82 @@ int operator <= (int i, const WxxObjectPtr &obj)
 {
     return i <= int(obj);
 }
+
+//*********** operator + ****************
+
+int wxx_add(int i1, int i2)
+{
+    return i1 + i2;
+}
+
+double wxx_add(double f1, double f2)
+{
+    return f1 + f2;
+}
+
+double wxx_add(double f1, int  i2)
+{
+    return f1 + i2;
+}
+
+double wxx_add(int i1, double f2)
+{
+    return i1 + f2;
+}
+
+std::string wxx_add(int i1, std::string s2)
+{
+    return wxx_int_to_string(i1) + s2;
+}
+
+std::string wxx_add(std::string s1, int i2)
+{
+    return s1 + wxx_int_to_string(i2);
+}
+
+WxxObjectPtr wxx_add(int i1, const WxxObjectPtr &o2)
+{
+    return i1 + int(o2);
+}
+
+WxxObjectPtr wxx_add(const WxxObjectPtr &o1, int i2)
+{
+    return int(o1) + i2;
+}
+
+//*********** operator - ****************
+
+int wxx_sub(int i1, int i2)
+{
+    return i1 - i2;
+}
+
+double wxx_sub(double f1, double f2)
+{
+    return f1 - f2;
+}
+
+double wxx_sub(double f1, int  i2)
+{
+    return f1 - i2;
+}
+
+double wxx_sub(int i1, double f2)
+{
+    return i1 - f2;
+}
+
+WxxObjectPtr wxx_sub(int i1, const WxxObjectPtr &o2)
+{
+    return i1 - int(o2);
+}
+
+WxxObjectPtr wxx_sub(const WxxObjectPtr &o1, int i2)
+{
+    return int(o1) - i2;
+}
+
+//*****************************************
 
 template <typename NciSig, int nargs>
 WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib,

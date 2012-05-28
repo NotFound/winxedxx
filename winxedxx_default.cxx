@@ -7,11 +7,17 @@
 
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 
 namespace WinxedXX
 {
 
 //*************************************************************
+
+WxxDefault::WxxDefault()
+{
+    throw std::runtime_error("Default instantiated");
+}
 
 WxxDefault::WxxDefault(const char *name)
 {
@@ -112,9 +118,21 @@ void WxxDefault::decrement()
     notimplemented("decrement");
 }
 
+WxxObjectPtr WxxDefault::add(const WxxObjectPtr &value)
+{
+    notimplemented("add");
+    return 0;
+}
+
+WxxObjectPtr WxxDefault::sub(const WxxObjectPtr &value)
+{
+    notimplemented("sub");
+    return 0;
+}
+
 std::string WxxDefault::get_string_keyed(int i)
 {
-    return get_pmc_keyed(i);
+    return get_pmc_keyed(i).get_string();
 }
 
 WxxObjectPtr WxxDefault::get_pmc_keyed(int i)
@@ -188,16 +206,6 @@ WxxObjectPtr WxxDefault::call_method(const std::string &methname, WxxObjectArray
     throw wxx_error("Method '" + methname +
             "' not found for invocant of class '" + name + "'");
     return winxedxxnull;
-}
-
-void WxxDefault::print()
-{
-    std::cout << this->get_string();
-}
-
-void WxxDefault::print(WxxObjectPtr)
-{
-    notimplemented("print");
 }
 
 void WxxDefault::notimplemented(const std::string &funcname)

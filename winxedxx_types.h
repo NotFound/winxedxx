@@ -80,6 +80,8 @@ public:
     int instanceof(const std::string &type);
     std::string get_string() const;
     int elements() const;
+    WxxObjectPtr add(const WxxObjectPtr &value);
+    WxxObjectPtr sub(const WxxObjectPtr &value);
     std::string get_string_keyed(int i) const;
     WxxObjectPtr get_pmc_keyed(int i);
     WxxObjectPtr get_pmc_keyed(const std::string &s);
@@ -89,7 +91,6 @@ public:
     WxxObjectPtr & set_pmc_keyed(const std::string &s, const WxxObjectPtr &value);
     WxxObjectPtr & set_pmc_keyed(const WxxObjectPtr &key, const WxxObjectPtr &value);
     int exists(const std::string &key);
-    void print();
     WxxObjectPtr & get_attr_str(const std::string &s);
     void set_attr_str(const std::string &s, const WxxObjectPtr &value);
     void set_attr_str(const char *s, const WxxObjectPtr &value);

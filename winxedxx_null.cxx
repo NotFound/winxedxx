@@ -96,6 +96,18 @@ void WxxNull::decrement()
     nullaccess("decrement");
 }
 
+WxxObjectPtr WxxNull::add(const WxxObjectPtr &value)
+{
+    nullaccess("ass");
+    return 0;
+}
+
+WxxObjectPtr WxxNull::sub(const WxxObjectPtr &value)
+{
+    nullaccess("ass");
+    return 0;
+}
+
 std::string WxxNull::get_string_keyed(int i)
 {
     nullaccess("get_pmc_keyed");
@@ -170,16 +182,6 @@ WxxObjectPtr WxxNull::call_method(const std::string &methname, WxxObjectArray &a
 {
     nullaccess("call_method");
     return winxedxxnull;
-}
-
-void WxxNull::print()
-{
-    nullaccess("print");
-}
-
-void WxxNull::print(WxxObjectPtr)
-{
-    nullaccess("print");
 }
 
 void WxxNull::nullaccess(const std::string &funcname)

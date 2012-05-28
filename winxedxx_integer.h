@@ -32,8 +32,9 @@ public:
     WxxObject & set(int value);
     WxxObject & set(double value);
     void increment();
+    WxxObjectPtr add(const WxxObjectPtr &value);
+    WxxObjectPtr sub(const WxxObjectPtr &value);
     void decrement();
-    void print();
 private:
     int i;
 };
@@ -48,7 +49,6 @@ public:
     std::string get_string();
     WxxObject & set(int value);
     WxxObject & set(double value);
-    void print();
 private:
     double n;
 };
@@ -62,7 +62,6 @@ public:
     WxxObject & set(const char *s);
     WxxObject & set(const std::string &s);
     WxxObjectPtr get_iter();
-    void print();
 private:
     std::string str;
 };
