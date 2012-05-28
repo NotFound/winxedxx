@@ -2002,6 +2002,8 @@ function emit_declare_subid(out, ns, key[optional], seen[optional])
             continue;
         if (fun instanceof ClassStatement)
             continue;
+        if (fun instanceof MultiStatement)
+            continue;
         if (! exists seen[fun]) {
             emit_declare_function_subid(out, fun, key);
             seen[fun] = 1;
