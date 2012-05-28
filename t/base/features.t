@@ -336,6 +336,10 @@ function main [main] (args)
     test.is(vi1, 42, "var initialized with int");
     test.ok(vi1 != null, "var initialized with int is not null");
 
+    test.is(int(vi1), 42, "int cast from string");
+    test.is(int(n), 2, "int cast from float");
+    test.is_string(string(i), "44", "string cast from int");
+
     i = 42;
     test.ok(i == vi1, "operator == int var - true");
     test.ok(vi1 == i, "operator == var int - true");
