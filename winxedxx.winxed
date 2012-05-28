@@ -881,6 +881,17 @@ function emit_OpAddExpr(out, expr)
         emit_expr(out, rexpr);
         out.print(")");
         break;
+      case ltype == REGvar && rtype == REGstring:
+        emit_expr(out, lexpr);
+        out.print(".get_string() + ");
+        emit_expr(out, rexpr);
+        break;
+      case ltype == REGstring && rtype == REGvar:
+        emit_expr(out, lexpr);
+        out.print(" + ");
+        emit_expr(out, rexpr);
+        out.print(".get_string()");
+        break;
       case ltype == REGstring && rtype == REGint:
         emit_expr(out, lexpr);
         out.print(" + wxx_int_to_string(");

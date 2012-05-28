@@ -226,26 +226,6 @@ WxxObjectPtr wxx_split(const std::string &sep, std::string src)
     return result;
 }
 
-std::string operator + (WxxObjectPtr obj, const std::string &s)
-{
-    return obj.get_string() + s;
-}
-
-std::string operator + (WxxObjectPtr obj, const char *s)
-{
-    return obj.get_string() + s;
-}
-
-std::string operator + (const std::string &s, WxxObjectPtr obj)
-{
-    return s + obj.get_string();
-}
-
-std::string operator + (const char *s, WxxObjectPtr obj)
-{
-    return s + obj.get_string();
-}
-
 int operator == (const WxxObjectPtr &obj, const std::string &str)
 {
     return obj.get_string() == str;
