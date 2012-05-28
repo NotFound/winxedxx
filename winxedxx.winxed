@@ -562,6 +562,13 @@ function emit_CallBuiltinExpr(out, expr)
 
 //**********************************************************************
 
+function emit_plainfun1(var out, string name, var arg)
+{
+    out.print(name, "(");
+    emit_expr(out, arg);
+    out.print(")");
+}
+
 function emit_plainfun2(var out, string name, var arg1, var arg2)
 {
     out.print(name, "(");
@@ -914,10 +921,7 @@ function emit_NullCheckerExpr(out, expr)
 {
     if (! expr.positive)
         out.print("!");
-    out.print("(");
-    out.print("wxx_isnull");
-    emit_expr(out, expr.expr);
-    out.print(")");
+    emit_plainfun1(out, "wxx_isnull", expr.expr);
 }
 
 function emit_OpNotExpr(out, expr)
