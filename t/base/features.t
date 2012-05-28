@@ -378,6 +378,12 @@ function main [main] (args)
     i = --vi1;
     test.is(i, 42, "var predecrement with assignment");
 
+    test.is(i + 2, 44, "int + int");
+    test.is(i + vi1, 84, "int + var");
+    test.is(vi1 + i, 84, "var + int");
+    test.is_string(str + i, "2.542", "string + int");
+    test.is_string(i + str, "422.5", "int + string");
+
     string s = "abc";
     test.is_string(s * 3, "abcabcabc", "repeat string");
 
