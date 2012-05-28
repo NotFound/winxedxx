@@ -1634,7 +1634,7 @@ function declareFunctionData(string name)
 
 function declareDataInstance(string name)
 {
-    return name + " *__data = new " + name + ";\n";
+    return name + " *" + DATA + " = new " + name + ";\n";
 }
 
 function declareDataVar(out, string varname, string vartype)
