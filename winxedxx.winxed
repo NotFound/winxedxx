@@ -228,8 +228,9 @@ function generatedType(string ptype)
 // Helper C++ functions
 
 const string
-    PRINT  = "wxx_print",
-    EPRINT = "wxx_eprint";
+    INDEXOF = "wxx_indexof",
+    PRINT   = "wxx_print",
+    EPRINT  = "wxx_eprint";
 
 //**************************************************************
 
@@ -363,6 +364,20 @@ function emit_builtin_cry(out, args)
     out.print(EPRINT + "(\"\\n\"), 0");
 }
 
+function emit_builtin_indexof(out, args)
+{
+    int nargs = elements(args);
+    out.print(INDEXOF + "(");
+    emit_stringexpr(out, args[0].arg);
+    out.print(", ");
+    emit_stringexpr(out, args[1].arg);
+    if (nargs > 2) {
+        out.print(", ");
+        emit_intexpr(out, args[2].arg);
+    }
+    out.print(")");
+}
+
 //**********************************************
 
 function emit_CallBuiltinExpr(out, expr)
@@ -430,15 +445,7 @@ function emit_CallBuiltinExpr(out, expr)
         emit_plainfun1(out, "wxx_chr", arg0);
         break;
       case 'indexof':
-        out.print("wxx_indexof(");
-        emit_stringexpr(out, arg0);
-        out.print(", ");
-        emit_stringexpr(out, arg1);
-        if (nargs > 2) {
-            out.print(", ");
-            emit_intexpr(out, arg2);
-        }
-        out.print(")");
+        emit_builtin_indexof(out, args);
         break;
       case 'substr':
         type0 = arg0.checkresult();
