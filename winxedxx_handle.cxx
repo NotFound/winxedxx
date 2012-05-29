@@ -117,6 +117,12 @@ WxxObjectPtr WxxFileHandle::call_method(const std::string &methname, WxxObjectAr
             throw wxx_error("too many positional arguments in readline");
         return readline();
     }
+    if (methname == "print") {
+        if (args.elements() != 1)
+            throw wxx_error("wrong number of positional arguments in print");
+        print(args.get_pmc_keyed(0));
+        return winxedxxnull;
+    }
     if (methname == "read") {
         if (args.elements() != 1)
             throw wxx_error("wrong number of positional arguments in read");
