@@ -386,9 +386,9 @@ function emit_CallBuiltinExpr(out, expr)
         break;
       case 'length':
       case 'bytelength':
-        out.print("(", Type_Int, ")(", Type_String, "(");
-        emit_expr(out, arg0);
-        out.print(").length())");
+        out.print(Type_Int + "(");
+        emit_stringexpr(out, arg0);
+        out.print(".length())");
         break;
       case 'ord':
         out.print("wxx_ord(");
@@ -403,9 +403,9 @@ function emit_CallBuiltinExpr(out, expr)
         emit_plainfun1(out, "wxx_chr", arg0);
         break;
       case 'indexof':
-        out.print(Type_Int + "((");
-        emit_expr(out, arg0);
-        out.print(").find(");
+        out.print(Type_Int + "(");
+        emit_stringexpr(out, arg0);
+        out.print(".find(");
         emit_expr(out, arg1);
         if (nargs > 2) {
             out.print(", ");
@@ -415,11 +415,7 @@ function emit_CallBuiltinExpr(out, expr)
         break;
       case 'substr':
         type0 = arg0.checkresult();
-        if (type0 != REGstring)
-            out.print(Type_String + "(");
-        emit_expr(out, arg0);
-        if (type0 != REGstring)
-            out.print(")");
+        emit_stringexpr(out, arg0);
         out.print(".substr(");
         emit_expr(out, arg1);
         if (nargs > 2) {
@@ -437,8 +433,7 @@ function emit_CallBuiltinExpr(out, expr)
 
       case 'downcase':
         // Fake implementation, just cast to string the argument
-        out.print(Type_String);
-        emit_expr(out, arg0);
+        emit_stringexpr(out, arg0);
         break;
 
       case 'push':
@@ -887,11 +882,11 @@ function emit_OpDivExpr(out, expr)
 function emit_ConcatString(out, concatstr)
 {
     var values = concatstr.values;
-    emit_expr(out, values[0]);
+    emit_stringexpr(out, values[0]);
     int n = elements(values);
     for (int i = 1; i < n; ++i) {
         out.print(" + ");
-        emit_expr(out, values[i]);
+        emit_stringexpr(out, values[i]);
     }
 }
 
@@ -1052,6 +1047,13 @@ function emit_MemberRefExpr(out, expr)
     out.print(".get_attr_str(");
     emit_expr(out, expr.right);
     out.print(")");
+}
+
+function emit_stringexpr(out, expr)
+{
+    if (expr.checkresult() != REGstring)
+        out.print(Type_String);
+    emit_expr(out, expr);
 }
 
 function emit_expr(out, expr)
