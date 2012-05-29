@@ -390,10 +390,10 @@ function emit_CallBuiltinExpr(out, expr)
         break;
       case 'ord':
         out.print("wxx_ord(");
-        emit_expr(out, arg0);
+        emit_stringexpr(out, arg0);
         if (nargs > 1) {
             out.print(", ");
-            emit_expr(out, arg1);
+            emit_intexpr(out, arg1);
         }
         out.print(")");
         break;
@@ -401,15 +401,15 @@ function emit_CallBuiltinExpr(out, expr)
         emit_plainfun1(out, "wxx_chr", arg0);
         break;
       case 'indexof':
-        out.print(Type_Int + "(");
+        out.print("wxx_indexof(");
         emit_stringexpr(out, arg0);
-        out.print(".find(");
-        emit_expr(out, arg1);
+        out.print(", ");
+        emit_stringexpr(out, arg1);
         if (nargs > 2) {
             out.print(", ");
-            emit_expr(out, arg2);
+            emit_intexpr(out, arg2);
         }
-        out.print("))");
+        out.print(")");
         break;
       case 'substr':
         type0 = arg0.checkresult();
@@ -1045,6 +1045,13 @@ function emit_MemberRefExpr(out, expr)
     out.print(".get_attr_str(");
     emit_expr(out, expr.right);
     out.print(")");
+}
+
+function emit_intexpr(out, expr)
+{
+    if (expr.checkresult() != REGint)
+        out.print(Type_Int);
+    emit_expr(out, expr);
 }
 
 function emit_stringexpr(out, expr)

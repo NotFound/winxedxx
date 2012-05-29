@@ -170,10 +170,18 @@ int wxx_ord(std::string src)
 {
     return (unsigned char)src.at(0);
 }
-
 int wxx_ord(std::string src, int pos)
 {
     return (unsigned char)src.at(pos);
+}
+
+int wxx_indexof(const std::string &from, const std::string &search)
+{
+    return from.find(search);
+}
+int wxx_indexof(const std::string &from, const std::string &search, int pos)
+{
+    return from.find(search, pos);
 }
 
 std::string wxx_chomp(const std::string &src)
