@@ -22,7 +22,6 @@ public:
     int is_equal(const WxxObject &to);
     WxxObject & set(int value);
     WxxObject & set(double value);
-    WxxObject & set(const char *s);
     WxxObject & set(const std::string &s);
     void increment();
     void decrement();
@@ -31,7 +30,6 @@ public:
     std::string get_string_keyed(int i);
     WxxObjectPtr get_pmc_keyed(int i);
     WxxObjectPtr get_pmc_keyed(const std::string &s);
-    WxxObjectPtr get_pmc_keyed(const char *s);
     void set_pmc_keyed(int i, const WxxObjectPtr &value);
     int exists(const std::string &key);
     WxxObjectPtr & set_pmc_keyed(const std::string &s, const WxxObjectPtr &value);

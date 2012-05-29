@@ -32,12 +32,6 @@ WxxObjectPtr::WxxObjectPtr(const std::string &value) :
     object->incref();
 }
 
-WxxObjectPtr::WxxObjectPtr(const char *value) :
-        object(new WxxString(value))
-{
-    object->incref();
-}
-
 WxxObjectPtr::WxxObjectPtr(const WxxObjectPtr &old) :
     object(old.object)
 {
@@ -87,12 +81,6 @@ WxxObjectPtr & WxxObjectPtr::set(double value)
     return *this;
 }
 
-WxxObjectPtr & WxxObjectPtr::set(const char *s)
-{
-    object->set(s);
-    return *this;
-}
-
 WxxObjectPtr & WxxObjectPtr::set(const std::string &s)
 {
     object->set(s);
@@ -124,14 +112,6 @@ WxxObjectPtr & WxxObjectPtr::operator = (double value)
 }
 
 WxxObjectPtr & WxxObjectPtr::operator = (const std::string &s)
-{
-    object->decref();
-    object = new WxxString(s);
-    object->incref();
-    return *this;
-}
-
-WxxObjectPtr & WxxObjectPtr::operator = (const char *s)
 {
     object->decref();
     object = new WxxString(s);
@@ -228,11 +208,6 @@ WxxObjectPtr WxxObjectPtr::get_pmc_keyed(const std::string &s)
     return object->get_pmc_keyed(s);
 }
 
-WxxObjectPtr WxxObjectPtr::get_pmc_keyed(const char *s)
-{
-    return object->get_pmc_keyed(s);
-}
-
 WxxObjectPtr WxxObjectPtr::get_pmc_keyed(const WxxObjectPtr & key)
 {
     return object->get_pmc_keyed(std::string(key));
@@ -268,11 +243,6 @@ void WxxObjectPtr::set_attr_str(const std::string &s, const WxxObjectPtr &value)
     object->set_attr_str(s, value);
 }
 
-void WxxObjectPtr::set_attr_str(const char *s, const WxxObjectPtr &value)
-{
-    object->set_attr_str(s, value);
-}
-
 WxxObjectPtr WxxObjectPtr::get_iter()
 {
     return object->get_iter();
@@ -299,12 +269,6 @@ void WxxObjectPtr::push(double value)
 {
     if (WxxArrayBase *arr = dynamic_cast<WxxArrayBase *>(object))
         arr->push(value);
-}
-
-void WxxObjectPtr::push(const char *str)
-{
-    if (WxxArrayBase *arr = dynamic_cast<WxxArrayBase *>(object))
-        arr->push(str);
 }
 
 void WxxObjectPtr::push(const std::string &str)

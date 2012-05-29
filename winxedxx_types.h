@@ -52,7 +52,6 @@ public:
     WxxObjectPtr(int value);
     WxxObjectPtr(double value);
     WxxObjectPtr(const std::string &value);
-    WxxObjectPtr(const char *value);
     WxxObjectPtr(const WxxObjectPtr &old);
     WxxObjectPtr(WxxObject * obj);
     WxxObjectPtr(WxxObjectPtr (*)(const WxxObjectArray&));
@@ -61,13 +60,11 @@ public:
     std::string class_name() const;
     WxxObjectPtr & set(int value);
     WxxObjectPtr & set(double value);
-    WxxObjectPtr & set(const char *s);
     WxxObjectPtr & set(const std::string &s);
     WxxObjectPtr &operator = (const WxxObjectPtr &from);
     WxxObjectPtr & operator = (int i);
     WxxObjectPtr & operator = (double value);
     WxxObjectPtr & operator = (const std::string &s);
-    WxxObjectPtr & operator = (const char *s);
     int is_equal(const WxxObjectPtr &from) const;
     int is_same(const WxxObjectPtr &from) const;
     operator int() const;
@@ -87,7 +84,6 @@ public:
     std::string get_string_keyed(int i) const;
     WxxObjectPtr get_pmc_keyed(int i);
     WxxObjectPtr get_pmc_keyed(const std::string &s);
-    WxxObjectPtr get_pmc_keyed(const char *s);
     WxxObjectPtr get_pmc_keyed(const WxxObjectPtr &key);
     void set_pmc_keyed(int i, const WxxObjectPtr &value);
     WxxObjectPtr & set_pmc_keyed(const std::string &s, const WxxObjectPtr &value);
@@ -95,11 +91,9 @@ public:
     int exists(const std::string &key);
     WxxObjectPtr & get_attr_str(const std::string &s);
     void set_attr_str(const std::string &s, const WxxObjectPtr &value);
-    void set_attr_str(const char *s, const WxxObjectPtr &value);
     void push(WxxObjectPtr obj);
     void push(int i);
     void push(double value);
-    void push(const char *str);
     void push(const std::string &str);
     WxxObjectPtr get_iter();
     WxxObjectPtr shift_pmc();

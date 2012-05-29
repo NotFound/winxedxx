@@ -12,7 +12,6 @@ class WxxDefault : public WxxObject
 {
 protected:
     WxxDefault();
-    WxxDefault(const char *name);
     WxxDefault(const std::string &name);
     ~WxxDefault();
 public:
@@ -28,7 +27,6 @@ public:
     int is_equal(const WxxObject &to);
     WxxObject & set(int value);
     WxxObject & set(double value);
-    WxxObject & set(const char *s);
     WxxObject & set(const std::string &s);
     void increment();
     void decrement();
@@ -37,7 +35,6 @@ public:
     std::string get_string_keyed(int i);
     WxxObjectPtr get_pmc_keyed(int i);
     WxxObjectPtr get_pmc_keyed(const std::string &s);
-    WxxObjectPtr get_pmc_keyed(const char *s);
     void set_pmc_keyed(int i, const WxxObjectPtr &value);
     WxxObjectPtr & set_pmc_keyed(const std::string &s, const WxxObjectPtr &value);
     int exists(const std::string &key);

@@ -21,7 +21,6 @@ public:
     virtual int is_equal(const WxxObject &to) = 0;
     virtual WxxObject & set(int value) = 0;
     virtual WxxObject & set(double value) = 0;
-    virtual WxxObject & set(const char *s) = 0;
     virtual WxxObject & set(const std::string &s) = 0;
     virtual void increment() = 0;
     virtual void decrement() = 0;
@@ -30,7 +29,6 @@ public:
     virtual std::string get_string_keyed(int i) = 0;
     virtual WxxObjectPtr get_pmc_keyed(int i) = 0;
     virtual WxxObjectPtr get_pmc_keyed(const std::string &s) = 0;
-    virtual WxxObjectPtr get_pmc_keyed(const char *s) = 0;
     virtual void set_pmc_keyed(int i, const WxxObjectPtr &value) = 0;
     virtual int exists(const std::string &key) = 0;
     virtual WxxObjectPtr & set_pmc_keyed(const std::string &s, const WxxObjectPtr &value) = 0;

@@ -56,7 +56,6 @@ std::string WxxException::get_string()
 int wxx_int_cast(int i)                   { return i; }
 int wxx_int_cast(double n)                { return n; }
 int wxx_int_cast(const std::string &str)  { return atoi(str.c_str()); }
-int wxx_int_cast(const char *str)         { return atoi(str); }
 int wxx_int_cast(const WxxObjectPtr &obj) { return obj.get_integer(); }
 
 
@@ -65,10 +64,6 @@ double wxx_num_cast(double n)                { return n; }
 double wxx_num_cast(const std::string &str)
 {
     return atof(str.c_str());
-}
-double wxx_num_cast(const char *str)
-{
-    return atof(str);
 }
 double wxx_num_cast(const WxxObjectPtr &obj) { return obj.get_number(); }
 
@@ -86,7 +81,6 @@ std::string www_string_cast(double n)
     return oss.str();
 }
 std::string wxx_string_cast(const std::string &str)  { return str; }
-std::string wxx_string_cast(const char *str)         { return str; }
 std::string wxx_string_cast(const WxxObjectPtr &obj) { return obj.get_string(); }
 
 std::string wxx_repeat_string(std::string s, int n)

@@ -19,11 +19,6 @@ WxxDefault::WxxDefault()
     throw std::runtime_error("Default instantiated");
 }
 
-WxxDefault::WxxDefault(const char *name)
-{
-    this->name = name;
-}
-
 WxxDefault::WxxDefault(const std::string &name)
 {
     this->name = name;
@@ -96,12 +91,6 @@ WxxObject & WxxDefault::set(double value)
     return *this;
 }
 
-WxxObject & WxxDefault::set(const char *s)
-{
-    notimplemented("set");
-    return *this;
-}
-
 WxxObject & WxxDefault::set(const std::string &s)
 {
     notimplemented("set");
@@ -142,12 +131,6 @@ WxxObjectPtr WxxDefault::get_pmc_keyed(int i)
 }
 
 WxxObjectPtr WxxDefault::get_pmc_keyed(const std::string &s)
-{
-    notimplemented("get_pmc_keyed");
-    return winxedxxnull;
-}
-
-WxxObjectPtr WxxDefault::get_pmc_keyed(const char *s)
 {
     notimplemented("get_pmc_keyed");
     return winxedxxnull;

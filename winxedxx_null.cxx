@@ -74,12 +74,6 @@ WxxObject & WxxNull::set(double value)
     return *this;
 }
 
-WxxObject & WxxNull::set(const char *s)
-{
-    nullaccess("set");
-    return *this;
-}
-
 WxxObject & WxxNull::set(const std::string &s)
 {
     nullaccess("set");
@@ -121,12 +115,6 @@ WxxObjectPtr WxxNull::get_pmc_keyed(int i)
 }
 
 WxxObjectPtr WxxNull::get_pmc_keyed(const std::string &s)
-{
-    nullaccess("get_pmc_keyed");
-    return winxedxxnull;
-}
-
-WxxObjectPtr WxxNull::get_pmc_keyed(const char *s)
 {
     nullaccess("get_pmc_keyed");
     return winxedxxnull;

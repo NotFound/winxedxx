@@ -156,12 +156,6 @@ std::string WxxString::class_name() const
 
 std::string WxxString::get_string() { return str; }
 
-WxxObject & WxxString::set(const char *s)
-{
-    str = s;
-    return *this;
-}
-
 WxxObject & WxxString::set(const std::string &s)
 {
     str = s;
@@ -289,12 +283,6 @@ WxxIntegerArray& WxxIntegerArray::push(double value)
     return *this;
 }
 
-WxxIntegerArray& WxxIntegerArray::push(const char *str)
-{
-    arr.push_back(atoi(str));
-    return *this;
-}
-
 WxxIntegerArray& WxxIntegerArray::push(const std::string &str)
 {
     arr.push_back(atoi(str.c_str()));
@@ -357,12 +345,6 @@ WxxFloatArray& WxxFloatArray::push(double value)
     return *this;
 }
 
-WxxFloatArray& WxxFloatArray::push(const char *str)
-{
-    arr.push_back(strtod(str, 0));
-    return *this;
-}
-
 WxxFloatArray& WxxFloatArray::push(const std::string &str)
 {
     arr.push_back(strtod(str.c_str(), 0));
@@ -386,7 +368,7 @@ WxxStringArray::WxxStringArray(char **argv) :
         WxxArrayBase("ResizableStringArray")
 {
     for (int argi = 0; argv[argi]; ++argi)
-        push(argv[argi]);
+        push(std::string(argv[argi]));
 }
 
 WxxStringArray::~WxxStringArray()
@@ -435,12 +417,6 @@ WxxStringArray& WxxStringArray::push(int i)
 WxxStringArray& WxxStringArray::push(double value)
 {
     arr.push_back(wxx_string_cast(value));
-    return *this;
-}
-
-WxxStringArray& WxxStringArray::push(const char *str)
-{
-    arr.push_back(std::string(str));
     return *this;
 }
 
@@ -520,12 +496,6 @@ WxxObjectArray& WxxObjectArray::push(double value)
     return *this;
 }
 
-WxxObjectArray& WxxObjectArray::push(const char *str)
-{
-    arr.push_back(new WxxObjectPtr(str));
-    return *this;
-}
-
 WxxObjectArray& WxxObjectArray::push(const std::string &str)
 {
     arr.push_back(new WxxObjectPtr(str));
@@ -550,11 +520,6 @@ WxxHash &WxxHash::set(const std::string &key, WxxObjectPtr value)
 }
 
 WxxObjectPtr WxxHash::get_pmc_keyed(const std::string &s)
-{
-    return hsh[s];
-}
-
-WxxObjectPtr WxxHash::get_pmc_keyed(const char *s)
 {
     return hsh[s];
 }

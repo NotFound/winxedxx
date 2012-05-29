@@ -13,19 +13,16 @@ namespace WinxedXX
 int wxx_int_cast(int i);
 int wxx_int_cast(double n);
 int wxx_int_cast(const std::string &str);
-int wxx_int_cast(const char *str);
 int wxx_int_cast(const WxxObjectPtr &obj);
 
 double wxx_num_cast(int i);
 double wxx_num_cast(double n);
 double wxx_num_cast(const std::string &str);
-double wxx_num_cast(const char *str);
 double wxx_num_cast(const WxxObjectPtr &obj);
 
 std::string www_string_cast(int i);
 std::string www_string_cast(double n);
 std::string wxx_string_cast(const std::string &str);
-std::string wxx_string_cast(const char *str);
 std::string wxx_string_cast(const WxxObjectPtr &obj);
 
 std::string wxx_repeat_string(std::string s, int n);
@@ -69,7 +66,6 @@ public:
     WxxString(std::string value);
     std::string class_name() const;
     std::string get_string();
-    WxxObject & set(const char *s);
     WxxObject & set(const std::string &s);
     WxxObjectPtr get_iter();
 private:
@@ -85,7 +81,6 @@ public:
     virtual WxxArrayBase& push(WxxObjectPtr obj) = 0;
     virtual WxxArrayBase& push(int i) = 0;
     virtual WxxArrayBase& push(double value) = 0;
-    virtual WxxArrayBase& push(const char *str) = 0;
     virtual WxxArrayBase& push(const std::string &str) = 0;
     virtual void set_pmc_keyed(int i, const WxxObjectPtr &value) = 0;
     WxxObjectPtr get_iter();
@@ -102,7 +97,6 @@ public:
     WxxIntegerArray& push(WxxObjectPtr obj);
     WxxIntegerArray& push(int i);
     WxxIntegerArray& push(double value);
-    WxxIntegerArray& push(const char *str);
     WxxIntegerArray& push(const std::string &str);
     void set_pmc_keyed(int i, const WxxObjectPtr &value);
 private:
@@ -120,7 +114,6 @@ public:
     WxxFloatArray& push(WxxObjectPtr obj);
     WxxFloatArray& push(int i);
     WxxFloatArray& push(double value);
-    WxxFloatArray& push(const char *str);
     WxxFloatArray& push(const std::string &str);
     void set_pmc_keyed(int i, const WxxObjectPtr &value);
 private:
@@ -140,7 +133,6 @@ public:
     WxxStringArray& push(WxxObjectPtr obj);
     WxxStringArray& push(int i);
     WxxStringArray& push(double value);
-    WxxStringArray& push(const char *str);
     WxxStringArray& push(const std::string &str);
     void set_pmc_keyed(int i, const WxxObjectPtr &value);
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
@@ -159,7 +151,6 @@ public:
     WxxObjectArray& push(WxxObjectPtr obj);
     WxxObjectArray& push(int i);
     WxxObjectArray& push(double value);
-    WxxObjectArray& push(const char *str);
     WxxObjectArray& push(const std::string &str);
     void set_pmc_keyed(int i, const WxxObjectPtr &value);
 private:
@@ -198,7 +189,6 @@ public:
     using WxxDefault::set_pmc_keyed;
     WxxObjectPtr &set_pmc_keyed(const std::string &s, const WxxObjectPtr &value);
     WxxObjectPtr get_pmc_keyed(const std::string &s);
-    WxxObjectPtr get_pmc_keyed(const char *s);
     int exists(const std::string &key);
 private:
     std::map<std::string, WxxObjectPtr> hsh;
