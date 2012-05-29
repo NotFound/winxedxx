@@ -386,9 +386,7 @@ function emit_CallBuiltinExpr(out, expr)
         break;
       case 'length':
       case 'bytelength':
-        out.print(Type_Int + "(");
-        emit_stringexpr(out, arg0);
-        out.print(".length())");
+        emit_plainfun1(out, "wxx_length", arg0);
         break;
       case 'ord':
         out.print("wxx_ord(");

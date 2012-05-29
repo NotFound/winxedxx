@@ -125,6 +125,9 @@ double wxx_floattime();
 int wxx_sleep(int t);
 int wxx_sleep(double t);
 
+int wxx_length(const std::string &str);
+int wxx_length(const WxxObjectPtr &obj);
+
 std::string wxx_chr(int code);
 int wxx_ord(std::string src);
 int wxx_ord(std::string src, int pos);

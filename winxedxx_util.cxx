@@ -152,6 +152,15 @@ int wxx_sleep(double t)
     return 0;
 }
 
+int wxx_length(const std::string &str)
+{
+    return str.length();
+}
+int wxx_length(const WxxObjectPtr &obj)
+{
+    return wxx_length(obj.get_string());
+}
+
 std::string wxx_chr(int code)
 {
     return std::string(1, code);
