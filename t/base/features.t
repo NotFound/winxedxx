@@ -140,6 +140,28 @@ function aux2()
     return "aux2";
 }
 
+function test_pmc(test)
+{
+    // Test the equivalents of some Parrot PMCs
+
+    var pmc;
+
+    pmc = new [ "Integer" ];
+    test.ok(pmc != null && (pmc instanceof "Integer"), "Integer instantiated");
+
+    pmc = new [ "Float" ];
+    test.ok(pmc != null && (pmc instanceof "Float"), "Float instantiated");
+
+    pmc = new [ "String" ];
+    test.ok(pmc != null && (pmc instanceof "String"), "String instantiated");
+
+    pmc = new [ "Hash" ];
+    test.ok(pmc != null && (pmc instanceof "Hash"), "Hash instantiated");
+
+    pmc = new [ "FileHandle" ];
+    test.ok(pmc != null && (pmc instanceof "FileHandle"), "FileHandle instantiated");
+}
+
 function test_array(test)
 {
     var arr = [ "a", "b", "c", "d" ];
@@ -433,6 +455,7 @@ function main [main] (args)
 
     test_string_misc(test);
     test_string_iter(test);
+    test_pmc(test);
     test_array(test);
     test_hash(test);
     test_func(test);
