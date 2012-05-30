@@ -67,7 +67,7 @@ winxedxc.pbc: winxedxc.pir
 
 #-----------------------------------------------------------------------
 
-test: winxedxx.pbc winxedxx.h $(OBJS) $(FRONTEND)
+test: winxedxx.pbc $(FRONTEND) winxedxx.h $(OBJS)
 	prove -v -e "$(WINXED) t/runtests.winxed" t/base/features.t
 
 #-----------------------------------------------------------------------
@@ -75,7 +75,7 @@ test: winxedxx.pbc winxedxx.h $(OBJS) $(FRONTEND)
 exetest: t/runtests
 	prove -v -e t/runtests t/base/features.t
 
-t/runtests: t/runtests.winxed $(OBJS) $(FRONTEND)
+t/runtests: winxedxx.pbc $(FRONTEND) winxedxx.h $(OBJS) t/runtests.winxed
 	$(PARROT) $(FRONTEND) --target=exe -o t/runtests t/runtests.winxed
 
 #-----------------------------------------------------------------------
