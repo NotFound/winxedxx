@@ -4,7 +4,6 @@
 # Configurable values
 
 PARROT = parrot
-PBC_TO_EXE = pbc_to_exe
 WINXED = winxed
 WINXEDLIB =
 
@@ -28,14 +27,7 @@ FRONTEND = winxedxc.pbc
 
 default: pbc $(OBJS)
 
-exe: winxedxx $(OBJS)
-
 pbc: winxedxx.pbc $(FRONTEND)
-
-#-----------------------------------------------------------------------
-
-winxedxx: winxedxx.pbc
-	$(PBC_TO_EXE) winxedxx.pbc
 
 #-----------------------------------------------------------------------
 
