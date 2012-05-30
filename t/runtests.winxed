@@ -20,7 +20,7 @@ function runtest(string srcname)
         objname += '.exe';
 
     string cmd[] = [
-      "parrot", "winxedxx.pbc",
+      "parrot", "winxedxc.pbc",
       "--target=exe",
       "-o", objname,
       srcname

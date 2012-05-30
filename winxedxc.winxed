@@ -233,24 +233,26 @@ function main [main](var argv)
           break;
         string ext = getExtension(sourcefile);
         switch (ext) {
-          case "winxed":
-            if (verbose)
-                say("Compiling winxed: ", sourcefile);
-            string cxxfile = substr(sourcefile, 0, length(sourcefile) - 7) +
-                    ".cxx";
-            var cxxout = open(cxxfile, "w");
-            winxed_compile(winxed, sourcefile, cxxout);
-            cxxout.close();
-            push(cxxfiles, cxxfile);
-            break;
           case "cxx":
             push(cxxfiles, sourcefile);
             break;
           case "o":
             push(objfiles, sourcefile);
             break;
+          case "winxed":
           default:
-            throw "Bad extension: " + ext;
+            if (verbose)
+                say("Compiling winxed: ", sourcefile);
+            string cxxfile = ext == null ?
+                    sourcefile :
+                    substr(sourcefile, 0,
+                        length(sourcefile) - length(ext) - 1);
+            cxxfile += ".cxx";
+            var cxxout = open(cxxfile, "w");
+            winxed_compile(winxed, sourcefile, cxxout);
+            cxxout.close();
+            push(cxxfiles, cxxfile);
+            break;
         }
     }
 
