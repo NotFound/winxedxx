@@ -392,6 +392,21 @@ function emit_builtin_Error(out, args)
     out.print(")");
 }
 
+function emit_builtin_dlfunc(out, args)
+{
+    var sig = args[2].arg;
+    if (! sig.isstringliteral())
+        throw Error("dlfunc siganture must be compile time constant");
+    int nsigargs = length(sig.strval.rawstring()) - 1;
+    string csig = ncisigtoc(sig.strval.rawstring());
+
+    out.print("wxx_dlfunc<", csig, ARGSEP, string(nsigargs), ">(");
+    emit_expr(out, args[0].arg);
+    out.print(ARGSEP);
+    emit_stringexpr(out, args[1].arg);
+    out.print(")");
+}
+
 function emit_builtin_ord(out, args)
 {
     int nargs = elements(args);
@@ -442,7 +457,6 @@ function emit_CallBuiltinExpr(out, expr)
     int nargs = elements(args);
     var arg0 = nargs > 0 ? args[0].arg : null;
     var arg1 = nargs > 1 ? args[1].arg : null;
-    var arg2 = nargs > 2 ? args[2].arg : null;
     string type0;
     int i;
     switch (name) {
@@ -539,17 +553,7 @@ function emit_CallBuiltinExpr(out, expr)
         emit_plainfun1(out, "wxx_loadlib", arg0);
         break;
       case "dlfunc":
-        var sig = arg2;
-        if (! sig.isstringliteral())
-            throw Error("dlfunc siganture must be compile time constant");
-        int nsigargs = length(sig.strval.rawstring()) - 1;
-        string csig = ncisigtoc(sig.strval.rawstring());
-
-        out.print("wxx_dlfunc<", csig, ARGSEP, string(nsigargs), ">(");
-        emit_expr(out, arg0);
-        out.print(ARGSEP);
-        emit_expr(out, arg1);
-        out.print(")");
+        emit_builtin_dlfunc(out, args);
         break;
       case "spawnw":
         emit_plainfun1(out, "wxx_spawnw", arg0);
