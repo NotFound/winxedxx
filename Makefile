@@ -73,7 +73,7 @@ test: winxedxx.pbc winxedxx.h $(OBJS)
 exetest: t/runtests
 	prove -v -e t/runtests t/base/features.t
 
-t/runtests: t/runtests.winxed exe $(OBJS)
+t/runtests: t/runtests.winxed winxedxx $(OBJS)
 	./winxedxx --target=exe -o t/runtests t/runtests.winxed
 
 #-----------------------------------------------------------------------
