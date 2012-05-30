@@ -208,10 +208,14 @@ const string
     REGstring   = "S",
     REGvar      = "P",
     // Generated types
-    Type_Int    = "int",
-    Type_Num    = "double",
-    Type_String = "std::string",
-    Type_PMC    = "WxxObjectPtr";
+    Type_Int        = "int",
+    Type_Num        = "double",
+    Type_String     = "std::string",
+    Type_PMC        = "WxxObjectPtr",
+    Type_Hash       = "WxxHash",
+    Type_PMCArray   = "WxxObjectArray",
+    Type_Instance   = "WxxInstance",
+    Type_FileHandle = "WxxFileHandle";
 
 function generatedType(string ptype)
 {
@@ -509,7 +513,7 @@ function emit_CallBuiltinExpr(out, expr)
         out.print(")");
         break;
       case "open":
-        out.print(Type_PMC, "((new WxxFileHandle())->open(");
+        out.print(Type_PMC, "((new ", Type_FileHandle, "())->open(");
         emit_expr(out, arg0);
         if (nargs > 1) {
             out.print(ARGSEP);
@@ -599,7 +603,7 @@ function emit_CallBuiltinExpr(out, expr)
 
 function emit_callargs(out, args)
 {
-    out.print("WinxedXX::WxxObjectArray()");
+    out.print("WinxedXX::", Type_PMCArray, "()");
     int nargs = args == null ? 0 : args.numargs();
     for (int i = 0; i < nargs; ++i) {
         out.print(".push(");
@@ -672,7 +676,7 @@ function emit_ArrayExpr(out, expr)
 {
     var values = expr.values;
     int nvalues = values == null ? 0 : elements(values);
-    out.print(Type_PMC, "(&((* new WxxObjectArray())");
+    out.print(Type_PMC, "(&((* new ", Type_PMCArray, "())");
     int i;
     for (i = 0; i < nvalues; ++i) {
         out.print(".push");
@@ -686,7 +690,7 @@ function emit_HashExpr(out, expr)
     var keys = expr.keys;
     var values = expr.values;
     int n = elements(keys);
-    out.print(Type_PMC, "(&((* new WxxHash())");
+    out.print(Type_PMC, "(&((* new ", Type_Hash, "())");
     int i;
     for (i = 0; i < n; ++i) {
         out.print(".set(");
@@ -726,10 +730,10 @@ function emit_NewExpr(out, expr)
         string name = value.getasquoted();
         switch (name) {
           case "FileHandle":
-            out.print(Type_PMC, "(new WxxFileHandle())");
+            out.print(Type_PMC, "(new ", Type_FileHandle, "())");
             break;
           default:
-            out.print(Type_PMC, "(new WxxInstance(\"", name, "\"))");
+            out.print(Type_PMC, "(new ", Type_Instance, "(\"", name, "\"))");
         }
     }
     else {
@@ -746,7 +750,7 @@ function emit_NewIndexedExpr(out, expr)
 
     // TESTING
     string name = key[0];
-    out.print(Type_PMC, "(new WxxInstance(\"", name, "\"))");
+    out.print(Type_PMC, "(new ", Type_Instance, "(\"", name, "\"))");
 }
 
 function emit_OpAssignExpr(out, assignexpr)
@@ -1366,7 +1370,7 @@ function emit_switchstatement(out, switchst)
 {
     var case_value = switchst.case_value;
     var case_st = switchst.case_st;
-    out.print("do {\nWxxObjectPtr wxxswvar = ");
+    out.print("do {\n", Type_PMC, " wxxswvar = ");
     emit_expr(out, switchst.condition);
     out.print(";\n");
 
@@ -1490,7 +1494,7 @@ function emit_foreachstatement(out, forst)
 {
     var varname = forst.varname;
     var container = forst.container;
-    out.print("{\nWxxObjectPtr wxx_it = ");
+    out.print("{\n", Type_PMC, " wxx_it = ");
     string ctype = container.checkresult();
     if (ctype == REGstring)
         out.print(Type_PMC, "(");
@@ -1516,7 +1520,7 @@ function emit_returnstatement(out, returnst)
     int nargs = values == null ? 0 : int(values.numargs());
     switch (nargs) {
       case 0:
-        out.print("return WxxObjectPtr()");
+        out.print("return ", Type_PMC, "()");
         break;
       case 1:
         var expr = values.getfreearg(0);
@@ -1558,8 +1562,8 @@ function emit_UsingStatement(out, st)
     if (st.subid != null) {
         var path = st.path;
         string name = path[-1];
-        out.print("static WxxObjectPtr (*const ", name,
-            ")(const WxxObjectArray &wxx_fun_args) =  ", st.subid);
+        out.print("static ", Type_PMC, " (*const ", name,
+            ")(const ", Type_PMCArray, " &wxx_fun_args) =  ", st.subid);
     }
 }
 
@@ -1637,13 +1641,14 @@ function emit_statement(out, st)
 function emit_declare_function(out, funst)
 {
     string name = funst.name;
-    out.print(Type_PMC, " ", name, "(const WxxObjectArray &wxx_fun_args);\n");
+    out.print(Type_PMC, " ", name,
+            "(const ", Type_PMCArray, " &wxx_fun_args);\n");
 }
 
 function emit_declare_method(out, funst)
 {
     string name = funst.name;
-    out.print("static WxxObjectPtr ");
+    out.print("static ", Type_PMC, " ");
 
     int isconstructor = false;
     var cl = funst.owner;
@@ -1654,7 +1659,8 @@ function emit_declare_method(out, funst)
         out.print(name);
     else
         out.print("__Winxedxx_constructor");
-    out.print("(WxxObjectPtr &, const WxxObjectArray &wxx_fun_args);\n");
+    out.print("(", Type_PMC, " &, const ",
+            Type_PMCArray, " &wxx_fun_args);\n");
 }
 
 function emit_declare_function_subid(out, funst, key)
@@ -1663,9 +1669,9 @@ function emit_declare_function_subid(out, funst, key)
 
     string name = funst.name;
     if (funst.subid != null) {
-        out.print("static WxxObjectPtr (*const ");
+        out.print("static ", Type_PMC, " (*const ");
         out.print(funst.subid);
-        out.print(")(const WxxObjectArray &wxx_fun_args) =  &");
+        out.print(")(const ", Type_PMCArray, " &wxx_fun_args) =  &");
         if (elements(key) > 0)
             out.print(join("::", key) + "::");
         out.print(name, ";\n");
@@ -1739,7 +1745,7 @@ function emit_declare_local(out, funst, string dataname)
     out.print(name + "(" + dataname + " & outer) : "+ DATA + "(outer)\n" );
     out.print("{\n");
     out.print("}\n");
-    out.print("\nWxxObjectPtr operator() (const WxxObjectArray &);\n" );
+    out.print("\n", Type_PMC, " operator() (const ", Type_PMCArray, " &);\n" );
 
     out.print("\n};\n");
 }
@@ -1747,7 +1753,8 @@ function emit_declare_local(out, funst, string dataname)
 function emit_define_local(out, funst, string dataname)
 {
     string name = funst.name;
-    out.print("\nWxxObjectPtr " + name + "::operator() (const WxxObjectArray & wxx_fun_args)\n");
+    out.print("\n", Type_PMC, " " + name +
+            "::operator() (const ", Type_PMCArray, " & wxx_fun_args)\n");
 
     out.print("{\n" );
     var emitlocal = new EmitFunction(funst);
@@ -1894,7 +1901,7 @@ function emit_FunctionStatement(out, funst, string prefix[optional])
 
     if (ismethod)
         out.print(Type_PMC, " &self, ");
-    out.print("const WxxObjectArray &wxx_fun_args");
+    out.print("const ", Type_PMCArray, " &wxx_fun_args");
     out.print(")\n{\n");
 
     emitfun.emit_params(out);
