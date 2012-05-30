@@ -3,7 +3,6 @@
 
 #include "winxedxx_types.h"
 #include "winxedxx_object.h"
-#include "winxedxx_null.h"
 #include "winxedxx_default.h"
 #include "winxedxx_integer.h"
 

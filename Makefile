@@ -45,22 +45,22 @@ winxedxx.pir: winxedxx.winxed
 
 #-----------------------------------------------------------------------
 
-winxedxx_null.o: winxedxx_null.cxx
+winxedxx_null.o: winxedxx_null.cxx winxedxx_types.h winxedxx_object.h winxedxx_null.h
 	$(CXX) $(CXXOPTS) -c winxedxx_null.cxx
 
-winxedxx_default.o: winxedxx_default.cxx
+winxedxx_default.o: winxedxx_default.cxx winxedxx_types.h winxedxx_object.h winxedxx_default.h
 	$(CXX) $(CXXOPTS) -c winxedxx_default.cxx
 
-winxedxx_objectptr.o: winxedxx_objectptr.cxx
+winxedxx_objectptr.o: winxedxx_objectptr.cxx winxedxx_types.h winxedxx_object.h winxedxx_null.h winxedxx_default.h winxedxx_integer.h
 	$(CXX) $(CXXOPTS) -c winxedxx_objectptr.cxx
 
-winxedxx_classes.o: winxedxx_classes.cxx
+winxedxx_classes.o: winxedxx_classes.cxx winxedxx_types.h winxedxx_object.h winxedxx_default.h winxedxx_integer.h
 	$(CXX) $(CXXOPTS) -c winxedxx_classes.cxx
 
-winxedxx_handle.o: winxedxx_handle.cxx
+winxedxx_handle.o: winxedxx_handle.cxx winxedxx_types.h winxedxx_object.h winxedxx_default.h winxedxx_integer.h winxedxx_handle.h
 	$(CXX) $(CXXOPTS) -c winxedxx_handle.cxx
 
-winxedxx_util.o: winxedxx_util.cxx
+winxedxx_util.o: winxedxx_util.cxx winxedxx_types.h winxedxx_object.h winxedxx_default.h winxedxx_integer.h winxedxx_handle.h
 	$(CXX) $(CXXOPTS) -c winxedxx_util.cxx
 
 #-----------------------------------------------------------------------
@@ -73,7 +73,7 @@ test: winxedxx.pbc winxedxx.h $(OBJS)
 exetest: t/runtests
 	prove -v -e t/runtests t/base/features.t
 
-t/runtests: t/runtests.winxed exe
+t/runtests: t/runtests.winxed exe $(OBJS)
 	./winxedxx --target=exe -o t/runtests t/runtests.winxed
 
 #-----------------------------------------------------------------------
