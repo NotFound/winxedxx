@@ -141,6 +141,9 @@ int wxx_indexof(const std::string &from, const std::string &search, int pos);
 std::string wxx_chomp(const std::string &src);
 std::string wxx_escape(const std::string &src);
 
+WxxObjectPtr wxx_open(const std::string &filename);
+WxxObjectPtr wxx_open(const std::string &filename, const std::string &mode);
+
 } // namespace WinxedXX
 
 #endif

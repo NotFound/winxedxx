@@ -12,6 +12,8 @@ class WxxFileHandle : public WxxDefault
 public:
     WxxFileHandle(int predef = 0);
     ~WxxFileHandle();
+    WxxObject *open(const std::string &name);
+    WxxObject *open(const std::string & name, const std::string &mode);
     WxxObject *open(WxxObjectPtr name);
     WxxObject *open(WxxObjectPtr name, WxxObjectPtr mode);
     WxxObjectPtr close();

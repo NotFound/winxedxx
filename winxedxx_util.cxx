@@ -223,6 +223,18 @@ std::string wxx_escape(const std::string &src)
     return oss.str();
 }
 
+WxxObjectPtr wxx_open(const std::string &filename)
+{
+    WxxFileHandle *handle = new WxxFileHandle();
+    return handle->open(filename);
+}
+
+WxxObjectPtr wxx_open(const std::string &filename, const std::string &mode)
+{
+    WxxFileHandle *handle = new WxxFileHandle();
+    return handle->open(filename, mode);
+}
+
 WxxObjectPtr wxx_loadlib(const std::string &libname)
 {
     void *dl_handle = dlopen(libname.c_str(), RTLD_LAZY);

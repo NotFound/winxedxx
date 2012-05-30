@@ -39,21 +39,19 @@ WxxFileHandle::~WxxFileHandle()
         fclose(f);
 }
 
-WxxObject *WxxFileHandle::open(WxxObjectPtr name)
+WxxObject *WxxFileHandle::open(const std::string &name)
 {
-    std::string strname = name.get_string();
-    f = fopen(strname.c_str(), "r");
+    f = fopen(name.c_str(), "r");
     return this;
 }
 
-WxxObject *WxxFileHandle::open(WxxObjectPtr name, WxxObjectPtr mode)
+WxxObject *WxxFileHandle::open(const std::string & name,
+        const std::string &mode)
 {
     if (f)
         throw wxx_error("FileHandle is already open");
-    std::string strname = name.get_string();
-    std::string strmode = mode.get_string();
-    for (size_t i = 0; i < strmode.length(); ++i) {
-        switch (strmode[i]) {
+    for (size_t i = 0; i < mode.length(); ++i) {
+        switch (mode[i]) {
           case 'r':
           case 'w':
           case 'a':
@@ -63,8 +61,18 @@ WxxObject *WxxFileHandle::open(WxxObjectPtr name, WxxObjectPtr mode)
             throw wxx_error("Invalid mode in open");
         }
     }
-    f = fopen(strname.c_str(), strmode.c_str());
+    f = fopen(name.c_str(), mode.c_str());
     return this;
+}
+
+WxxObject *WxxFileHandle::open(WxxObjectPtr name)
+{
+    return open(name.get_string());
+}
+
+WxxObject *WxxFileHandle::open(WxxObjectPtr name, WxxObjectPtr mode)
+{
+    return open(name.get_string(), mode.get_string());
 }
 
 WxxObjectPtr WxxFileHandle::close()
