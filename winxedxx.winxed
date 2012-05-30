@@ -229,6 +229,7 @@ function generatedType(string ptype)
 
 const string
     INDEXOF = "wxx_indexof",
+    ORD     = "wxx_ord",
     PRINT   = "wxx_print",
     EPRINT  = "wxx_eprint";
 
@@ -364,6 +365,18 @@ function emit_builtin_cry(out, args)
     out.print(EPRINT + "(\"\\n\"), 0");
 }
 
+function emit_builtin_ord(out, args)
+{
+    int nargs = elements(args);
+    out.print(ORD + "(");
+    emit_stringexpr(out, args[0].arg);
+    if (nargs > 1) {
+        out.print(", ");
+        emit_intexpr(out, args[1].arg);
+    }
+    out.print(")");
+}
+
 function emit_builtin_indexof(out, args)
 {
     int nargs = elements(args);
@@ -433,13 +446,7 @@ function emit_CallBuiltinExpr(out, expr)
         emit_plainfun1(out, "wxx_length", arg0);
         break;
       case 'ord':
-        out.print("wxx_ord(");
-        emit_stringexpr(out, arg0);
-        if (nargs > 1) {
-            out.print(", ");
-            emit_intexpr(out, arg1);
-        }
-        out.print(")");
+        emit_builtin_ord(out, args);
         break;
       case 'chr':
         emit_plainfun1(out, "wxx_chr", arg0);
