@@ -175,6 +175,15 @@ int wxx_ord(std::string src, int pos)
     return (unsigned char)src.at(pos);
 }
 
+std::string wxx_substr(const std::string &from, int start)
+{
+    return from.substr(start);
+}
+std::string wxx_substr(const std::string &from, int start, int length)
+{
+    return from.substr(start, length);
+}
+
 int wxx_indexof(const std::string &from, const std::string &search)
 {
     return from.find(search);

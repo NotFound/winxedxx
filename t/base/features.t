@@ -105,6 +105,9 @@ function test_string_misc(test)
     pos = indexof(s, "2", pos + 1);
     test.is(pos, 5, "indexof 3 args");
 
+    test.is_string(substr(s, 2), "2012", "substr 2 args");
+    test.is_string(substr(s, 2, 3), "201", "substr 3 args");
+
     s = "a\t\nb\\c";
     test.is_string(escape(s), 'a\t\nb\\c', "escape");
 }

@@ -239,6 +239,7 @@ const string
     STRINGCAST = "wxx_string_cast",
     INDEXOF    = "wxx_indexof",
     ORD        = "wxx_ord",
+    SUBSTR     = "wxx_substr",
     PRINT      = "wxx_print",
     EPRINT     = "wxx_eprint";
 
@@ -386,6 +387,20 @@ function emit_builtin_ord(out, args)
     out.print(")");
 }
 
+function emit_builtin_substr(out, args)
+{
+    int nargs = elements(args);
+    out.print(SUBSTR + "(");
+    emit_stringexpr(out, args[0].arg);
+    out.print(ARGSEP);
+    emit_intexpr(out, args[1].arg);
+    if (nargs > 2) {
+        out.print(ARGSEP);
+        emit_intexpr(out, args[2].arg);
+    }
+    out.print(")");
+}
+
 function emit_builtin_indexof(out, args)
 {
     int nargs = elements(args);
@@ -464,15 +479,7 @@ function emit_CallBuiltinExpr(out, expr)
         emit_builtin_indexof(out, args);
         break;
       case "substr":
-        type0 = arg0.checkresult();
-        emit_stringexpr(out, arg0);
-        out.print(".substr(");
-        emit_expr(out, arg1);
-        if (nargs > 2) {
-            out.print(ARGSEP);
-            emit_expr(out, arg2);
-        }
-        out.print(")");
+        emit_builtin_substr(out, args);
         break;
       case "chomp":
         emit_plainfun1(out, "wxx_chomp", arg0);

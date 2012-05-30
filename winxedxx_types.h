@@ -132,6 +132,9 @@ std::string wxx_chr(int code);
 int wxx_ord(std::string src);
 int wxx_ord(std::string src, int pos);
 
+std::string wxx_substr(const std::string &from, int start);
+std::string wxx_substr(const std::string &from, int start, int length);
+
 int wxx_indexof(const std::string &from, const std::string &search);
 int wxx_indexof(const std::string &from, const std::string &search, int pos);
 
