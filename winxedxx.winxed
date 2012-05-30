@@ -240,6 +240,7 @@ const string
     INDEXOF    = "wxx_indexof",
     ORD        = "wxx_ord",
     SUBSTR     = "wxx_substr",
+    ERROR      = "wxx_error",
     PRINT      = "wxx_print",
     EPRINT     = "wxx_eprint";
 
@@ -375,10 +376,26 @@ function emit_builtin_cry(out, args)
     out.print(EPRINT + "(\"\\n\"), 0");
 }
 
+function emit_builtin_Error(out, args)
+{
+    int nargs = elements(args);
+    out.print(ERROR, "(");
+    emit_stringexpr(out, args[0].arg);
+    if (nargs > 1) {
+        out.print(ARGSEP);
+        emit_intexpr(out, args[1].arg);
+        if (nargs > 2) {
+            out.print(ARGSEP);
+            emit_intexpr(out, args[2].arg);
+        }
+    }
+    out.print(")");
+}
+
 function emit_builtin_ord(out, args)
 {
     int nargs = elements(args);
-    out.print(ORD + "(");
+    out.print(ORD, "(");
     emit_stringexpr(out, args[0].arg);
     if (nargs > 1) {
         out.print(ARGSEP);
@@ -390,7 +407,7 @@ function emit_builtin_ord(out, args)
 function emit_builtin_substr(out, args)
 {
     int nargs = elements(args);
-    out.print(SUBSTR + "(");
+    out.print(SUBSTR, "(");
     emit_stringexpr(out, args[0].arg);
     out.print(ARGSEP);
     emit_intexpr(out, args[1].arg);
@@ -404,7 +421,7 @@ function emit_builtin_substr(out, args)
 function emit_builtin_indexof(out, args)
 {
     int nargs = elements(args);
-    out.print(INDEXOF + "(");
+    out.print(INDEXOF, "(");
     emit_stringexpr(out, args[0].arg);
     out.print(ARGSEP);
     emit_stringexpr(out, args[1].arg);
@@ -507,17 +524,7 @@ function emit_CallBuiltinExpr(out, expr)
         out.print(")");
         break;
       case "Error":
-        out.print("wxx_error(");
-        emit_expr(out, arg0);
-        if (nargs > 1) {
-            out.print(ARGSEP);
-            emit_expr(out, arg1);
-        }
-        if (nargs > 2) {
-            out.print(ARGSEP);
-            emit_expr(out, arg2);
-        }
-        out.print(")");
+        emit_builtin_Error(out, args);
         break;
       case "open":
         out.print(Type_PMC, "((new ", Type_FileHandle, "())->open(");
