@@ -30,7 +30,7 @@ default: pbc $(OBJS)
 
 exe: winxedxx $(OBJS)
 
-pbc: winxedxx.pbc
+pbc: winxedxx.pbc $(FRONTEND)
 
 #-----------------------------------------------------------------------
 
