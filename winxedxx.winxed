@@ -509,7 +509,7 @@ function emit_CallBuiltinExpr(out, expr)
         out.print(")");
         break;
       case "open":
-        out.print("WxxObjectPtr((new WxxFileHandle())->open(");
+        out.print(Type_PMC, "((new WxxFileHandle())->open(");
         emit_expr(out, arg0);
         if (nargs > 1) {
             out.print(ARGSEP);
@@ -625,7 +625,7 @@ function emit_CallMemberExpr(out, callexpr)
     var left = funref.left;
     int is_var = left.checkresult() == REGvar;
     if (!is_var)
-        out.print("WxxObjectPtr(");
+        out.print(Type_PMC, "(");
     emit_expr(out, funref.left);
     if (!is_var)
         out.print(")");
@@ -644,7 +644,7 @@ function emit_CallExpr(out, callexpr)
 
     switch {
       case funref instanceof FunctionExpr:
-        out.print("WxxObjectPtr");
+        out.print(Type_PMC);
         emit_expr(out, funref);
         break;
       case funref instanceof FunctionId:
@@ -672,7 +672,7 @@ function emit_ArrayExpr(out, expr)
 {
     var values = expr.values;
     int nvalues = values == null ? 0 : elements(values);
-    out.print("WxxObjectPtr(&((* new WxxObjectArray())");
+    out.print(Type_PMC, "(&((* new WxxObjectArray())");
     int i;
     for (i = 0; i < nvalues; ++i) {
         out.print(".push");
@@ -686,7 +686,7 @@ function emit_HashExpr(out, expr)
     var keys = expr.keys;
     var values = expr.values;
     int n = elements(keys);
-    out.print("WxxObjectPtr(&((* new WxxHash())");
+    out.print(Type_PMC, "(&((* new WxxHash())");
     int i;
     for (i = 0; i < n; ++i) {
         out.print(".set(");
@@ -726,10 +726,10 @@ function emit_NewExpr(out, expr)
         string name = value.getasquoted();
         switch (name) {
           case "FileHandle":
-            out.print("WxxObjectPtr(new WxxFileHandle())");
+            out.print(Type_PMC, "(new WxxFileHandle())");
             break;
           default:
-            out.print("WxxObjectPtr(new WxxInstance(\"", name, "\"))");
+            out.print(Type_PMC, "(new WxxInstance(\"", name, "\"))");
         }
     }
     else {
@@ -746,7 +746,7 @@ function emit_NewIndexedExpr(out, expr)
 
     // TESTING
     string name = key[0];
-    out.print("WxxObjectPtr(new WxxInstance(\"", name, "\"))");
+    out.print(Type_PMC, "(new WxxInstance(\"", name, "\"))");
 }
 
 function emit_OpAssignExpr(out, assignexpr)
@@ -1266,7 +1266,7 @@ function emit_varstatement(out, st)
 
     // If lexical, declare a reference to the data struct
     // Else, declare plain var
-    out.print("WxxObjectPtr ");
+    out.print(Type_PMC, " ");
     if (is_lex)
         out.print("&");
     out.print(st.name);
@@ -1314,7 +1314,7 @@ function emit_nativearraystatement(out, st, string arraytype)
     string name = st.name;
     var init = st.initarray;
 
-    out.print("WxxObjectPtr ", name, "(&((*new Wxx", arraytype, "Array())");
+    out.print(Type_PMC, " ", name, "(&((*new Wxx", arraytype, "Array())");
     if (init != null) {
         for (var item in init) {
             out.print(".push(");
@@ -1444,7 +1444,7 @@ function emit_trystatement(out, tryst)
     if (tryst.exname == null)
         out.print("...");
     else {
-        out.print("WxxObjectPtr &", tryst.exname);
+        out.print(Type_PMC, " &", tryst.exname);
     }
     out.print(")\n{\n");
     emit_statement(out, tryst.scatch);
@@ -1493,7 +1493,7 @@ function emit_foreachstatement(out, forst)
     out.print("{\nWxxObjectPtr wxx_it = ");
     string ctype = container.checkresult();
     if (ctype == REGstring)
-        out.print("WxxObjectPtr(");
+        out.print(Type_PMC, "(");
     emit_expr(out, container);
     if (ctype == REGstring)
         out.print(")");
@@ -1637,7 +1637,7 @@ function emit_statement(out, st)
 function emit_declare_function(out, funst)
 {
     string name = funst.name;
-    out.print("WxxObjectPtr ", name, "(const WxxObjectArray &wxx_fun_args);\n");
+    out.print(Type_PMC, " ", name, "(const WxxObjectArray &wxx_fun_args);\n");
 }
 
 function emit_declare_method(out, funst)
@@ -1886,14 +1886,14 @@ function emit_FunctionStatement(out, funst, string prefix[optional])
                 bindlast(bindfirst(emit_declare_local, out), dataname));
     }
 
-    out.print("WxxObjectPtr ");
+    out.print(Type_PMC, " ");
     if (prefix != null)
         out.print(prefix);
     out.print(newname);
     out.print("(");
 
     if (ismethod)
-        out.print("WxxObjectPtr &self, ");
+        out.print(Type_PMC, " &self, ");
     out.print("const WxxObjectArray &wxx_fun_args");
     out.print(")\n{\n");
 
