@@ -146,21 +146,6 @@ WxxObjectPtr WxxNCIcall<NciSig, nargs>::operator()(WxxObjectArray &args)
 
 //*************************************************************
 
-WxxObjectPtr wxx_new(std::string name)
-{
-    //std::cerr << "wxx_new " << name << '\n';
-    return new WxxInstance(name);
-}
-
-WxxObjectPtr wxx_new(std::string name, WxxObjectArray args)
-{
-    //std::cerr << "wxx_new " << name << '\n';
-    WxxInstance *instance = new WxxInstance(name);
-    WxxObjectPtr obj(instance);
-    instance->call_method(name, args);
-    return obj;
-}
-
 int wxx_print(int i) { std::cout << i; return 0; }
 int wxx_print(const std::string &s) { std::cout << s; return 0; }
 int wxx_print(double n) { std::cout << n; return 0; }

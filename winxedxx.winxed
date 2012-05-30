@@ -214,8 +214,7 @@ const string
     Type_PMC        = "WxxObjectPtr",
     Type_Hash       = "WxxHash",
     Type_PMCArray   = "WxxObjectArray",
-    Type_Instance   = "WxxInstance",
-    Type_FileHandle = "WxxFileHandle";
+    Type_Instance   = "WxxInstance";
 
 function generatedType(string ptype)
 {
@@ -752,14 +751,7 @@ function emit_NewExpr(out, expr)
         out.print(")");
     }
     else if (value.isstring()) {
-        string name = value.getasquoted();
-        switch (name) {
-          case "FileHandle":
-            out.print(Type_PMC, "(new ", Type_FileHandle, "())");
-            break;
-          default:
-            out.print(Type_PMC, "(new ", Type_Instance, "(\"", name, "\"))");
-        }
+        out.print("wxx_new_string(\"", value.getasquoted(), "\")");
     }
     else {
         if (__DEBUG__) cry("In new expression:");
@@ -775,7 +767,7 @@ function emit_NewIndexedExpr(out, expr)
 
     // TESTING
     string name = key[0];
-    out.print(Type_PMC, "(new ", Type_Instance, "(\"", name, "\"))");
+    out.print("wxx_new_string(\"", name, "\")");
 }
 
 function emit_OpAssignExpr(out, assignexpr)

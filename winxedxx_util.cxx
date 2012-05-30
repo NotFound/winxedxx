@@ -1,5 +1,5 @@
 // winxedxx_util.cxx
-// (C) 2011 Julián Albo
+// (C) 2011-2012 Julián Albo
 
 #include "winxedxx_types.h"
 #include "winxedxx_object.h"
@@ -221,6 +221,38 @@ std::string wxx_escape(const std::string &src)
         }
     }
     return oss.str();
+}
+
+WxxObjectPtr wxx_new(const std::string &name)
+{
+    //std::cerr << "wxx_new " << name << '\n';
+    return new WxxInstance(name);
+}
+
+WxxObjectPtr wxx_new(const std::string &name, WxxObjectArray args)
+{
+    //std::cerr << "wxx_new " << name << '\n';
+    WxxInstance *instance = new WxxInstance(name);
+    WxxObjectPtr obj(instance);
+    instance->call_method(name, args);
+    return obj;
+}
+
+WxxObjectPtr wxx_new_string(const std::string &name)
+{
+    // Sepcial cases for parrot PMC names
+    if (name == "Integer")
+        return new WxxInteger(0);
+    if (name == "Float")
+        return new WxxFloat(0.0);
+    if (name == "String")
+        return new WxxString("");
+    if (name == "Hash")
+        return new WxxHash();
+    if (name == "FileHandle")
+        return new WxxFileHandle();
+
+    return wxx_new(name);
 }
 
 WxxObjectPtr wxx_open(const std::string &filename)
