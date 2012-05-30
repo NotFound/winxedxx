@@ -7,6 +7,7 @@
 #include "winxedxx_integer.h"
 #include "winxedxx_handle.h"
 
+#include <iostream>
 #include <sstream>
 
 #include <stdlib.h>
@@ -91,6 +92,110 @@ std::string wxx_repeat_string(std::string s, int n)
     return result;
 }
 
+//*********** operator + ****************
+
+int wxx_add(int i1, int i2)
+{
+    return i1 + i2;
+}
+
+double wxx_add(double f1, double f2)
+{
+    return f1 + f2;
+}
+
+double wxx_add(double f1, int  i2)
+{
+    return f1 + i2;
+}
+
+double wxx_add(int i1, double f2)
+{
+    return i1 + f2;
+}
+
+std::string wxx_add(int i1, std::string s2)
+{
+    return wxx_string_cast(i1) + s2;
+}
+
+std::string wxx_add(std::string s1, int i2)
+{
+    return s1 + wxx_string_cast(i2);
+}
+
+WxxObjectPtr wxx_add(int i1, const WxxObjectPtr &o2)
+{
+    return i1 + int(o2);
+}
+
+WxxObjectPtr wxx_add(const WxxObjectPtr &o1, int i2)
+{
+    return int(o1) + i2;
+}
+
+//*********** operator - ****************
+
+int wxx_sub(int i1, int i2)
+{
+    return i1 - i2;
+}
+
+double wxx_sub(double f1, double f2)
+{
+    return f1 - f2;
+}
+
+double wxx_sub(double f1, int  i2)
+{
+    return f1 - i2;
+}
+
+double wxx_sub(int i1, double f2)
+{
+    return i1 - f2;
+}
+
+WxxObjectPtr wxx_sub(int i1, const WxxObjectPtr &o2)
+{
+    return i1 - int(o2);
+}
+
+WxxObjectPtr wxx_sub(const WxxObjectPtr &o1, int i2)
+{
+    return int(o1) - i2;
+}
+
+//******************************************************
+
+int wxx_print(int i) { std::cout << i; return 0; }
+int wxx_print(const std::string &s) { std::cout << s; return 0; }
+int wxx_print(double n) { std::cout << n; return 0; }
+int wxx_print(WxxObjectPtr obj) { std::cout << obj.get_string(); return 0; }
+
+int wxx_eprint(int i) { std::cerr << i; return 0; }
+int wxx_eprint(const std::string &s) { std::cerr << s; return 0; }
+int wxx_eprint(double n) { std::cerr << n; return 0; }
+int wxx_eprint(WxxObjectPtr obj) { std::cerr << obj.get_string(); return 0; }
+
+int wxx_instanceof(WxxObjectPtr &obj, const std::string &type)
+{
+    return obj.instanceof(type);
+}
+int wxx_isnull(WxxObjectPtr obj)
+{
+    return obj.is_null();
+}
+
+int wxx_booland(int li, int ri)
+{
+    return li ? ri : li;
+
+}
+int wxx_boolor(int li, int ri)
+{
+    return li ? li : ri;
+}
 
 WxxObjectPtr wxx_error(const std::string &message)
 {
@@ -199,6 +304,39 @@ std::string wxx_chomp(const std::string &src)
         if (src[l - 1] == '\n')
             return src.substr(0, l - 1);
     return src;
+}
+
+WxxObjectPtr wxx_typeof(WxxObjectPtr &thing)
+{
+    // Bogus implementation that allows some tests
+    return thing.class_name();
+}
+
+std::string wxx_join(const std::string &sep, const WxxObjectPtr &arr)
+{
+    std::string result;
+    int n = arr.elements();
+    for (int i = 0; i < n; ++i)
+    {
+        if (i > 0)
+            result += sep;
+        result += arr.get_string_keyed(i);
+    }
+    return result;
+}
+
+WxxObjectPtr wxx_split(const std::string &sep, std::string src)
+{
+    WxxObjectPtr result(new WxxStringArray());
+    std::string::size_type l = sep.length();
+    std::string::size_type pos = 0;
+    while ((pos = src.find(sep)) != std::string::npos)
+    {
+        result.push(src.substr(0, pos));
+        src.erase(0, pos + l);
+    }
+    result.push(src);
+    return result;
 }
 
 std::string wxx_escape(const std::string &src)
