@@ -144,12 +144,12 @@ function WxxError(string message)
 function WxxUnsupported(thing, string msg[optional])
 {
     if (msg == null) {
-        if (thing instanceof 'String')
+        if (thing instanceof "String")
             msg = thing;
         else
             msg = typeof(thing);
     }
-    string filename = '';
+    string filename = "";
     int line = 0;
     string desc;
     try {
@@ -199,19 +199,19 @@ function bindlast(func, arglast[slurpy])
 
 // Types
 
-const string DATA = '__data';
+const string DATA = "__data";
 
 const string
     // Parrot types
-    REGint      = 'I',
-    REGfloat    = 'N',
-    REGstring   = 'S',
-    REGvar      = 'P',
+    REGint      = "I",
+    REGfloat    = "N",
+    REGstring   = "S",
+    REGvar      = "P",
     // Generated types
-    Type_Int    = 'int',
-    Type_Num    = 'double',
-    Type_String = 'std::string',
-    Type_PMC    = 'WxxObjectPtr';
+    Type_Int    = "int",
+    Type_Num    = "double",
+    Type_String = "std::string",
+    Type_PMC    = "WxxObjectPtr";
 
 function generatedType(string ptype)
 {
@@ -227,37 +227,42 @@ function generatedType(string ptype)
 
 // Helper C++ functions
 
+const string ARGSEP = ", ";
+
 const string
-    INDEXOF = "wxx_indexof",
-    ORD     = "wxx_ord",
-    PRINT   = "wxx_print",
-    EPRINT  = "wxx_eprint";
+    INTCAST    = "wxx_int_cast",
+    NUMCAST    = "wxx_num_cast",
+    STRINGCAST = "wxx_string_cast",
+    INDEXOF    = "wxx_indexof",
+    ORD        = "wxx_ord",
+    PRINT      = "wxx_print",
+    EPRINT     = "wxx_eprint";
 
 //**************************************************************
 
 function strtoxx(string str)
 {
-    string result = '';
+    string result = "";
     str = unescape(str);
     for (string c in str) {
         switch (c) {
-          case '"':
-          case '\':
-            result += '\' + c; break;
+          case "\"":
+          case "\\":
+            result += "\\" + c; break;
           case "\t":
-            result += '\t'; break;
+            result += "\\t"; break;
           case "\r":
-            result += '\r'; break;
+            result += "\\r"; break;
           case "\n":
-            result += '\n'; break;
+            result += "\\n"; break;
           default:
             int code = ord(c);
             if (code < 32)
-                result += '\x' + substr(("0" + string(code.get_as_base(16))), -2);
+                result += "\\x" + substr(("0" + string(code.get_as_base(16))), -2);
             else if (code > 65535)
-                result += '\U' + substr(("0000000" + string(code.get_as_base(16))), -8);
+                result += "\\U" + substr(("0000000" + string(code.get_as_base(16))), -8);
             else if (code > 127)
-                result += '\u' + substr(("000" + string(code.get_as_base(16))), -4);
+                result += "\\u" + substr(("000" + string(code.get_as_base(16))), -4);
             else
                 result += c;
         }
@@ -280,12 +285,12 @@ function stringtoxx(literal)
 
 function nciitemtoc(string item)
 {
-    switch (item)
+   switch (item)
     {
-      case 'i':
-        return 'int';
-      case 'v':
-        return 'int'; // Allow void to return something
+      case "i":
+        return Type_Int;
+      case "v":
+        return Type_Int; // Allow void to return something
       default:
         throw Error("signature unsupported: " + item);
     }
@@ -295,10 +300,10 @@ function ncisigtoc(string sig)
 {
     string csig = nciitemtoc(sig[0]);
     csig += "(*)(";
-    string sep = '';
+    string sep = "";
     for (string item in substr(sig, 1)) {
         csig += sep;
-        sep = ", ";
+        sep = ARGSEP;
         csig += nciitemtoc(item);
     }
     csig += ")";
@@ -318,7 +323,7 @@ function emit_plainfun2(var out, string name, var arg1, var arg2)
 {
     out.print(name, "(");
     emit_expr(out, arg1);
-    out.print(", ");
+    out.print(ARGSEP);
     emit_expr(out, arg2);
     out.print(")");
 }
@@ -338,7 +343,7 @@ function emit_builtin_print(out, args)
         var argexp = arg.arg;
         out.print(PRINT);
         emit_expr(out, argexp);
-        out.print(", ");
+        out.print(ARGSEP);
     }
     out.print("0");
 }
@@ -349,7 +354,7 @@ function emit_builtin_say(out, args)
         var argexp = arg.arg;
         out.print(PRINT);
         emit_expr(out, argexp);
-        out.print(", ");
+        out.print(ARGSEP);
     }
     out.print(PRINT + "(\"\\n\"), 0");
 }
@@ -360,7 +365,7 @@ function emit_builtin_cry(out, args)
         var argexp = arg.arg;
         out.print(EPRINT);
         emit_expr(out, argexp);
-        out.print(", ");
+        out.print(ARGSEP);
     }
     out.print(EPRINT + "(\"\\n\"), 0");
 }
@@ -371,7 +376,7 @@ function emit_builtin_ord(out, args)
     out.print(ORD + "(");
     emit_stringexpr(out, args[0].arg);
     if (nargs > 1) {
-        out.print(", ");
+        out.print(ARGSEP);
         emit_intexpr(out, args[1].arg);
     }
     out.print(")");
@@ -382,10 +387,10 @@ function emit_builtin_indexof(out, args)
     int nargs = elements(args);
     out.print(INDEXOF + "(");
     emit_stringexpr(out, args[0].arg);
-    out.print(", ");
+    out.print(ARGSEP);
     emit_stringexpr(out, args[1].arg);
     if (nargs > 2) {
-        out.print(", ");
+        out.print(ARGSEP);
         emit_intexpr(out, args[2].arg);
     }
     out.print(")");
@@ -405,183 +410,183 @@ function emit_CallBuiltinExpr(out, expr)
     string type0;
     int i;
     switch (name) {
-      case '__ASSERT__':
+      case "__ASSERT__":
         // No --debug option yet, emit something parseable as an expression
         // that does nothing.
         out.print("(void)0");
         break;
-      case 'string':
-        emit_plainfun1(out, "wxx_string_cast", arg0);
+      case "string":
+        emit_plainfun1(out, STRINGCAST, arg0);
         break;
-      case 'int':
-        emit_plainfun1(out, "wxx_int_cast", arg0);
+      case "int":
+        emit_plainfun1(out, INTCAST, arg0);
         break;
-      case 'float':
-        emit_plainfun1(out, "wxx_num_cast", arg0);
+      case "float":
+        emit_plainfun1(out, NUMCAST, arg0);
         break;
-      case 'typeof':
+      case "typeof":
         out.print("wxx_typeof");
         emit_expr(out, arg0);
         break;
-      case 'getstdin':
-      case 'getstdout':
-      case 'getstderr':
+      case "getstdin":
+      case "getstdout":
+      case "getstderr":
         out.print("wxx_" + name + "()");
         break;
-      case 'print':
+      case "print":
         emit_builtin_print(out, args);
         break;
-      case 'say':
+      case "say":
         emit_builtin_say(out, args);
         break;
-      case 'cry':
+      case "cry":
         emit_builtin_cry(out, args);
         break;
-      case 'elements':
+      case "elements":
         emit_expr(out, arg0);
         out.print(".elements()");
         break;
-      case 'length':
-      case 'bytelength':
+      case "length":
+      case "bytelength":
         emit_plainfun1(out, "wxx_length", arg0);
         break;
-      case 'ord':
+      case "ord":
         emit_builtin_ord(out, args);
         break;
-      case 'chr':
+      case "chr":
         emit_plainfun1(out, "wxx_chr", arg0);
         break;
-      case 'indexof':
+      case "indexof":
         emit_builtin_indexof(out, args);
         break;
-      case 'substr':
+      case "substr":
         type0 = arg0.checkresult();
         emit_stringexpr(out, arg0);
         out.print(".substr(");
         emit_expr(out, arg1);
         if (nargs > 2) {
-            out.print(", ");
+            out.print(ARGSEP);
             emit_expr(out, arg2);
         }
         out.print(")");
         break;
-      case 'chomp':
+      case "chomp":
         emit_plainfun1(out, "wxx_chomp", arg0);
         break;
-      case 'join':
+      case "join":
         emit_plainfun2(out, "wxx_join", arg0, arg1);
         break;
 
-      case 'downcase':
+      case "downcase":
         // Fake implementation, just cast to string the argument
         emit_stringexpr(out, arg0);
         break;
 
-      case 'push':
+      case "push":
         emit_expr(out, arg0);
         out.print(".push");
         emit_expr(out, arg1);
         break;
-      case 'split':
+      case "split":
         emit_plainfun2(out, "wxx_split", arg0, arg1);
         break;
-      case 'die':
+      case "die":
         out.print("wxx_die(");
         emit_expr(out, arg0);
         out.print(")");
         break;
-      case 'Error':
+      case "Error":
         out.print("wxx_error(");
         emit_expr(out, arg0);
         if (nargs > 1) {
-            out.print(", ");
+            out.print(ARGSEP);
             emit_expr(out, arg1);
         }
         if (nargs > 2) {
-            out.print(", ");
+            out.print(ARGSEP);
             emit_expr(out, arg2);
         }
         out.print(")");
         break;
-      case 'open':
+      case "open":
         out.print("WxxObjectPtr((new WxxFileHandle())->open(");
         emit_expr(out, arg0);
         if (nargs > 1) {
-            out.print(", ");
+            out.print(ARGSEP);
             emit_expr(out, arg1);
         }
         out.print("))");
         break;
-      case 'loadlib':
-        emit_plainfun1(out, 'wxx_loadlib', arg0);
+      case "loadlib":
+        emit_plainfun1(out, "wxx_loadlib", arg0);
         break;
-      case 'dlfunc':
+      case "dlfunc":
         var sig = arg2;
         if (! sig.isstringliteral())
             throw Error("dlfunc siganture must be compile time constant");
         int nsigargs = length(sig.strval.rawstring()) - 1;
         string csig = ncisigtoc(sig.strval.rawstring());
 
-        out.print("wxx_dlfunc<", csig, ", ", string(nsigargs), ">(");
+        out.print("wxx_dlfunc<", csig, ARGSEP, string(nsigargs), ">(");
         emit_expr(out, arg0);
-        out.print(", ");
+        out.print(ARGSEP);
         emit_expr(out, arg1);
         out.print(")");
         break;
-      case 'spawnw':
-        emit_plainfun1(out, 'wxx_spawnw', arg0);
+      case "spawnw":
+        emit_plainfun1(out, "wxx_spawnw", arg0);
         break;
-      case 'exit':
-        emit_plainfun1(out, 'exit', arg0);
+      case "exit":
+        emit_plainfun1(out, "exit", arg0);
         break;
-      case 'sin':
-      case 'cos':
-      case 'tan':
-      case 'asin':
-      case 'acos':
-      case 'atan':
-      case 'exp':
-      case 'sqrt':
+      case "sin":
+      case "cos":
+      case "tan":
+      case "asin":
+      case "acos":
+      case "atan":
+      case "exp":
+      case "sqrt":
         emit_plainfun1(out, name, arg0);
         break;
-      case 'ln':
-        emit_plainfun1(out, 'log', arg0);
+      case "ln":
+        emit_plainfun1(out, "log", arg0);
         break;
 
-      case 'time':
-        emit_callbuiltin_void(out, 'wxx_time');
+      case "time":
+        emit_callbuiltin_void(out, "wxx_time");
         break;
-      case 'floattime':
-        emit_callbuiltin_void(out, 'wxx_floattime');
+      case "floattime":
+        emit_callbuiltin_void(out, "wxx_floattime");
         break;
-      case 'sleep':
-        emit_plainfun1(out, 'wxx_sleep', arg0);
+      case "sleep":
+        emit_plainfun1(out, "wxx_sleep", arg0);
         break;
 
       // Unsupported, always return null
-      case 'load_bytecode':
-      case 'load_language':
-      case 'compreg':
-      case 'getinterp':
+      case "load_bytecode":
+      case "load_language":
+      case "compreg":
+      case "getinterp":
         out.print("winxedxxnull");
         break;
 
       // Unimplemented, just to allow some testing
-      case 'clone':
+      case "clone":
         emit_expr(out, arg0);
         break;
 
       // Unimplemented, just to allow some testing
-      case 'get_class':
+      case "get_class":
         out.print("winxedxxnull");
         break;
 
-      case 'escape':
-        emit_plainfun1(out, 'wxx_escape', arg0);
+      case "escape":
+        emit_plainfun1(out, "wxx_escape", arg0);
         break;
 
       // Unimplemented, just to allow some testing
-      case 'unescape':
+      case "unescape":
         emit_expr(out, arg0);
         break;
 
@@ -626,7 +631,7 @@ function emit_CallMemberExpr(out, callexpr)
         out.print(")");
     out.print(".call_method(\"", funref.right.getidentifier(), "\"");
     if (nargs > 0) {
-        out.print(", ");
+        out.print(ARGSEP);
         emit_callargs(out, args);
     }
     out.print(")");
@@ -686,7 +691,7 @@ function emit_HashExpr(out, expr)
     for (i = 0; i < n; ++i) {
         out.print(".set(");
         emit_expr(out, keys[i]);
-        out.print(", ");
+        out.print(ARGSEP);
         emit_expr(out, values[i]);
         out.print(")");
     }
@@ -712,7 +717,7 @@ function emit_NewExpr(out, expr)
         int numinits = initializer == null ? -1 : initializer.numargs();
         out.print("wxx_new(\"", value, "\"");
         if (numinits >= 0) {
-            out.print(", ");
+            out.print(ARGSEP);
             emit_callargs(out, initializer);
         }
         out.print(")");
@@ -720,7 +725,7 @@ function emit_NewExpr(out, expr)
     else if (value.isstring()) {
         string name = value.getasquoted();
         switch (name) {
-          case 'FileHandle':
+          case "FileHandle":
             out.print("WxxObjectPtr(new WxxFileHandle())");
             break;
           default:
@@ -754,19 +759,19 @@ function emit_OpAssignExpr(out, assignexpr)
         out.print(lexpr.name, " = ");
         switch {
           case ltype == REGstring && rtype == REGint:
-            out.print('wxx_string_cast');
+            out.print(STRINGCAST);
             emit_expr(out, rexpr);
             break;
           case ltype == REGint && rtype == REGstring:
-            out.print('wxx_int_cast');
+            out.print(INTCAST);
             emit_expr(out, rexpr);
             break;
           case ltype == REGstring && rtype == REGfloat:
-            out.print('wxx_string_cast');
+            out.print(STRINGCAST);
             emit_expr(out, rexpr);
             break;
           case ltype == REGfloat && rtype == REGstring:
-            out.print('wxx_num_cast');
+            out.print(NUMCAST);
             emit_expr(out, rexpr);
             break;
           default:
@@ -792,7 +797,7 @@ function emit_OpAssignExpr(out, assignexpr)
         var arg = lexpr.args.getarg(0);
         out.print(".set_pmc_keyed(");
         emit_expr(out, arg);
-        out.print(", ");
+        out.print(ARGSEP);
         emit_expr(out, rexpr);
         out.print(")");
     }
@@ -832,13 +837,13 @@ function emit_InstanceOfExpr(out, instanceofexpr)
     var checked = instanceofexpr.checked;
     out.print("wxx_instanceof(");
     emit_expr(out, lexpr);
-    out.print(", ");
+    out.print(ARGSEP);
     if (checked instanceof ClassSpecifierStr)
-        out.print('"', checked.name.getasquoted(), '"');
+        out.print("\"", checked.name.getasquoted(), "\"");
     else if (checked instanceof ClassSpecifierId)
-        out.print('"', checked.last(), '"');
+        out.print("\"", checked.last(), "\"");
     else
-        out.print('"', tokstringtoxx(checked), '"');
+        out.print("\"", tokstringtoxx(checked), "\"");
     out.print(")");
 }
 
@@ -901,7 +906,7 @@ function emit_RepeatString(out, expr)
 {
     out.print("wxx_repeat_string(");
     emit_expr(out, expr.lexpr);
-    out.print(", ");
+    out.print(ARGSEP);
     emit_expr(out, expr.rexpr);
     out.print(")");
 }
@@ -1000,7 +1005,7 @@ function emit_OpBoolOrExpr(out, lessexpr)
 {
     out.print("wxx_boolor(");
     emit_expr(out, lessexpr.lexpr);
-    out.print(", ");
+    out.print(ARGSEP);
     emit_expr(out, lessexpr.rexpr);
     out.print(")");
 }
@@ -1009,7 +1014,7 @@ function emit_OpBoolAndExpr(out, lessexpr)
 {
     out.print("wxx_booland(");
     emit_expr(out, lessexpr.lexpr);
-    out.print(", ");
+    out.print(ARGSEP);
     emit_expr(out, lessexpr.rexpr);
     out.print(")");
 }
@@ -1043,9 +1048,9 @@ function emit_IndexExpr(out, expr)
     emit_expr(out, left);
     var arg = expr.args.getarg(0);
     if (left.checkresult() == REGstring) {
-        out.print('.substr(');
+        out.print(".substr(");
         emit_expr(out, arg);
-        out.print(', 1)');
+        out.print(", 1)");
     }
     else {
         out.print(".get_pmc_keyed");
@@ -1058,9 +1063,9 @@ function emit_StringIndexExpr(out, expr)
     var left = expr.left;
     emit_expr(out, left);
     var arg = expr.arg;
-    out.print('.substr(');
+    out.print(".substr(");
     emit_expr(out, arg);
-    out.print(', 1)');
+    out.print(", 1)");
 }
 
 function emit_OpExistsExpr(out, expr)
@@ -1133,9 +1138,9 @@ function emit_expr(out, expr)
     else if (expr instanceof FloatLiteral)
         out.print(expr.numval);
     else if (expr instanceof StringLiteral) {
-        out.print(Type_String + '("');
+        out.print(Type_String + "(\"");
         out.print(stringtoxx(expr));
-        out.print('")');
+        out.print("\")");
     }
     else if (expr instanceof NewExpr)
         emit_NewExpr(out, expr);
@@ -1158,23 +1163,23 @@ function emit_expr(out, expr)
     else if (expr instanceof OpInstanceOfExpr)
         emit_InstanceOfExpr(out, expr);
     else if (expr instanceof OpPreIncExpr) {
-        out.print('++');
+        out.print("++");
         emit_expr(out, expr.subexpr);
     }
     else if (expr instanceof OpPreDecExpr) {
-        out.print('--');
+        out.print("--");
         emit_expr(out, expr.subexpr);
     }
     else if (expr instanceof OpPostIncExpr) {
         emit_expr(out, expr.subexpr);
-        out.print('++');
+        out.print("++");
     }
     else if (expr instanceof OpPostDecExpr) {
         emit_expr(out, expr.subexpr);
-        out.print('--');
+        out.print("--");
     }
     else if (expr instanceof OpUnaryMinusExpr) {
-        out.print('-');
+        out.print("-");
         emit_expr(out, expr.subexpr);
     }
     else if (expr instanceof OpAddExpr)
@@ -1208,15 +1213,15 @@ function emit_expr(out, expr)
     else if (expr instanceof OpBoolAndExpr)
         emit_OpBoolAndExpr(out, expr);
     else if (expr instanceof OpBinOrExpr)
-        emit_commonop(out, expr, '|');
+        emit_commonop(out, expr, "|");
     else if (expr instanceof OpBinAndExpr)
-        emit_commonop(out, expr, '&');
+        emit_commonop(out, expr, "&");
     else if (expr instanceof OpBinXorExpr)
-        emit_commonop(out, expr, '^');
+        emit_commonop(out, expr, "^");
     else if (expr instanceof OpShiftrightExpr)
-        emit_commonop(out, expr, '>>');
+        emit_commonop(out, expr, ">>");
     else if (expr instanceof OpShiftleftExpr)
-        emit_commonop(out, expr, '<<');
+        emit_commonop(out, expr, "<<");
     else if (expr instanceof OpModExpr)
         emit_commonop(out, expr, "%");
     else if (expr instanceof OpCModExpr)
@@ -1294,7 +1299,7 @@ function emit_nativetypestatement(out, st, string simpletype, string nullinit)
             switch (inittype) {
               case Type_Int:
               case Type_Num:
-                out.print("wxx_string_cast");
+                out.print(STRINGCAST);
                 break;
             }
             break;
@@ -1345,7 +1350,7 @@ function emit_ifstatement(out, ifst)
 {
     var truebranch = ifst.truebranch;
     var falsebranch = ifst.falsebranch;
-    out.print('if ');
+    out.print("if ");
     emit_expr(out, ifst.condexpr);
     out.print("\n{\n");
     if (! truebranch.isempty())
@@ -1416,7 +1421,7 @@ function emit_SwitchCaseStatement(out, switchst)
 
 function emit_whilestatement(out, whilest)
 {
-    out.print('while ');
+    out.print("while ");
     emit_expr(out, whilest.condexpr);
     out.print("\n{\n");
     emit_statement(out, whilest.body);
@@ -1494,7 +1499,7 @@ function emit_foreachstatement(out, forst)
         out.print(")");
 
     out.print(".get_iter();\nwhile (bool(wxx_it)) {\n");
-    string type = forst.deftype == null ? '' : string(forst.deftype);
+    string type = forst.deftype == null ? "" : string(forst.deftype);
 
     if (indexof("INSP", type) >= 0)
         out.print(string(generatedType(type)) + " ");
@@ -1553,7 +1558,7 @@ function emit_UsingStatement(out, st)
     if (st.subid != null) {
         var path = st.path;
         string name = path[-1];
-        out.print('static WxxObjectPtr (*const ', name,
+        out.print("static WxxObjectPtr (*const ", name,
             ")(const WxxObjectArray &wxx_fun_args) =  ", st.subid);
     }
 }
@@ -1571,7 +1576,7 @@ function emit_statement(out, st)
     else if (st instanceof FloatStatement)
         emit_nativetypestatement(out, st, Type_Num, "0.0");
     else if (st instanceof StringStatement)
-        emit_nativetypestatement(out, st, Type_String, '""');
+        emit_nativetypestatement(out, st, Type_String, "\"\"");
     else if (st instanceof IntArrayStatement)
         emit_nativearraystatement(out, st, "Integer");
     else if (st instanceof FloatArrayStatement)
@@ -1632,13 +1637,13 @@ function emit_statement(out, st)
 function emit_declare_function(out, funst)
 {
     string name = funst.name;
-    out.print('WxxObjectPtr ', name, "(const WxxObjectArray &wxx_fun_args);\n");
+    out.print("WxxObjectPtr ", name, "(const WxxObjectArray &wxx_fun_args);\n");
 }
 
 function emit_declare_method(out, funst)
 {
     string name = funst.name;
-    out.print('static WxxObjectPtr ');
+    out.print("static WxxObjectPtr ");
 
     int isconstructor = false;
     var cl = funst.owner;
@@ -1648,7 +1653,7 @@ function emit_declare_method(out, funst)
     if (! isconstructor)
         out.print(name);
     else
-        out.print('__Winxedxx_constructor');
+        out.print("__Winxedxx_constructor");
     out.print("(WxxObjectPtr &, const WxxObjectArray &wxx_fun_args);\n");
 }
 
@@ -1658,7 +1663,7 @@ function emit_declare_function_subid(out, funst, key)
 
     string name = funst.name;
     if (funst.subid != null) {
-        out.print('static WxxObjectPtr (*const ');
+        out.print("static WxxObjectPtr (*const ");
         out.print(funst.subid);
         out.print(")(const WxxObjectArray &wxx_fun_args) =  &");
         if (elements(key) > 0)
@@ -1881,7 +1886,7 @@ function emit_FunctionStatement(out, funst, string prefix[optional])
                 bindlast(bindfirst(emit_declare_local, out), dataname));
     }
 
-    out.print('WxxObjectPtr ');
+    out.print("WxxObjectPtr ");
     if (prefix != null)
         out.print(prefix);
     out.print(newname);
@@ -1929,7 +1934,7 @@ static WxxClass * init_class()
     WxxClass *cl = new WxxClass(
 CLINIT:>>
     );
-    out.print('"' + name + '"');
+    out.print("\"" + name + "\"");
     out.print(<<:CLINIT
         );
 CLINIT:>>
@@ -2062,8 +2067,8 @@ function get_main(ns)
     var functions = ns.funcont.functions;
     var result = find_if(functions, function(string name) {
         var modifiers = functions[name].modifiers;
-        return (modifiers != null && modifiers.pick('main') != null) ||
-                name == 'main';
+        return (modifiers != null && modifiers.pick("main") != null) ||
+                name == "main";
     });
     return result != null ? string(result) : "";
 }
@@ -2115,7 +2120,7 @@ HEADER:>>
 FOOTER1:>>
     );
 
-    if (mainfunc != '') {
+    if (mainfunc != "") {
         out.print(<<:FOOTER2
 int main(int argc, char **argv)
 {
@@ -2167,20 +2172,20 @@ function get_winxed_compiler()
     // Use the env var WINXED_PATH or set the parrot library path.
     var winxed;
     try {
-        winxed = load_language('winxed');
+        winxed = load_language("winxed");
     } catch () { }
     if (winxed == null) {
-        string stagefile = 'winxedst2.pbc';
+        string stagefile = "winxedst2.pbc";
         try {
-            var env = new 'Env';
-            string path = env['WINXED_PATH'];
-            if (path != null && path != '') {
-                if (substr(path, -1) != '/')
-                    path += '/';
+            var env = new [ "Env" ];
+            string path = env["WINXED_PATH"];
+            if (path != null && path != "") {
+                if (substr(path, -1) != "/")
+                    path += "/";
                 stagefile = path + stagefile;
             }
             load_bytecode(stagefile);
-            winxed = compreg('winxed');
+            winxed = compreg("winxed");
         }
         catch (e)
         {
@@ -2195,12 +2200,12 @@ function winxedxx_cxx(string cxxfile, string outfile)
     int r = spawnw( [
         "g++", "-g", "-Wall", "-O2", "-I.", "-o",
         outfile, cxxfile,
-        'winxedxx_objectptr.o',
-        'winxedxx_null.o',
-        'winxedxx_default.o',
-        'winxedxx_classes.o',
-        'winxedxx_handle.o',
-        'winxedxx_util.o',
+        "winxedxx_objectptr.o",
+        "winxedxx_null.o",
+        "winxedxx_default.o",
+        "winxedxx_classes.o",
+        "winxedxx_handle.o",
+        "winxedxx_util.o",
         "-ldl"
     ] );
     r = (r >> 8) & 0xFF;
@@ -2213,46 +2218,46 @@ function winxedxx_compile(options)
     if (winxed == null)
         throw WxxError("Can't load winxed compiler");
 
-    string sourcefile = options['sourcefile'];
+    string sourcefile = options["sourcefile"];
     var parsed = winxed.compile_from_file(sourcefile,
-        'parse':[named('target')]
+        "parse":[named("target")]
     );
 
-    string outfile = options['outfile'];
+    string outfile = options["outfile"];
     if (outfile == null)
-        outfile = '';
+        outfile = "";
     string cxxfile = outfile;
     var target = options["target"];
-    if (target == null || target == '')
-        target = 'cxx';
+    if (target == null || target == "")
+        target = "cxx";
     switch (target) {
-      case 'exe':
-      case 'run':
-        if (outfile == '') {
-            outfile = sourcefile + '.exe';
-            cxxfile = sourcefile + '.cxx';
+      case "exe":
+      case "run":
+        if (outfile == "") {
+            outfile = sourcefile + ".exe";
+            cxxfile = sourcefile + ".cxx";
         }
         else
-            cxxfile = outfile + '.cxx';
+            cxxfile = outfile + ".cxx";
         break;
-      case 'cxx':
+      case "cxx":
         /* Nothing in particular */
         break;
       default:
         throw WxxError("Invalid target type: " + string(target));
     }
-    var out = cxxfile != '' ?
+    var out = cxxfile != "" ?
         open(cxxfile, "w") :
         getstdout();
     emit(out, parsed);
-    if (cxxfile != '')
+    if (cxxfile != "")
         out.close();
     int r = 0;
     switch (target) {
-      case 'exe':
+      case "exe":
         r = winxedxx_cxx(cxxfile, outfile);
         break;
-      case 'run':
+      case "run":
         r = winxedxx_cxx(cxxfile, outfile);
         if (r != 0)
             break;
@@ -2265,7 +2270,7 @@ function winxedxx_compile(options)
 
 //**********************************************************************
 
-$load 'Getopt/Obj.pbc';
+$load "Getopt/Obj.pbc";
 
 class WinxedxxOptions : ["Getopt", "Obj" ]
 {
