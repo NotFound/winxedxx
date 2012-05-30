@@ -1,0 +1,292 @@
+#! winxed
+// winxedxc.winxed
+// Winxed extern compiler
+
+/*
+
+    This is the frontend. It parses options, load winxed compiler
+and modules, call external compilers and linkers and eventually
+executes the result.
+
+    This version works only with g++ and a fixed set of options.
+
+*/
+
+$include "winxedxx.winxhead";
+$load "winxedxx.pbc";
+
+//**************************************************************
+
+function get_winxed_compiler()
+{
+    // Load language module and compreg it, exit with error if not found.
+    var winxed = null;
+    try
+        winxed = load_language("winxed");
+    catch () { }
+    if (winxed == null) {
+        cry("Cannot load language");
+        exit(1);
+    }
+    return winxed;
+}
+
+function load_winxed_stage(string stage)
+{
+    // Load and compreg a winxed stage
+    var module;
+    try
+        module = load_packfile(stage);
+    catch () { }
+    if (module == null) {
+        cry("Cannot load stage '", stage, "'");
+        exit(1);
+    }
+
+    try {
+        for (var loadsub in module.subs_by_tag("load"))
+            loadsub();
+    }
+    catch (e) {
+        cry("Error loading stage '", stage, "':");
+        cry(e.message);
+        exit(1);
+    }
+
+    var winxed;
+    try
+        winxed = new ["Winxed", "Compiler", "WinxedHLL" ];
+    catch () { }
+    if (winxed == null) {
+        cry("Winxed compiler not found in '", stage, "'");
+        exit(1);
+    }
+    return winxed;
+}
+
+//**************************************************************
+
+/*
+    C++ compiler wrapper.
+    Methods:
+      compile - compile a C++ source file to an object file.
+      link    - link one or more object files with the winxedxx runtime.
+*/
+
+class CompilerCxx
+{
+    function compile(string cxxfile, string outfile)
+    {
+        int r = spawnw( [
+            "g++",
+            "-g", "-Wall", "-O2", "-I.",
+            "-o", outfile,
+            "-c", cxxfile
+        ] );
+        r = (r >> 8) & 0xFF;
+        return r;
+    }
+    function link(string outfile, var objs)
+    {
+        string args[] = [
+            "g++",
+            "-g", "-Wall", "-O2", "-I.",
+            "-o", outfile
+        ];
+        string winxedxxobjs[] = [
+            "winxedxx_objectptr.o",
+            "winxedxx_null.o",
+            "winxedxx_default.o",
+            "winxedxx_classes.o",
+            "winxedxx_handle.o",
+            "winxedxx_util.o"
+        ];
+        for (string obj in objs)
+            push(args, obj);
+        for (string wxxobj in winxedxxobjs)
+            push(args, wxxobj);
+        push(args, "-ldl");
+
+        int r = spawnw(args);
+        r = (r >> 8) & 0xFF;
+        return r;
+    }
+}
+
+//**************************************************************
+
+$load "Getopt/Obj.pbc";
+
+class WinxedxcOptions : ["Getopt", "Obj" ]
+{
+    var name;
+    var options;
+    var opts;
+    function WinxedxcOptions(argv)
+    {
+        self.options = [
+          [ "o=s",       "Object name" ],
+          [ "target=s",  "Set target type: cxx, exe or run. Default is cxx." ],
+          [ "stage=s",   "Use a compiler stage instead of default." ],
+          [ "verbose=i", "Talk a lot" ]
+        ];
+        for (var o in self.options)
+            self.push_string(o[0]);
+        self.notOptStop(1);
+        self.name = argv.shift();
+        self.opts = self.get_options(argv);
+    }
+    function getstring(string option, string default_value[optional])
+    {
+        var value = self.opts[option];
+        return value != null ? string(value) : default_value;
+    }
+    function getint(string option, int default_value[optional])
+    {
+        var value = self.opts[option];
+        return value != null ? int(value) : default_value;
+    }
+}
+
+//**************************************************************
+
+function winxed_compile(var winxed, string sourcefile, var outhandle)
+{
+/*
+        Compile a winxed source to pir.
+*/
+    var parsed = winxed.compile_from_file(sourcefile,
+        "parse":[named("target")]
+    );
+    var output = new Output(outhandle);
+    output.emit(parsed);
+}
+
+//**************************************************************
+
+// Helper functions
+
+function getExtension(string filename)
+{
+/*
+        Get the extension from file name.
+        Return null string if no dot, empty string if the dot is the last
+        character.
+*/
+    for (int pos = length(filename); pos > 0; --pos) {
+        string c = filename[pos - 1];
+        switch (c) {
+          case "/":
+            return string(null);
+          case ".":
+            return substr(filename, pos);
+        }
+    }
+    return string(null);
+}
+
+function is_relative(string path)
+{
+    int l = length(path);
+    if (l == 0)
+        return true;
+    string c = path[0];
+    switch (c) {
+      case "/":
+        return false;
+      case ".":
+        if (l == 1)
+            return false;
+        c = path[1];
+        return c != "." && c != "/";
+      default:
+        return true;
+    }
+}
+
+//**************************************************************
+
+function main [main](var argv)
+{
+    var cloptions = new WinxedxcOptions(argv);
+    string target  = cloptions.getstring("target");
+    string outfile = cloptions.getstring("o");
+    string stage   = cloptions.getstring("stage");
+    int    verbose = cloptions.getint("verbose");
+
+    var winxed = stage == null ?
+            get_winxed_compiler() :
+            load_winxed_stage(stage);
+    if (verbose)
+        say("Using winxed ", winxed.version_string());
+
+    int argc = elements(argv);
+    if (argc < 1)
+        throw Error("No source files");
+
+    string cxxfiles[];
+    string objfiles[];
+
+    while (elements(argv) > 0) {
+        string sourcefile = argv.shift();
+        if (sourcefile == "--")
+          break;
+        string ext = getExtension(sourcefile);
+        switch (ext) {
+          case "winxed":
+            if (verbose)
+                say("Compiling winxed: ", sourcefile);
+            string cxxfile = substr(sourcefile, 0, length(sourcefile) - 7) +
+                    ".cxx";
+            var cxxout = open(cxxfile, "w");
+            winxed_compile(winxed, sourcefile, cxxout);
+            cxxout.close();
+            push(cxxfiles, cxxfile);
+            break;
+          case "cxx":
+            push(cxxfiles, sourcefile);
+            break;
+          case "o":
+            push(objfiles, sourcefile);
+            break;
+          default:
+            throw "Bad extension: " + ext;
+        }
+    }
+
+    if (target == "cxx")
+        exit(0);
+
+    // Compile the generated C++ to obj.
+    var cxx = new CompilerCxx;
+    for (string cxxfile in cxxfiles) {
+        if (verbose)
+            say("Compiling C++: ", cxxfile);
+        string objfile = substr(cxxfile,  0, length(cxxfile) - 4) + ".o";
+        cxx.compile(cxxfile, objfile);
+        push(objfiles, objfile);
+    }
+
+    // Link and run.
+    if (target == "exe" || target == "run") {
+        if (outfile == null) {
+            // Let's be traditional:
+            outfile = "a.out";
+        }
+        if (verbose)
+            say("Linking: ", outfile);
+        cxx.link(outfile, objfiles);
+        if (target == "run") {
+            if (verbose)
+                say("Run: ", outfile, " ", join(" ", argv));
+            if (is_relative(outfile))
+                outfile = "./" + outfile;
+            string cmd[] = [ outfile ];
+            for (string arg in argv)
+                push(cmd, arg);
+            spawnw(cmd);
+        }
+    }
+}
+
+// End
