@@ -175,17 +175,14 @@ function test_pmc(test)
 function test_array(test)
 {
     var arr = [ "a", "b", "c", "d" ];
-    string clname = typeof(arr);
-    test.is_string(clname, "ResizablePMCArray", "array literal has expected type");
+    test.ok(arr instanceof "ResizablePMCArray", "array literal has expected type");
     test.is(elements(arr), 4, "array literal has expected size");
     test.is_string(arr[2], "c", "array element initialized");
 
     string sarr[] = [ "foo", "bar" ];
-    clname = typeof(sarr);
-    test.is_string(clname, "ResizableStringArray", "string array has expected type");
+    test.ok(sarr instanceof "ResizableStringArray", "string array has expected type");
     int iarr[] = [ 42 ];
-    clname = typeof(iarr);
-    test.is_string(clname, "ResizableIntegerArray", "int array has expected type");
+    test.ok(iarr instanceof "ResizableIntegerArray", "int array has expected type");
 }
 
 function test_hash(test)

@@ -465,6 +465,11 @@ WxxClass::WxxClass(const std::string &name) :
     (*wxxclassreg)[name] = this;
 }
 
+std::string WxxClass::get_string()
+{
+    return clname;
+}
+
 std::string WxxClass::class_name() const
 {
     return clname;
@@ -485,6 +490,23 @@ WxxClass::memberfun WxxClass::getfunction(const std::string &fname)
     return regfun[fname];
 }
 
+WxxObjectPtr WxxClass::get_class()
+{
+    return this;
+}
+
+WxxObjectPtr WxxClass::instantiate()
+{
+    return new WxxInstance(*this);
+}
+
+WxxObjectPtr WxxClass::call_method(const std::string &methname, WxxObjectArray &args)
+{
+    if (methname == "new")
+        return instantiate();
+    else
+        return WxxDefault::call_method(methname, args);
+}
 
 //*************************************************************
 
@@ -496,9 +518,20 @@ WxxInstance::WxxInstance(const std::string &clname) :
         throw wxx_error("class not found: " + clname);
 }
 
+WxxInstance::WxxInstance(WxxClass &classobj) :
+        WxxDefault(classobj.class_name()),
+        cl(& classobj)
+{
+}
+
 std::string WxxInstance::class_name() const
 {
     return cl->class_name();
+}
+
+WxxObjectPtr WxxInstance::get_class()
+{
+    return cl;
 }
 
 WxxObjectPtr WxxInstance::call_method(const std::string &methname, WxxObjectArray &args)

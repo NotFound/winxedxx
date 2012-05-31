@@ -37,6 +37,8 @@ public:
     virtual WxxObjectPtr get_iter() = 0;
     virtual WxxObjectPtr shift_pmc() = 0;
 
+    virtual WxxObjectPtr get_class() = 0;
+    virtual WxxObjectPtr instantiate() = 0;
     virtual WxxObjectPtr operator()(WxxObjectArray &args) = 0;
     virtual WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args) = 0;
 };

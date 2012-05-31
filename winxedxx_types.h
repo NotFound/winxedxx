@@ -97,6 +97,8 @@ public:
     void push(const std::string &str);
     WxxObjectPtr get_iter();
     WxxObjectPtr shift_pmc();
+    WxxObjectPtr get_class();
+    WxxObjectPtr instantiate();
     WxxObjectPtr operator()(const WxxObjectArray &args);
     WxxObjectPtr call_method(const std::string &methname);
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);

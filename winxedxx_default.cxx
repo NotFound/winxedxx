@@ -178,6 +178,19 @@ WxxObjectPtr WxxDefault::shift_pmc()
     return winxedxxnull;
 }
 
+WxxObjectPtr WxxDefault::get_class()
+{
+    //notimplemented("get_class");
+    //return winxedxxnull;
+    return this;
+}
+
+WxxObjectPtr WxxDefault::instantiate()
+{
+    notimplemented("instantiate");
+    return winxedxxnull;
+}
+
 WxxObjectPtr WxxDefault::operator()(WxxObjectArray &args)
 {
     notimplemented("invoke");
@@ -191,7 +204,7 @@ WxxObjectPtr WxxDefault::call_method(const std::string &methname, WxxObjectArray
     return winxedxxnull;
 }
 
-void WxxDefault::notimplemented(const std::string &funcname)
+void WxxDefault::notimplemented(const std::string &funcname) const
 {
     throw wxx_error(funcname + " not implemented in " + name);
 }

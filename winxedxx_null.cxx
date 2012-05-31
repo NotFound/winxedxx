@@ -160,6 +160,18 @@ WxxObjectPtr WxxNull::shift_pmc()
     return winxedxxnull;
 }
 
+WxxObjectPtr WxxNull::get_class()
+{
+    nullaccess("get_class");
+    return winxedxxnull;
+}
+
+WxxObjectPtr WxxNull::instantiate()
+{
+    nullaccess("instantiate");
+    return winxedxxnull;
+}
+
 WxxObjectPtr WxxNull::operator()(WxxObjectArray &args)
 {
     nullaccess("invoke");
@@ -172,7 +184,7 @@ WxxObjectPtr WxxNull::call_method(const std::string &methname, WxxObjectArray &a
     return winxedxxnull;
 }
 
-void WxxNull::nullaccess(const std::string &funcname)
+void WxxNull::nullaccess(const std::string &funcname) const
 {
     throw wxx_error("Null WxxObject in " + funcname);
 }

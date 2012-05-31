@@ -306,8 +306,7 @@ std::string wxx_chomp(const std::string &src)
 
 WxxObjectPtr wxx_typeof(WxxObjectPtr &thing)
 {
-    // Bogus implementation that allows some tests
-    return thing.class_name();
+    return thing.get_class();
 }
 
 std::string wxx_join(const std::string &sep, const WxxObjectPtr &arr)

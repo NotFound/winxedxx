@@ -37,10 +37,12 @@ public:
     void set_attr_str(const std::string &s, const WxxObjectPtr &value);
     WxxObjectPtr get_iter();
     WxxObjectPtr shift_pmc();
+    WxxObjectPtr get_class();
+    WxxObjectPtr instantiate();
     WxxObjectPtr operator()(WxxObjectArray &args);
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
 private:
-    void nullaccess(const std::string &funcname);
+    void nullaccess(const std::string &funcname) const;
 };
 
 

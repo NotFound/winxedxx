@@ -277,6 +277,16 @@ void WxxObjectPtr::push(const std::string &str)
         arr->push(str);
 }
 
+WxxObjectPtr WxxObjectPtr::get_class()
+{
+    return object->get_class();
+}
+
+WxxObjectPtr WxxObjectPtr::instantiate()
+{
+    return object->instantiate();
+}
+
 WxxObjectPtr WxxObjectPtr::operator()(const WxxObjectArray &args)
 {
     return (*object)(const_cast<WxxObjectArray &>(args));

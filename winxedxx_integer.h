@@ -219,11 +219,16 @@ public:
     typedef WxxObjectPtr (*memberfun)(WxxObjectPtr &, const WxxObjectArray &);
 
     WxxClass(const std::string &name);
+    std::string get_string();
+
     std::string class_name() const;
     void addattribute(const std::string &attrname);
     void addfunction(const std::string &fname, memberfun);
     memberfun getfunction(const std::string &fname);
     static WxxClass * getclass(const std::string &name);
+    WxxObjectPtr get_class();
+    WxxObjectPtr instantiate();
+    WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
 private:
     std::string clname;
     std::vector<std::string> attrs;
@@ -234,7 +239,9 @@ class WxxInstance : public WxxDefault
 {
 public:
     WxxInstance(const std::string &clname);
+    WxxInstance(WxxClass &cassobjl);
     std::string class_name() const;
+    WxxObjectPtr get_class();
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
 private:
     WxxClass *cl;
