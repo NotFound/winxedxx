@@ -101,6 +101,7 @@ class CompilerCxx
             "winxedxx_null.o",
             "winxedxx_default.o",
             "winxedxx_classes.o",
+            "winxedxx_scalar.o",
             "winxedxx_handle.o",
             "winxedxx_namespace.o",
             "winxedxx_nci.o",
