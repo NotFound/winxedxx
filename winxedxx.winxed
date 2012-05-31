@@ -2196,7 +2196,6 @@ CXXMAIN2:>>
         const string INITIALIZER = <<:INITIALIZER
 static int initialize()
 {
-    WxxNamespace &rootns = getRootNamespace();
 INITIALIZER:>>
         ;
         const string INITIALIZEREND = <<:INITIALIZEREND
@@ -2205,12 +2204,17 @@ INITIALIZER:>>
 INITIALIZEREND:>>
         ;
         self.print(INITIALIZER);
+        int nsdeclared = false;
         for (var f in rootns.items) {
             if (! (f instanceof FunctionStatement))
                 continue;
             string name = f.name;
             if (f.subid != null) {
-                self.print("rootns.set(\"", name, "\", ",
+                if (! nsdeclared) {
+                    self.print("    WxxNamespace &rootns = getRootNamespace();\n");
+                    nsdeclared = true;
+                }
+                self.print("    rootns.set(\"", name, "\", ",
                     "WxxObjectPtr(", f.subid, ")",
                     ");\n");
             }
