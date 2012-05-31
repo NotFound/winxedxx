@@ -30,7 +30,7 @@ FRONTEND = winxedxc.pbc
 
 #-----------------------------------------------------------------------
 
-default: pbc $(OBJS)
+default: pbc lib
 
 pbc: winxedxx.pbc $(FRONTEND)
 
