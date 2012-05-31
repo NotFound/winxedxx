@@ -2008,60 +2008,60 @@ CLINIT:>>
 
 function emit_namespacest(out, ns)
 {
-    if (! (ns instanceof RootNamespace)) {
-        out.print("namespace ");
-        out.print(ns.name);
-        out.print("\n{\n");
-    }
-
+    var emitit = [];
     var functions = ns.items;
     for (var item in functions) {
         if (item instanceof FunctionStatement)
-            emit_FunctionStatement(out, item);
+            emitit.push(bindlast(emit_FunctionStatement, item));
         else if (item instanceof FunctionExtern)
-            emit_FunctionStatement(out, item);
+            emitit.push(bindlast(emit_FunctionStatement, item));
         else if (item instanceof NamespaceStatement)
-            emit_namespacest(out, item);
+            emitit.push(bindlast(emit_namespacest, item));
         else if (item instanceof ClassStatement)
-            emit_classst(out, item);
+            emitit.push(bindlast(emit_classst, item));
         else if (item instanceof MultiStatement)
-            emit_statement(out, item);
+            emitit.push(bindlast(emit_statement, item));
         else if (item instanceof ConstStatement)
             /* ignored */;
         else
             WxxUnsupported(item);
     }
-    if (! (ns instanceof RootNamespace))
-        out.print("\n}\n");
+    if (elements(emitit)) {
+        int is_root = ns instanceof RootNamespace;
+        if (! is_root)
+            out.print("namespace ", ns.name, "\n{\n");
+       for (var doit in emitit)
+            doit(out);
+        if (! is_root)
+            out.print("\n}\n");
+    }
 }
 
 function emit_declare_namespacest(out, ns)
 {
-    if (! (ns instanceof RootNamespace)) {
-        out.print("namespace ");
-        out.print(ns.name);
-        out.print("\n{\n");
-    }
-
     // Declare functions
     var functions [];
-    for_each(ns.items, function(item)
-            { if (item instanceof FunctionStatement) push(functions, item); });
-    for (var fun in functions) {
-        if (fun instanceof Builtin)
-            continue;
-        if (fun instanceof FunctionExtern)
-            continue;
-        if (fun instanceof ConstStatement)
-            continue;
-        emit_declare_function(out, fun);
+    for_each(ns.items,
+        function(item)
+        {
+            if (item instanceof FunctionStatement)
+                push(functions, item);
+        });
+
+    if (elements(functions) || elements(ns.namespaces)) {
+        int is_root = ns instanceof RootNamespace;
+        if (! is_root)
+            out.print("namespace ", ns.name, "\n{\n");
+
+        for (var fun in functions)
+            emit_declare_function(out, fun);
+
+        // Declare child namespaces
+        for_each(ns.namespaces, bindfirst(emit_declare_namespacest, out));
+
+        if (! is_root)
+            out.print("\n}\n");
     }
-
-    // Declare child namespaces
-    for_each(ns.namespaces, bindfirst(emit_declare_namespacest, out));
-
-    if (! (ns instanceof RootNamespace))
-        out.print("\n}\n");
 }
 
 function emit_declare_subid(out, ns, key[optional], seen[optional])
