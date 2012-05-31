@@ -1567,26 +1567,14 @@ function emit_returnstatement(out, returnst)
 
 function emit_compoundstatement(out, compound)
 {
-    var stlist = compound.statements;
-    int nst = elements(stlist);
-    int i;
     out.print("{\n");
-    for (i = 0; i < nst; ++i) {
-        var st = stlist[i];
-        emit_statement(out, st);
-    }
+    for_each(compound.statements, bindfirst(emit_statement, out));
     out.print("}\n");
 }
 
 function emit_multistatement(out, mst)
 {
-    var stlist = mst.statements;
-    int nst = elements(stlist);
-    int i;
-    for (i = 0; i < nst; ++i) {
-        var st = stlist[i];
-        emit_statement(out, st);
-    }
+    for_each(mst.statements, bindfirst(emit_statement, out));
 }
 
 function emit_UsingStatement(out, st)
