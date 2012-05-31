@@ -1688,10 +1688,13 @@ function emit_declare_function_subid(out, funst, key)
     __ASSERT__(funst instanceof FunctionStatement);
 
     string name = funst.name;
-    if (funst.subid != null) {
-        out.print("static ", Type_PMC, " (*const ");
-        out.print(funst.subid);
-        out.print(")(const ", Type_PMCArray, " &wxx_fun_args) =  &");
+    string subid = funst.makesubid();
+
+    // TODO: skip anonymous.
+    {
+        out.print("static ", Type_PMC,
+                " (*const ", subid, ")(const ",
+                Type_PMCArray, " &wxx_fun_args) =  &");
         if (elements(key) > 0)
             out.print(join("::", key) + "::");
         out.print(name, ";\n");
