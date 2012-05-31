@@ -67,7 +67,7 @@ winxedxx_util.o: winxedxx_util.cxx winxedxx_types.h winxedxx_object.h winxedxx_d
 
 #-----------------------------------------------------------------------
 
-winxedxc.pir: winxedxc.winxed
+winxedxc.pir: winxedxc.winxed winxedxx.winxhead
 	$(WINXED) -c winxedxc.winxed
 
 winxedxc.pbc: winxedxc.pir

@@ -1,6 +1,11 @@
 // winxedxx.winxhead
 // Declarations
 
+namespace WinxedXC.WinxedXX
+{
+
 class Output;
+
+} // namespace WinxedXC.WinxedXX
 
 // End

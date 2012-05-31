@@ -15,6 +15,9 @@ executes the result.
 $include "winxedxx.winxhead";
 $load "winxedxx.pbc";
 
+namespace WinxedXC
+{
+
 //**************************************************************
 
 function get_winxed_compiler()
@@ -119,12 +122,12 @@ class CompilerCxx
 
 $load "Getopt/Obj.pbc";
 
-class WinxedxcOptions : ["Getopt", "Obj" ]
+class Options : ["Getopt", "Obj" ]
 {
     var name;
     var options;
     var opts;
-    function WinxedxcOptions(argv)
+    function Options(var argv)
     {
         self.options = [
           [ "o=s",       "Object name" ],
@@ -160,7 +163,7 @@ function winxed_compile(var winxed, string sourcefile, var outhandle)
     var parsed = winxed.compile_from_file(sourcefile,
         "parse":[named("target")]
     );
-    var output = new Output(outhandle);
+    var output = new WinxedXX.Output(outhandle);
     output.emit(parsed);
 }
 
@@ -206,11 +209,15 @@ function is_relative(string path)
     }
 }
 
+} // namespace WinxedXC
+
 //**************************************************************
 
 function main [main](var argv)
 {
-    var cloptions = new WinxedxcOptions(argv);
+    using namespace WinxedXC;
+
+    var cloptions = new Options(argv);
     string target  = cloptions.getstring("target");
     string outfile = cloptions.getstring("o");
     string stage   = cloptions.getstring("stage");
@@ -267,7 +274,11 @@ function main [main](var argv)
         if (verbose)
             say("Compiling C++: ", cxxfile);
         string objfile = substr(cxxfile,  0, length(cxxfile) - 4) + ".o";
-        cxx.compile(cxxfile, objfile);
+        int r = cxx.compile(cxxfile, objfile);
+        if (r) {
+            cry("Compile ", cxxfile, " failed");
+            exit(r);
+        }
         push(objfiles, objfile);
     }
 
@@ -279,7 +290,11 @@ function main [main](var argv)
         }
         if (verbose)
             say("Linking: ", outfile);
-        cxx.link(outfile, objfiles);
+        int r = cxx.link(outfile, objfiles);
+        if (r) {
+            cry("Link '", outfile, "' failed");
+            exit(r);
+        }
         if (target == "run") {
             if (verbose)
                 say("Run: ", outfile, " ", join(" ", argv));
@@ -288,7 +303,8 @@ function main [main](var argv)
             string cmd[] = [ outfile ];
             for (string arg in argv)
                 push(cmd, arg);
-            spawnw(cmd);
+            int r = spawnw(cmd);
+            exit(r);
         }
     }
 }

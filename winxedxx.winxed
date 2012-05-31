@@ -12,8 +12,8 @@
 
 // Declare used classes
 
-namespace Winxed {
-namespace Compiler {
+namespace Winxed.Compiler
+{
 
 class Token;
 class TokenString;
@@ -128,8 +128,12 @@ class RootNamespace;
 const int
     VAR_is_lexical = 2;
 
-} // namespace Compiler
-} // namespace Winxed
+} // namespace Winxed.Compiler
+
+//**************************************************************
+
+namespace WinxedXC.WinxedXX
+{
 
 using namespace Winxed.Compiler;
 
@@ -2237,6 +2241,8 @@ INITIALIZEREND:>>
         self.print("// End\n");
     }
 }
+
+} // namespace WinxedXC.WinxedXX
 
 //**********************************************************************
 
