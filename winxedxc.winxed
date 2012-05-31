@@ -100,6 +100,7 @@ class CompilerCxx
             "winxedxx_classes.o",
             "winxedxx_handle.o",
             "winxedxx_namespace.o",
+            "winxedxx_nci.o",
             "winxedxx_util.o"
         ];
         for (string obj in objs)

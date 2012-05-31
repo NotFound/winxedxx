@@ -19,7 +19,8 @@ OBJS = \
 		winxedxx_objectptr.o \
 		winxedxx_classes.o \
 		winxedxx_handle.o \
-                winxedxx_namespace.o \
+		winxedxx_namespace.o \
+		winxedxx_nci.o \
 		winxedxx_util.o
 
 FRONTEND = winxedxc.pbc
@@ -57,6 +58,9 @@ winxedxx_handle.o: winxedxx_handle.cxx winxedxx_types.h winxedxx_object.h winxed
 
 winxedxx_namespace.o: winxedxx_namespace.cxx winxedxx_namespace.h
 	$(CXX) $(CXXOPTS) -c winxedxx_namespace.cxx
+
+winxedxx_nci.o: winxedxx_nci.cxx winxedxx.h
+	$(CXX) $(CXXOPTS) -c winxedxx_nci.cxx
 
 winxedxx_util.o: winxedxx_util.cxx winxedxx_types.h winxedxx_object.h winxedxx_default.h winxedxx_integer.h winxedxx_handle.h
 	$(CXX) $(CXXOPTS) -c winxedxx_util.cxx

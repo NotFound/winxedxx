@@ -2,7 +2,7 @@
 #define INCLUDE_WINXEDXX_H
 
 // winxedxx.h
-// (C) 2011 Julián Albo "NotFound"
+// (C) 2011-2012 Julián Albo "NotFound"
 
 #include "winxedxx_types.h"
 #include "winxedxx_object.h"
@@ -49,17 +49,6 @@ private:
 };
 
 //*************************************************************
-
-inline WxxNCI::WxxNCI(const std::string &funcname) :
-        WxxDefault("NCI"),
-        name(funcname)
-{
-}
-
-inline WxxObjectPtr WxxNCI::operator()(WxxObjectArray &args)
-{
-    return winxedxxnull;
-}
 
 void * wxx_ncigetfunc(WxxObjectPtr lib, const std::string &funcname);
 

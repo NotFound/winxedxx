@@ -18,8 +18,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#include <dlfcn.h>
-
 namespace WinxedXX
 {
 
@@ -405,15 +403,6 @@ WxxObjectPtr wxx_open(const std::string &filename, const std::string &mode)
     return handle->open(filename, mode);
 }
 
-WxxObjectPtr wxx_loadlib(const std::string &libname)
-{
-    void *dl_handle = dlopen(libname.c_str(), RTLD_LAZY);
-    if (dl_handle == NULL)
-        return WxxObjectPtr(0); // Sort of Undef for a now
-    else
-        return WxxObjectPtr(new WxxLibrary(dl_handle));
-}
-
 WxxObjectPtr wxx_spawnw(WxxObjectPtr obj)
 {
     int len = obj.elements();
@@ -434,18 +423,6 @@ WxxObjectPtr wxx_spawnw(WxxObjectPtr obj)
         waitpid(pid, NULL, 0);
     }
     return WxxObjectPtr(0);
-}
-
-//*************************************************************
-
-void * wxx_ncigetfunc(WxxObjectPtr lib, const std::string &funcname)
-{
-    void *fun = 0;
-    if (lib.is_null())
-        fun = dlsym(NULL, funcname.c_str());
-    else if (WxxLibrary *dlib = lib.getlib())
-        fun = dlib->getsym(funcname.c_str());
-    return fun;
 }
 
 } // namespace WinxedXX
