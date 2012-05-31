@@ -57,6 +57,16 @@ class Test
         if (value != check)
             say("# got: ", value, ", excpected: ", check);
     }
+    function is_float(float value, float check, string message)
+    {
+        if (value != check)
+            print("not ");
+        print("ok ");
+        print(self.inc_count());
+        say(" - ", message);
+        if (value != check)
+            say("# got: '", value, "', expected: '", check, "'");
+    }
     function is_string(string value, string check, string message)
     {
         if (value != check)
@@ -346,7 +356,7 @@ function main [main] (args)
     test.is_string(str, "4.5", "string assign from float");
     str = "2.5";
     n = str;
-    test.is(n, 2.5, "float assign from string");
+    test.is_float(n, 2.5, "float assign from string");
 
     string stri = 42;
     test.is_string(stri, "42", "string initialization from int");
@@ -360,6 +370,9 @@ function main [main] (args)
     var vi1 = 42;
     test.is(vi1, 42, "var initialized with int");
     test.ok(vi1 != null, "var initialized with int is not null");
+
+    var vn1 = 8.5;
+    test.is_float(vn1, 8.5, "var initialized with float");
 
     test.is(int(vi1), 42, "int cast from string");
     test.is(int(n), 2, "int cast from float");
@@ -410,6 +423,11 @@ function main [main] (args)
     test.is(i + 2, 44, "int + int");
     test.is(i + vi1, 84, "int + var");
     test.is(vi1 + i, 84, "var + int");
+
+    test.is_float(n + 0.1, 2.6, "float + float");
+    test.is_float(n + i, 44.5, "float + int");
+    test.is_float(i + n, 44.5, "int + float");
+
     test.is_string(str + i, "2.542", "string + int");
     test.is_string(i + str, "422.5", "int + string");
     test.is_string(str + vi1, "2.542", "string + var");
