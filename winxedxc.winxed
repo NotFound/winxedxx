@@ -67,6 +67,11 @@ function load_winxed_stage(string stage)
     return winxed;
 }
 
+inline check_exit_code(int code) return int
+{
+    return (code >> 8) & 0xFF;
+}
+
 //**************************************************************
 
 /*
@@ -86,8 +91,7 @@ class CompilerCxx
             "-o", outfile,
             "-c", cxxfile
         ] );
-        r = (r >> 8) & 0xFF;
-        return r;
+        return check_exit_code(r);
     }
     function link(string outfile, var objs)
     {
@@ -224,10 +228,21 @@ function main [main](var argv)
     using namespace WinxedXC;
 
     var cloptions = new Options(argv);
-    string target  = cloptions.getstring("target");
+    string target  = cloptions.getstring("target", "run");
     string outfile = cloptions.getstring("o");
     string stage   = cloptions.getstring("stage");
     int    verbose = cloptions.getint("verbose");
+
+    switch (target) {
+      case "cxx":
+      case "obj":
+      case "exe":
+      case "run":
+        break;
+      default:
+        cry("Invalid target: ", target);
+        exit(1);
+    }
 
     var winxed = stage == null ?
             get_winxed_compiler() :
@@ -274,45 +289,49 @@ function main [main](var argv)
     if (target == "cxx")
         exit(0);
 
+    int r; // Result code from external calls
+    //--------------------------------------------------
     // Compile the generated C++ to obj.
     var cxx = new CompilerCxx;
     for (string cxxfile in cxxfiles) {
         if (verbose)
             say("Compiling C++: ", cxxfile);
         string objfile = substr(cxxfile,  0, length(cxxfile) - 4) + ".o";
-        int r = cxx.compile(cxxfile, objfile);
+        r = cxx.compile(cxxfile, objfile);
         if (r) {
             cry("Compile ", cxxfile, " failed");
             exit(r);
         }
         push(objfiles, objfile);
     }
-
-    // Link and run.
-    if (target == "exe" || target == "run") {
-        if (outfile == null) {
-            // Let's be traditional:
-            outfile = "a.out";
-        }
-        if (verbose)
-            say("Linking: ", outfile);
-        int r = cxx.link(outfile, objfiles);
-        if (r) {
-            cry("Link '", outfile, "' failed");
-            exit(r);
-        }
-        if (target == "run") {
-            if (verbose)
-                say("Run: ", outfile, " ", join(" ", argv));
-            if (is_relative(outfile))
-                outfile = "./" + outfile;
-            string cmd[] = [ outfile ];
-            for (string arg in argv)
-                push(cmd, arg);
-            int r = spawnw(cmd);
-            exit(r);
-        }
+    if (target == "obj")
+        exit(0);
+    //--------------------------------------------------
+    // Link executable
+    if (outfile == null) {
+        // Let's be traditional:
+        outfile = "a.out";
     }
+    if (verbose)
+        say("Linking: ", outfile);
+    r = cxx.link(outfile, objfiles);
+    if (r) {
+        cry("Link '", outfile, "' failed");
+        exit(r);
+    }
+    if (target == "exe")
+        exit(0);
+    //--------------------------------------------------
+    // Run
+    if (verbose)
+        say("Run: ", outfile, " ", join(" ", argv));
+    if (is_relative(outfile))
+        outfile = "./" + outfile;
+    string cmd[] = [ outfile ];
+    for (string arg in argv)
+        push(cmd, arg);
+    r = check_exit_code(spawnw(cmd));
+    exit(r);
 }
 
 // End
