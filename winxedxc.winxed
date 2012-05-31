@@ -96,6 +96,7 @@ class CompilerCxx
             "-g", "-Wall", "-O2", "-I.",
             "-o", outfile
         ];
+/*
         string winxedxxobjs[] = [
             "winxedxx_objectptr.o",
             "winxedxx_null.o",
@@ -107,10 +108,14 @@ class CompilerCxx
             "winxedxx_nci.o",
             "winxedxx_util.o"
         ];
+*/
         for (string obj in objs)
             push(args, obj);
+/*
         for (string wxxobj in winxedxxobjs)
             push(args, wxxobj);
+*/
+        push(args, "winxedxx.lib");
         push(args, "-ldl");
 
         int r = spawnw(args);

@@ -24,6 +24,8 @@ OBJS = \
 		winxedxx_nci.o \
 		winxedxx_util.o
 
+LIB = winxedxx.lib
+
 FRONTEND = winxedxc.pbc
 
 #-----------------------------------------------------------------------
@@ -31,6 +33,13 @@ FRONTEND = winxedxc.pbc
 default: pbc $(OBJS)
 
 pbc: winxedxx.pbc $(FRONTEND)
+
+#-----------------------------------------------------------------------
+
+lib: winxedxx.lib
+
+winxedxx.lib: $(OBJS)
+	ar rc winxedxx.lib $(OBJS)
 
 #-----------------------------------------------------------------------
 
@@ -79,7 +88,7 @@ winxedxc.pbc: winxedxc.pir
 
 #-----------------------------------------------------------------------
 
-test: winxedxx.pbc $(FRONTEND) winxedxx.h $(OBJS)
+test: winxedxx.pbc $(FRONTEND) winxedxx.h $(LIB)
 	prove -v -e "$(WINXED) t/runtests.winxed" t/base/features.t
 
 #-----------------------------------------------------------------------
@@ -87,7 +96,7 @@ test: winxedxx.pbc $(FRONTEND) winxedxx.h $(OBJS)
 exetest: t/runtests
 	prove -v -e t/runtests t/base/features.t
 
-t/runtests: winxedxx.pbc $(FRONTEND) winxedxx.h $(OBJS) t/runtests.winxed
+t/runtests: winxedxx.pbc $(FRONTEND) winxedxx.h $(LIB) t/runtests.winxed
 	$(PARROT) $(FRONTEND) --target=exe -o t/runtests t/runtests.winxed
 
 #-----------------------------------------------------------------------
@@ -101,6 +110,7 @@ clean:
 		winxedxx.pir \
 		winxedxc.pbc \
 		winxedxc.pir \
+		$(LIB) \
 		$(OBJS) \
 		t/runtests \
 		t/runtests.o \
