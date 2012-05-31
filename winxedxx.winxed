@@ -1958,32 +1958,27 @@ function emit_classst(out, clst)
 
     for_each(functions, bindfirst(emit_declare_method, out));
 
-    out.print(<<:CLINIT
+    out.print(sprintf(<<:CLINIT
 static WxxClass * init_class()
 {
-    WxxClass *cl = new WxxClass(
+    WxxClass *cl = new WxxClass("%s");
 CLINIT:>>
-    );
-    out.print("\"" + name + "\"");
-    out.print(<<:CLINIT
-        );
-CLINIT:>>
-    );
+        , [ name ] ));
     for_each(clst.members, function(string member)
         {
-            out.print("cl->addattribute(\"" + member + "\");\n");
+            out.print("    cl->addattribute(\"" + member + "\");\n");
         }
     );
     for_each(functions, function(fun)
         {
             string fname = fun.name;
             string cxxname = fname == name  ? "__Winxedxx_constructor" : fname;
-            out.print("cl->addfunction(\"" + fname +
+            out.print("    cl->addfunction(\"" + fname +
                     "\", &" + name + "::" + cxxname + ");\n");
         }
     );
 
-    out.print("return cl;\n}\n");
+    out.print("    return cl;\n}\n");
 
     out.print("static WxxClass *clreg;\n};\n");
 
@@ -2134,18 +2129,13 @@ static const int initializer = initialize();
 FOOTER1:>>
     ;
 //----------------------------------------------
-    const string CXXMAIN1 = <<:CXXMAIN1
+    const string CXXMAIN = <<:CXXMAIN
 int main(int argc, char **argv)
 {
     try {
         WinxedXX::WxxObjectPtr mainarg(new WinxedXX::WxxStringArray(argv));
         WinxedXX::WxxObjectPtr objresult =
-                WinxedXX::
-CXXMAIN1:>>
-    ;
-//----------------------------------------------
-    const string CXXMAIN2 = <<:CXXMAIN2
-                (WinxedXX::WxxObjectArray().push(mainarg));
+                WinxedXX::%s(WinxedXX::WxxObjectArray().push(mainarg));
         int result = objresult.is_null() ? 0 : int(objresult);
         return result;
     }
@@ -2168,7 +2158,7 @@ CXXMAIN1:>>
         return 1;
     }
 }
-CXXMAIN2:>>
+CXXMAIN:>>
     ;
 //----------------------------------------------
 
@@ -2195,22 +2185,39 @@ INITIALIZER:>>
 INITIALIZEREND:>>
         ;
         self.print(INITIALIZER);
-        int nsdeclared = false;
-        for (var f in rootns.items) {
-            if (! (f instanceof FunctionStatement))
-                continue;
-            string name = f.name;
-            if (f.subid != null) {
-                if (! nsdeclared) {
-                    self.print("    WxxNamespace &rootns = getRootNamespace();\n");
-                    nsdeclared = true;
+
+        self.print("    WxxNamespace &rootns = getRootNamespace();\n");
+        self.emit_initialize_namespace(rootns, "rootns");
+        self.emit_initialize_child_namespaces(rootns, "rootns");
+        self.print(INITIALIZEREND);
+    }
+    function emit_initialize_namespace(var ns, string nsvarname)
+    {
+        for (var f in ns.items) {
+            if (f instanceof FunctionStatement) {
+                string name = f.name;
+                if (f.subid != null) {
+                    self.print("    ", nsvarname, ".set(\"", name, "\", ",
+                        "WxxObjectPtr(", f.subid, ")",
+                        ");\n");
                 }
-                self.print("    rootns.set(\"", name, "\", ",
-                    "WxxObjectPtr(", f.subid, ")",
-                    ");\n");
             }
         }
-        self.print(INITIALIZEREND);
+    }
+    function emit_initialize_child_namespaces(var ns, string nsvarname)
+    {
+        int counter = 0;
+        for (var child in ns.namespaces) {
+            string name = child.name;
+            // Special case
+            if (name == "Winxed_Builtins")
+                continue;
+            string childvarname = nsvarname + "_child_" + string(counter++);
+            self.print("    WxxNamespace &", childvarname,
+                    " = ", nsvarname, ".childNamespace(\"", name, "\");\n");
+            self.emit_initialize_namespace(child, childvarname);
+            self.emit_initialize_child_namespaces(child, childvarname);
+        }
     }
     function emit(parsed)
     {
@@ -2228,11 +2235,9 @@ INITIALIZEREND:>>
 
         self.print(FOOTER1);
 
-        if (mainfunc != "") {
-            self.print(CXXMAIN1);
-            self.print(mainfunc);
-            self.print(CXXMAIN2);
-        }
+        if (mainfunc != "")
+            self.print(sprintf(CXXMAIN, [ mainfunc ] ));
+
         self.print("// End\n");
     }
 }

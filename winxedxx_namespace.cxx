@@ -8,6 +8,7 @@ namespace WinxedXX
 {
 
 typedef std::map<std::string, WxxObjectPtr> symbols_t;
+typedef std::map<std::string, WxxNamespace *> childs_t;
 
 WxxNamespace::WxxNamespace() :
         parentns(0)
@@ -25,6 +26,17 @@ WxxObjectPtr WxxNamespace::get(const std::string &name)
     if (it == symbols.end())
         return winxedxxnull;
     return WxxObjectPtr(it->second);
+}
+
+WxxNamespace &WxxNamespace::childNamespace(const std::string &name)
+{
+    childs_t::const_iterator it = childs.find(name);
+    if (it == childs.end()) {
+        WxxNamespace *child = new WxxNamespace(name, this);
+        childs[name] = child;
+        return *child;
+    }
+    return *it->second;
 }
 
 void WxxNamespace::set(const std::string &name, const WxxObjectPtr &value)

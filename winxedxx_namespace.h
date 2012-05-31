@@ -20,9 +20,11 @@ protected:
     WxxNamespace(const std::string &name, WxxNamespace *parent);
 public:
     WxxObjectPtr get(const std::string &name);
+    WxxNamespace &childNamespace(const std::string &name);
     void set(const std::string &name, const WxxObjectPtr &value);
 private:
     WxxNamespace *parentns;
+    std::map<std::string, WxxNamespace *> childs;
     std::map<std::string, WxxObjectPtr> symbols;
 };
 
