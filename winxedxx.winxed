@@ -688,20 +688,22 @@ function emit_CallExpr(out, callexpr)
         break;
       case funref instanceof FunctionRef:
         var path = funref.sym.owner.getpath().path;
-        int n = elements(path);
         var name = funref.getstart();
-        if (n > 0)
-            WxxUnsupported("Only extern function at root namespace level for a now");
-        else {
-            out.print("getRootNamespace().get(\"", name.getidentifier(), "\")");
-        }
+        out.print("getRootNamespace()");
+        for (string item in path)
+            out.print(".childNamespace(\"", item, "\")");
+        out.print(".get(\"", name.getidentifier(), "\")");
         break;
       case funref.isidentifier():
         if ((callexpr instanceof CallMemberExpr) && callexpr.subid != null)
             out.print(callexpr.subid);
         else {
             string callname = funref.getName();
-            out.print(callname);
+            var sym = callexpr.owner.getvar(callname);
+            if (sym != null)
+                out.print(callname);
+            else
+                out.print("wxxGetCurrentNamespace().get(\"", callname, "\")");
         }
         break;
       default:
@@ -2055,8 +2057,18 @@ function emit_declare_namespacest(out, ns)
 
     if (elements(functions) || elements(ns.namespaces)) {
         int is_root = ns instanceof RootNamespace;
-        if (! is_root)
+        if (! is_root) {
             out.print("namespace ", ns.name, "\n{\n");
+            out.print("static WxxNamespace &wxxGetCurrentNamespace()\n");
+            out.print("{\n");
+            out.print("    return getRootNamespace()");
+            var curns = ns;
+            do {
+                out.print(".childNamespace(\"", curns.name, "\")");
+                curns = curns.parent;
+            } while (! (curns instanceof RootNamespace));
+            out.print(";\n}\n");
+        }
 
         for (var fun in functions)
             emit_declare_function(out, fun);
@@ -2135,6 +2147,11 @@ class Output
 
 namespace WinxedXX
 {
+
+static WxxNamespace &wxxGetCurrentNamespace()
+{
+    return getRootNamespace();
+}
 
 HEADER:>>
     ;
