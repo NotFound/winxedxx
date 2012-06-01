@@ -104,7 +104,7 @@ WxxObjectPtr WxxFileHandle::read(int n)
     //std::cerr << "\nread " << r << "\n";
     std::string result = r > 0 ? std::string(buf, r) : std::string();
     free(buf);
-    return WxxObjectPtr(result);
+    return WxxObjectPtr(new WxxString(result));
 }
 
 WxxObjectPtr WxxFileHandle::readline()
@@ -115,7 +115,7 @@ WxxObjectPtr WxxFileHandle::readline()
     const char *r = fgets(buffer, 1024, f);
     if (! r)
         r = "";
-    return WxxObjectPtr(std::string(r));
+    return WxxObjectPtr(new WxxString(std::string(r)));
 }
 
 WxxObjectPtr WxxFileHandle::call_method(const std::string &methname, WxxObjectArray &args)

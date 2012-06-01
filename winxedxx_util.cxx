@@ -42,7 +42,7 @@ WxxException::WxxException(const std::string &message, int severity, int type) :
         sev(severity),
         typ(type)
 {
-    set_attr_str(std::string("message"), WxxObjectPtr(message));
+    set_attr_str(std::string("message"), WxxObjectPtr(new WxxString(message)));
     set_attr_str(std::string("severity"), WxxObjectPtr(severity));
     set_attr_str(std::string("type"), WxxObjectPtr(type));
 }

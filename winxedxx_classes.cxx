@@ -105,7 +105,7 @@ int WxxStringIterator::get_bool()
 
 WxxObjectPtr WxxStringIterator::shift_pmc()
 {
-    return std::string(1, cnt.at(current++));
+    return new WxxString(std::string(1, cnt.at(current++)));
 }
 
 //*************************************************************
@@ -263,7 +263,7 @@ std::string WxxStringArray::get_string_keyed(int i)
 
 WxxObjectPtr WxxStringArray::get_pmc_keyed(int i)
 {
-    return this->operator[](i);
+    return new WxxString(this->operator[](i));
 }
 
 std::string WxxStringArray::operator[](int i) const
@@ -314,7 +314,7 @@ WxxObjectPtr WxxStringArray::call_method(const std::string &methname, WxxObjectA
             throw wxx_error("Can't shift from an empty array");
         std::string result = this->operator[](0);
         arr.erase(arr.begin());
-        return WxxObjectPtr(result);
+        return WxxObjectPtr(new WxxString(result));
     }
     return WxxDefault::call_method(methname, args);
 }
@@ -379,7 +379,7 @@ WxxObjectArray& WxxObjectArray::push(double value)
 
 WxxObjectArray& WxxObjectArray::push(const std::string &str)
 {
-    arr.push_back(new WxxObjectPtr(str));
+    arr.push_back(new WxxObjectPtr(new WxxString(str)));
     return *this;
 }
 
