@@ -175,7 +175,7 @@ int WxxObjectPtr::is_null() const
     return object->is_null();
 }
 
-int WxxObjectPtr::instanceof(const std::string &type)
+int WxxObjectPtr::instanceof(const std::string &type) const
 {
     return object->instanceof(type);
 }
@@ -205,112 +205,116 @@ std::string WxxObjectPtr::get_string_keyed(int i) const
     return object->get_string_keyed(i);
 }
 
-WxxObjectPtr WxxObjectPtr::get_pmc_keyed(int i)
+WxxObjectPtr WxxObjectPtr::get_pmc_keyed(int i) const
 {
     return object->get_pmc_keyed(i);
 }
 
-WxxObjectPtr WxxObjectPtr::get_pmc_keyed(const std::string &s)
+WxxObjectPtr WxxObjectPtr::get_pmc_keyed(const std::string &s) const
 {
     return object->get_pmc_keyed(s);
 }
 
-WxxObjectPtr WxxObjectPtr::get_pmc_keyed(const WxxObjectPtr & key)
+WxxObjectPtr WxxObjectPtr::get_pmc_keyed(const WxxObjectPtr & key) const
 {
     return object->get_pmc_keyed(std::string(key));
 }
 
-void WxxObjectPtr::set_pmc_keyed(int i, const WxxObjectPtr &value)
+void WxxObjectPtr::set_pmc_keyed(int i, const WxxObjectPtr &value) const
 {
     object->set_pmc_keyed(i, value);
 }
 
-WxxObjectPtr & WxxObjectPtr::set_pmc_keyed(const std::string &s, const WxxObjectPtr &value)
+WxxObjectPtr & WxxObjectPtr::set_pmc_keyed(const std::string &s,
+        const WxxObjectPtr &value) const
 {
     return object->set_pmc_keyed(s, value);
 }
 
-WxxObjectPtr & WxxObjectPtr::set_pmc_keyed(const WxxObjectPtr &key, const WxxObjectPtr &value)
+WxxObjectPtr & WxxObjectPtr::set_pmc_keyed(const WxxObjectPtr &key,
+        const WxxObjectPtr &value) const
 {
     return object->set_pmc_keyed(std::string(key), value);
 }
 
-int WxxObjectPtr::exists(const std::string &key)
+int WxxObjectPtr::exists(const std::string &key) const
 {
     return object->exists(key);
 }
 
-WxxObjectPtr & WxxObjectPtr::get_attr_str(const std::string &s)
+WxxObjectPtr & WxxObjectPtr::get_attr_str(const std::string &s) const
 {
     return object->get_attr_str(s);
 }
 
-void WxxObjectPtr::set_attr_str(const std::string &s, const WxxObjectPtr &value)
+void WxxObjectPtr::set_attr_str(const std::string &s,
+        const WxxObjectPtr &value) const
 {
     object->set_attr_str(s, value);
 }
 
-WxxObjectPtr WxxObjectPtr::get_iter()
+WxxObjectPtr WxxObjectPtr::get_iter() const
 {
     return object->get_iter();
 }
 
-WxxObjectPtr WxxObjectPtr::shift_pmc()
+WxxObjectPtr WxxObjectPtr::shift_pmc() const
 {
     return object->shift_pmc();
 }
 
-void WxxObjectPtr::push(WxxObjectPtr obj)
+void WxxObjectPtr::push(WxxObjectPtr obj) const
 {
     if (WxxArrayBase *arr = dynamic_cast<WxxArrayBase *>(object))
         arr->push(obj);
 }
 
-void WxxObjectPtr::push(int i)
+void WxxObjectPtr::push(int i) const
 {
     if (WxxArrayBase *arr = dynamic_cast<WxxArrayBase *>(object))
         arr->push(i);
 }
 
-void WxxObjectPtr::push(double value)
+void WxxObjectPtr::push(double value) const
 {
     if (WxxArrayBase *arr = dynamic_cast<WxxArrayBase *>(object))
         arr->push(value);
 }
 
-void WxxObjectPtr::push(const std::string &str)
+void WxxObjectPtr::push(const std::string &str) const
 {
     if (WxxArrayBase *arr = dynamic_cast<WxxArrayBase *>(object))
         arr->push(str);
 }
 
-WxxObjectPtr WxxObjectPtr::get_class()
+WxxObjectPtr WxxObjectPtr::get_class() const
 {
     return object->get_class();
 }
 
-WxxObjectPtr WxxObjectPtr::instantiate()
+WxxObjectPtr WxxObjectPtr::instantiate() const
 {
     return object->instantiate();
 }
 
-WxxObjectPtr WxxObjectPtr::operator()(const WxxObjectArray &args)
+WxxObjectPtr WxxObjectPtr::operator()(const WxxObjectArray &args) const
 {
     return (*object)(const_cast<WxxObjectArray &>(args));
 }
 
-WxxObjectPtr WxxObjectPtr::call_method(const std::string &methname)
+WxxObjectPtr WxxObjectPtr::call_method(const std::string &methname) const
 {
     WxxObjectArray args;
     return object->call_method(methname, args);
 }
 
-WxxObjectPtr WxxObjectPtr::call_method(const std::string &methname, WxxObjectArray &args)
+WxxObjectPtr WxxObjectPtr::call_method(const std::string &methname,
+        WxxObjectArray &args) const
 {
     return object->call_method(methname, args);
 }
 
-WxxLibrary * WxxObjectPtr::getlib()
+WxxLibrary * WxxObjectPtr::getlib() const
 {
     return dynamic_cast<WxxLibrary *>(object);
 }
