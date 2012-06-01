@@ -825,7 +825,7 @@ function emit_OpAssignExpr(out, assignexpr)
         emit_expr(out, lexpr.left);
         string ident = lexpr.right.getidentifier();
         out.print(".set_attr_str(\"" + ident + "\",");
-        emit_expr(out, rexpr);
+        emit_varexpr(out, rexpr);
         out.print(")");
     }
     else if (lexpr instanceof MemberRefExpr) {
@@ -1136,6 +1136,20 @@ function emit_MemberRefExpr(out, expr)
     out.print(")");
 }
 
+function emit_OpNamespaceExpr(out, expr)
+{
+    var owner = expr.owner;
+    var sym = owner.scopesearch(expr.key, SEARCH_NAMESPACE);
+    if (sym == null)
+        WxxError("unknow namespace", expr);
+    var path = sym.getpath().path;
+    out.print("WxxObjectPtr(& (getRootNamespace()");
+    int l = elements(path);
+    for (int i = 0; i < l; ++i)
+        out.print(".childNamespace(\"", path[i], "\")");
+    out.print("))");
+}
+
 function emit_intexpr(out, expr)
 {
     if (expr.checkresult() != REGint)
@@ -1150,18 +1164,20 @@ function emit_stringexpr(out, expr)
     emit_expr(out, expr);
 }
 
-function emit_OpNamespaceExpr(out, expr)
+function emit_varexpr(out, expr)
 {
-    var owner = expr.owner;
-    var sym = owner.scopesearch(expr.key, SEARCH_NAMESPACE);
-    if (sym == null)
-        WxxError("unknow namespace", expr);
-    var path = sym.getpath().path;
-    out.print("WxxObjectPtr(& (getRootNamespace()");
-    int l = elements(path);
-    for (int i = 0; i < l; ++i)
-        out.print(".childNamespace(\"", path[i], "\")");
-    out.print("))");
+    switch (expr.checkresult()) {
+      case REGint:
+        out.print("new WxxInteger");
+        break;
+      case REGfloat:
+        out.print("new WxxFloat");
+        break;
+      case REGstring:
+        out.print("new WxxString");
+        break;
+    }
+    emit_expr(out, expr);
 }
 
 function emit_expr(out, expr)
