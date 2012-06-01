@@ -3,6 +3,7 @@
 // (C) 2012 Julián Albo "NotFound"
 
 #include "winxedxx_namespace.h"
+#include "winxedxx_integer.h"
 
 namespace WinxedXX
 {
@@ -11,11 +12,15 @@ typedef std::map<std::string, WxxObjectPtr> symbols_t;
 typedef std::map<std::string, WxxNamespace *> childs_t;
 
 WxxNamespace::WxxNamespace() :
+        WxxDefault("NameSpace"),
+	name("winxedxx"),
         parentns(0)
 {
 }
 
-WxxNamespace::WxxNamespace(const std::string &name, WxxNamespace *parent) :
+WxxNamespace::WxxNamespace(const std::string &nsname, WxxNamespace *parent) :
+        WxxDefault("NameSpace"),
+	name(nsname),
         parentns(parent)
 {
 }
@@ -42,6 +47,30 @@ WxxNamespace &WxxNamespace::childNamespace(const std::string &name)
 void WxxNamespace::set(const std::string &name, const WxxObjectPtr &value)
 {
     symbols[name] = value;
+}
+
+std::string WxxNamespace::get_string()
+{
+    return name;
+}
+
+WxxObjectPtr WxxNamespace::get_pmc_keyed(const std::string &s)
+{
+    return get(s);
+}
+
+WxxObjectPtr WxxNamespace::call_method(const std::string &methname, WxxObjectArray &args)
+{
+    if (methname == "get_parent")
+        return parentns ? parentns : winxedxxnull;
+    else if (methname == "find_var")
+        return get(args.get_string_keyed(0));
+    else if (methname == "add_var") {
+        set(args.get_string_keyed(0), args.get_pmc_keyed(1));
+	return winxedxxnull;
+    }
+    else
+        return WxxDefault::call_method(methname, args);
 }
 
 //**************************************************************

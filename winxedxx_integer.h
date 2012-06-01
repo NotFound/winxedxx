@@ -198,8 +198,12 @@ class WxxSub : public WxxDefault
 {
 public:
     WxxSub(WxxObjectPtr(*)(const WxxObjectArray &));
+    WxxSub(WxxObjectPtr(*)(const WxxObjectArray &), const std::string &subname);
     WxxObjectPtr operator()(WxxObjectArray &args);
 private:
+    std::string get_string();
+
+    std::string name;
     WxxObjectPtr(*fn)(const WxxObjectArray &);
 };
 

@@ -27,6 +27,7 @@ class WxxObject;
 class WxxObjectArray;
 class WxxLibrary;
 class WxxInnerFunction;
+class WxxNamespace;
 
 class WxxFunctionVars : public WxxRefcounted
 {
@@ -55,6 +56,7 @@ public:
     WxxObjectPtr(const WxxObjectPtr &old);
     WxxObjectPtr(WxxObject * obj);
     WxxObjectPtr(WxxObjectPtr (*)(const WxxObjectArray&));
+    WxxObjectPtr(WxxNamespace * obj);
     WxxObjectPtr(WxxInnerFunction * obj);
     ~WxxObjectPtr();
     std::string class_name() const;

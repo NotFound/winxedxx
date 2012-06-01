@@ -84,6 +84,7 @@ class OpShiftrightExpr;
 class OpShiftleftExpr;
 class OpInstanceOfExpr;
 class OpConditionalExpr;
+class OpNamespaceExpr;
 
 class EmptyStatement;
 class UsingNamespaceStatement;
@@ -126,6 +127,8 @@ class RootNamespace;
 // Constants
 
 const int
+    SEARCH_NAMESPACE = 1,
+    SEARCH_CLASS = 2,
     VAR_is_lexical = 2;
 
 } // namespace Winxed.Compiler
@@ -1145,6 +1148,20 @@ function emit_stringexpr(out, expr)
     emit_expr(out, expr);
 }
 
+function emit_OpNamespaceExpr(out, expr)
+{
+    var owner = expr.owner;
+    var sym = owner.scopesearch(expr.key, SEARCH_NAMESPACE);
+    if (sym == null)
+        WxxError("unknow namespace", expr);
+    var path = sym.getpath().path;
+    out.print("WxxObjectPtr(& (getRootNamespace()");
+    int l = elements(path);
+    for (int i = 0; i < l; ++i)
+        out.print(".childNamespace(\"", path[i], "\")");
+    out.print("))");
+}
+
 function emit_expr(out, expr)
 {
     out.print("(");
@@ -1275,6 +1292,8 @@ function emit_expr(out, expr)
         emit_StringIndexExpr(out, expr);
     else if (expr instanceof OpExistsExpr)
         emit_OpExistsExpr(out, expr);
+    else if (expr instanceof OpNamespaceExpr)
+        emit_OpNamespaceExpr(out, expr);
     else {
         if (__DEBUG__) cry("In " + __FUNCTION__);
         WxxUnsupported(expr);
@@ -2198,7 +2217,7 @@ INITIALIZEREND:>>
                 string name = f.name;
                 if (f.subid != null) {
                     self.print("    ", nsvarname, ".set(\"", name, "\", ",
-                        "WxxObjectPtr(", f.subid, ")",
+                        "WxxObjectPtr(new WxxSub(", f.subid, ", \"", name, "\"))",
                         ");\n");
                 }
             }

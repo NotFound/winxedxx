@@ -6,6 +6,7 @@
 #include "winxedxx_null.h"
 #include "winxedxx_default.h"
 #include "winxedxx_integer.h"
+#include "winxedxx_namespace.h"
 
 
 namespace WinxedXX
@@ -51,6 +52,12 @@ WxxObjectPtr::WxxObjectPtr(WxxObjectPtr (*fn)(const WxxObjectArray&)) :
 
 WxxObjectPtr::WxxObjectPtr(WxxInnerFunction * obj) :
         object(new WxxClosure(obj))
+{
+    object->incref();
+}
+
+WxxObjectPtr::WxxObjectPtr(WxxNamespace * obj) :
+        object(obj)
 {
     object->incref();
 }

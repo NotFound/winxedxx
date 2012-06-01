@@ -419,6 +419,19 @@ WxxSub::WxxSub(WxxObjectPtr(*fnarg)(const WxxObjectArray &)) :
 {
 }
 
+WxxSub::WxxSub(WxxObjectPtr(*fnarg)(const WxxObjectArray &),
+            const std::string &subname) :
+        WxxDefault("Sub"),
+        name(subname),
+	fn(fnarg)
+{
+}
+
+std::string WxxSub::get_string()
+{
+    return name;
+}
+
 WxxObjectPtr WxxSub::operator()(WxxObjectArray &args)
 {
     return (*fn)(args);
