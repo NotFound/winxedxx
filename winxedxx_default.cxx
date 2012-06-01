@@ -110,13 +110,13 @@ void WxxDefault::decrement()
 WxxObjectPtr WxxDefault::add(const WxxObjectPtr &value)
 {
     notimplemented("add");
-    return 0;
+    return winxedxxnull;
 }
 
 WxxObjectPtr WxxDefault::sub(const WxxObjectPtr &value)
 {
     notimplemented("sub");
-    return 0;
+    return winxedxxnull;
 }
 
 std::string WxxDefault::get_string_keyed(int i)

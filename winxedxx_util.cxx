@@ -421,7 +421,7 @@ WxxObjectPtr wxx_spawnw(WxxObjectPtr obj)
     default:
         waitpid(pid, NULL, 0);
     }
-    return WxxObjectPtr(0);
+    return WxxObjectPtr(new WxxInteger(0));
 }
 
 } // namespace WinxedXX
