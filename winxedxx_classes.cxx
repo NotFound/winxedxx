@@ -119,7 +119,7 @@ WxxIntegerArray::~WxxIntegerArray()
 {
 }
 
-int WxxIntegerArray::elements()
+int WxxIntegerArray::elements() const
 {
     return arr.size();
 }
@@ -181,7 +181,7 @@ WxxFloatArray::~WxxFloatArray()
 {
 }
 
-int WxxFloatArray::elements()
+int WxxFloatArray::elements() const
 {
     return arr.size();
 }
@@ -251,7 +251,7 @@ WxxStringArray::~WxxStringArray()
 {
 }
 
-int WxxStringArray::elements()
+int WxxStringArray::elements() const
 {
     return arr.size();
 }
@@ -274,13 +274,13 @@ std::string WxxStringArray::operator[](int i) const
     if (i < 0)
         throw wxx_error(getname() + ": index out of bounds!");
     if (i >= size)
-         return winxedxxnull;
+         return std::string();
     return arr[i];
 }
 
 WxxStringArray& WxxStringArray::push(WxxObjectPtr obj)
 {
-    arr.push_back(obj);
+    arr.push_back(obj.get_string());
     return *this;
 }
 
@@ -304,7 +304,7 @@ WxxStringArray& WxxStringArray::push(const std::string &str)
 
 void WxxStringArray::set_pmc_keyed(int i, const WxxObjectPtr &value)
 {
-    arr[i] = std::string(value);
+    arr[i] = value.get_string();
 }
 
 WxxObjectPtr WxxStringArray::call_method(const std::string &methname, WxxObjectArray &args)
@@ -332,9 +332,14 @@ WxxObjectArray::~WxxObjectArray()
         delete arr[i];
 }
 
-int WxxObjectArray::elements()
+int WxxObjectArray::elements() const
 {
     return arr.size();
+}
+
+WxxObjectPtr WxxObjectArray::get_pmc_keyed(int i) const
+{
+    return this->operator[](i);
 }
 
 WxxObjectPtr WxxObjectArray::get_pmc_keyed(int i)

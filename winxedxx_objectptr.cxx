@@ -217,7 +217,7 @@ WxxObjectPtr WxxObjectPtr::get_pmc_keyed(const std::string &s) const
 
 WxxObjectPtr WxxObjectPtr::get_pmc_keyed(const WxxObjectPtr & key) const
 {
-    return object->get_pmc_keyed(std::string(key));
+    return object->get_pmc_keyed(key.get_string());
 }
 
 void WxxObjectPtr::set_pmc_keyed(int i, const WxxObjectPtr &value) const
@@ -234,7 +234,7 @@ WxxObjectPtr & WxxObjectPtr::set_pmc_keyed(const std::string &s,
 WxxObjectPtr & WxxObjectPtr::set_pmc_keyed(const WxxObjectPtr &key,
         const WxxObjectPtr &value) const
 {
-    return object->set_pmc_keyed(std::string(key), value);
+    return object->set_pmc_keyed(key.get_string(), value);
 }
 
 int WxxObjectPtr::exists(const std::string &key) const

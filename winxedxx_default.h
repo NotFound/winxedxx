@@ -22,7 +22,7 @@ public:
     int get_bool();
     int get_integer();
     double get_number();
-    int elements();
+    int elements() const;
     virtual std::string get_string();
     int is_equal(const WxxObject &to);
     WxxObject & set(int value);

@@ -44,7 +44,7 @@ double WxxNull::get_number()
     return 0;
 }
 
-int WxxNull::elements()
+int WxxNull::elements() const
 {
     nullaccess("elements");
     return 0;

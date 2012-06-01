@@ -1313,7 +1313,7 @@ function emit_conststatement(out, st)
 {
 }
 
-function emit_varstatement(out, st)
+function emit_VarStatement(out, st)
 {
     string name = st.name;
     var init = st.init;
@@ -1629,7 +1629,7 @@ function emit_statement(out, st)
     else if (st instanceof StringArrayStatement)
         emit_nativearraystatement(out, st, "String");
     else if (st instanceof VarStatement)
-        emit_varstatement(out, st);
+        emit_VarStatement(out, st);
     else if (st instanceof LabelStatement)
         emit_labelstatement(out, st);
     else if (st instanceof BreakStatement)
@@ -1740,9 +1740,21 @@ function declareDataVar(out, string varname, string vartype)
     //out.print(";\n");
 }
 
-function getArgValue(out, int i)
+function getArgValue(out, string type, int i)
 {
-    out.print("(wxx_fun_args[", i, "]);\n");
+    out.print(" = wxx_fun_args.get_pmc_keyed(", i, ")");
+    switch (type) {
+      case REGint:
+        out.print(".get_integer()");
+        break;
+      case REGfloat:
+        out.print(".get_number()");
+        break;
+      case REGstring:
+        out.print(".get_string()");
+        break;
+    }
+    out.print(";\n");
 }
 
 function setDataVarFromArg(out, string name, string type, int i)
@@ -1750,7 +1762,7 @@ function setDataVarFromArg(out, string name, string type, int i)
     out.print(DATA + "->", name, " = ");
     if (type == REGstring)
         out.print(Type_String);
-    getArgValue(out, i);
+    getArgValue(out, type, i);
 }
 
 function declareReferenceToData(out, string name, string type)
@@ -1873,8 +1885,9 @@ class EmitFunction
             for (int i = 0; i < nparams; ++i) {
                 var param = params[i];
                 string name = param.name;
-                declareDataVar(out, name, funst.getvar(name).gettype());
-                getArgValue(out, i);
+		string type = funst.getvar(name).gettype();
+                declareDataVar(out, name, type);
+                getArgValue(out, type, i);
             }
         }
     }

@@ -61,7 +61,7 @@ double WxxDefault::get_number()
     return 0;
 }
 
-int WxxDefault::elements()
+int WxxDefault::elements() const
 {
     notimplemented("elements");
     return 0;

@@ -408,7 +408,7 @@ WxxObjectPtr wxx_spawnw(WxxObjectPtr obj)
     std::string args[len + 1];
     const char *argv[len + 1];
     for (int i = 0; i < len; ++i) {
-        args[i] = std::string(obj.get_pmc_keyed(i));
+        args[i] = obj.get_string_keyed(i);
         argv[i] = args[i].c_str();
     }
     argv[len] = 0;

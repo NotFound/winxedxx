@@ -91,7 +91,7 @@ class WxxIntegerArray : public WxxArrayBase
 public:
     WxxIntegerArray();
     ~WxxIntegerArray();
-    int elements();
+    int elements() const;
     int operator[](int i) const;
     WxxObjectPtr get_pmc_keyed(int i);
     WxxIntegerArray& push(WxxObjectPtr obj);
@@ -108,7 +108,7 @@ class WxxFloatArray : public WxxArrayBase
 public:
     WxxFloatArray();
     ~WxxFloatArray();
-    int elements();
+    int elements() const;
     double operator[](int i) const;
     WxxObjectPtr get_pmc_keyed(int i);
     WxxFloatArray& push(WxxObjectPtr obj);
@@ -126,7 +126,7 @@ public:
     WxxStringArray();
     WxxStringArray(char **argv);
     ~WxxStringArray();
-    int elements();
+    int elements() const;
     std::string operator[](int i) const;
     std::string get_string_keyed(int i);
     WxxObjectPtr get_pmc_keyed(int i);
@@ -145,8 +145,9 @@ class WxxObjectArray : public WxxArrayBase
 public:
     WxxObjectArray();
     ~WxxObjectArray();
-    int elements();
+    int elements() const;
     WxxObjectPtr operator[](int i) const;
+    WxxObjectPtr get_pmc_keyed(int i) const;
     WxxObjectPtr get_pmc_keyed(int i);
     WxxObjectArray& push(WxxObjectPtr obj);
     WxxObjectArray& push(int i);
