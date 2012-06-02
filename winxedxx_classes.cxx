@@ -572,6 +572,16 @@ WxxLibrary::WxxLibrary(void *dl_handle) :
 {
 }
 
+int WxxLibrary::get_bool()
+{
+    return dl_h != 0;
+}
+
+int WxxLibrary::get_integer()
+{
+    return dl_h != 0;
+}
+
 void * WxxLibrary::getsym(const std::string &funcname)
 {
     return dlsym(dl_h, funcname.c_str());

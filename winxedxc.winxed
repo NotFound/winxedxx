@@ -87,7 +87,8 @@ class CompilerCxx
     {
         int r = spawnw( [
             "g++",
-            "-g", "-Wall", "-O2", "-I.",
+            "-Wall", "-O2", "-I.",
+            "-fPIC",
             "-o", outfile,
             "-c", cxxfile
         ] );
@@ -97,29 +98,29 @@ class CompilerCxx
     {
         string args[] = [
             "g++",
-            "-g", "-Wall", "-O2", "-I.",
+            "-Wall", "-O2", "-I.",
             "-o", outfile
         ];
-/*
-        string winxedxxobjs[] = [
-            "winxedxx_objectptr.o",
-            "winxedxx_null.o",
-            "winxedxx_default.o",
-            "winxedxx_classes.o",
-            "winxedxx_scalar.o",
-            "winxedxx_handle.o",
-            "winxedxx_namespace.o",
-            "winxedxx_nci.o",
-            "winxedxx_util.o"
-        ];
-*/
         for (string obj in objs)
             push(args, obj);
-/*
-        for (string wxxobj in winxedxxobjs)
-            push(args, wxxobj);
-*/
-        push(args, "winxedxx.lib");
+        push(args, "winxedxx.so");
+        push(args, "-ldl");
+
+        int r = spawnw(args);
+        r = (r >> 8) & 0xFF;
+        return r;
+    }
+    function linkshared(string outfile, var objs)
+    {
+        string args[] = [
+            "g++",
+            "-g", "-Wall", "-O2", "-I.",
+            "-shared",
+            "-o", outfile
+        ];
+        for (string obj in objs)
+            push(args, obj);
+        push(args, "winxedxx.so");
         push(args, "-ldl");
 
         int r = spawnw(args);
@@ -236,6 +237,7 @@ function main [main](var argv)
     switch (target) {
       case "cxx":
       case "obj":
+      case "shared":
       case "exe":
       case "run":
         break;
@@ -314,12 +316,15 @@ function main [main](var argv)
     }
     if (verbose)
         say("Linking: ", outfile);
-    r = cxx.link(outfile, objfiles);
+    if (target == "exe" || target == "run")
+        r = cxx.link(outfile, objfiles);
+    else
+        r = cxx.linkshared(outfile, objfiles);
     if (r) {
         cry("Link '", outfile, "' failed");
         exit(r);
     }
-    if (target == "exe")
+    if (target == "exe" || target == "shared")
         exit(0);
     //--------------------------------------------------
     // Run

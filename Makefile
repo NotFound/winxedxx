@@ -8,7 +8,7 @@ WINXED = winxed
 WINXEDLIB =
 
 CXX = g++
-CXXOPTS = -g -Wall
+CXXOPTS = -g -Wall -fPIC
 LDOPTS = -ldl
 
 #-----------------------------------------------------------------------
@@ -24,7 +24,7 @@ OBJS = \
 		winxedxx_nci.o \
 		winxedxx_util.o
 
-LIB = winxedxx.lib
+LIB = winxedxx.so
 
 FRONTEND = winxedxc.pbc
 
@@ -36,10 +36,10 @@ pbc: winxedxx.pbc $(FRONTEND)
 
 #-----------------------------------------------------------------------
 
-lib: winxedxx.lib
+lib: winxedxx.so
 
-winxedxx.lib: $(OBJS)
-	ar rc winxedxx.lib $(OBJS)
+winxedxx.so: $(OBJS)
+	$(CXX) -shared -o winxedxx.so $(OBJS)
 
 #-----------------------------------------------------------------------
 

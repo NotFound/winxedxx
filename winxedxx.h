@@ -50,6 +50,7 @@ private:
 
 //*************************************************************
 
+WxxObjectPtr wxx_loadlib(const std::string &libname);
 void * wxx_ncigetfunc(WxxObjectPtr lib, const std::string &funcname);
 
 

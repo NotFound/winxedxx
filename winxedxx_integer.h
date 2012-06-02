@@ -257,6 +257,9 @@ class WxxLibrary : public WxxDefault
 public:
     WxxLibrary(void *dl_handle);
     void * getsym(const std::string &funcname);
+
+    int get_bool();
+    int get_integer();
 private:
     void *dl_h;
 };
