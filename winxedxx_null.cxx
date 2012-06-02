@@ -46,7 +46,6 @@ double WxxNull::get_number()
 
 void * WxxNull::get_pointer()
 {
-    nullaccess("get_pointer");
     return 0;
 }
 

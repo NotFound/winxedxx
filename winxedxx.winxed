@@ -222,6 +222,7 @@ const string
     Type_Long       = "long",
     Type_Num        = "double",
     Type_Float      = "float",
+    Type_VoidPtr    = "void*",
     Type_String     = "std::string",
     Type_PMC        = "WxxObjectPtr",
     Type_Hash       = "WxxHash",
@@ -319,6 +320,8 @@ function nciitemtoc(string item)
         return Type_Num;
       case "f":
         return Type_Float;
+      case "p":
+        return Type_VoidPtr;
       default:
         throw Error("signature unsupported: " + item);
     }

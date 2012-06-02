@@ -3,6 +3,8 @@
 
 #include "winxedxx.h"
 
+#include "winxedxx_ptr.h"
+
 #include <dlfcn.h>
 
 namespace WinxedXX
@@ -31,6 +33,32 @@ WxxObjectPtr WxxNCI::operator()(WxxObjectArray &args)
     return winxedxxnull;
 }
 
+//*************************************************************
+
+WxxObjectPtr handleResult(int value)
+{
+    return new WxxInteger(value);
+}
+WxxObjectPtr handleResult(short value)
+{
+    return new WxxInteger(value);
+}
+WxxObjectPtr handleResult(long value)
+{
+    return new WxxInteger(value);
+}
+WxxObjectPtr handleResult(double value)
+{
+    return new WxxFloat(value);
+}
+WxxObjectPtr handleResult(float value)
+{
+    return new WxxFloat(value);
+}
+WxxObjectPtr handleResult(void * value)
+{
+    return new WxxPtr(value);
+}
 
 //*************************************************************
 

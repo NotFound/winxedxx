@@ -23,6 +23,7 @@ OBJS = \
 		winxedxx_handle.o \
 		winxedxx_namespace.o \
 		winxedxx_nci.o \
+		winxedxx_ptr.o \
 		winxedxx_util.o
 
 LIB = winxedxx.so
@@ -75,6 +76,9 @@ winxedxx_handle.o: winxedxx_handle.cxx winxedxx_types.h winxedxx_object.h winxed
 
 winxedxx_namespace.o: winxedxx_namespace.cxx winxedxx_namespace.h
 	$(CXX) $(CXXOPTS) -c winxedxx_namespace.cxx
+
+winxedxx_ptr.o: winxedxx_ptr.cxx winxedxx.h
+	$(CXX) $(CXXOPTS) -c winxedxx_ptr.cxx
 
 winxedxx_nci.o: winxedxx_nci.cxx winxedxx.h
 	$(CXX) $(CXXOPTS) -c winxedxx_nci.cxx

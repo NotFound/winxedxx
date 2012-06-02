@@ -75,6 +75,11 @@ template<>
 std::string getarg(const WxxObjectArray &args, int i)
 { return args[i].get_string(); }
 
+// Raw pointer
+template<>
+void * getarg(const WxxObjectArray &args, int i)
+{ return args[i].get_pointer(); }
+
 
 template <typename NciSig>
 class WxxNCIbase : public WxxNCI
@@ -105,6 +110,14 @@ inline void checkargs(WxxObjectArray &args, int n)
         throw wxx_error("wrong number of args in nci call");
 }
 
+WxxObjectPtr handleResult(int value);
+WxxObjectPtr handleResult(short value);
+WxxObjectPtr handleResult(long value);
+WxxObjectPtr handleResult(double value);
+WxxObjectPtr handleResult(float value);
+WxxObjectPtr handleResult(void * value);
+
+
 template <typename NciSig>
 struct callfunc;
 
@@ -114,7 +127,7 @@ struct callfunc<Ret (*)()>
     static WxxObjectPtr doit(Ret (*f)(), WxxObjectArray &args)
     {
         checkargs(args, 0);
-        return (*f)();
+        return handleResult((*f)());
     }
 };
 template <>
@@ -134,7 +147,7 @@ struct callfunc<Ret (*)(Arg0)>
     static WxxObjectPtr doit(Ret (*f)(Arg0), WxxObjectArray &args)
     {
         checkargs(args, 1);
-        return (*f)(getarg<Arg0>(args, 0));
+        return handleResult((*f)(getarg<Arg0>(args, 0)));
     }
 };
 template <typename Arg0>
@@ -154,7 +167,7 @@ struct callfunc<Ret (*)(Arg0, Arg1)>
     static WxxObjectPtr doit(Ret (*f)(Arg0, Arg1), WxxObjectArray &args)
     {
         checkargs(args, 2);
-        return (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1));
+        return handleResult((*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1)));
     }
 };
 template <typename Arg0, typename Arg1>
@@ -174,7 +187,7 @@ struct callfunc<Ret (*)(Arg0, Arg1, Arg2)>
     static WxxObjectPtr doit(Ret (*f)(Arg0, Arg1, Arg2), WxxObjectArray &args)
     {
         checkargs(args, 3);
-        return (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2));
+        return handleResult((*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2)));
     }
 };
 template <typename Arg0, typename Arg1, typename Arg2>
@@ -194,7 +207,7 @@ struct callfunc<Ret (*)(Arg0, Arg1, Arg2, Arg3)>
     static WxxObjectPtr doit(Ret (*f)(Arg0, Arg1, Arg2, Arg3), WxxObjectArray &args)
     {
         checkargs(args, 3);
-        return (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2), getarg<Arg3>(args, 3));
+        return handleResult((*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2), getarg<Arg3>(args, 3)));
     }
 };
 template <typename Arg0, typename Arg1, typename Arg2, typename Arg3>
@@ -214,7 +227,7 @@ struct callfunc<Ret (*)(Arg0, Arg1, Arg2, Arg3, Arg4)>
     static WxxObjectPtr doit(Ret (*f)(Arg0, Arg1, Arg2, Arg3, Arg4), WxxObjectArray &args)
     {
         checkargs(args, 3);
-        return (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2), getarg<Arg3>(args, 3), getarg<Arg4>(args, 4));
+        return handleResult((*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2), getarg<Arg3>(args, 3), getarg<Arg4>(args, 4)));
     }
 };
 template <typename Arg0, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
