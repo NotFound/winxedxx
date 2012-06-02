@@ -93,6 +93,9 @@ public:
     ~WxxIntegerArray();
     int elements() const;
     int operator[](int i) const;
+    int get_integer_keyed(int i);
+    std::string get_string_keyed(int i);
+    double get_number_keyed(int i);
     WxxObjectPtr get_pmc_keyed(int i);
     WxxIntegerArray& push(WxxObjectPtr obj);
     WxxIntegerArray& push(int i);
@@ -110,6 +113,9 @@ public:
     ~WxxFloatArray();
     int elements() const;
     double operator[](int i) const;
+    int get_integer_keyed(int i);
+    double get_number_keyed(int i);
+    std::string get_string_keyed(int i);
     WxxObjectPtr get_pmc_keyed(int i);
     WxxFloatArray& push(WxxObjectPtr obj);
     WxxFloatArray& push(int i);
@@ -128,6 +134,8 @@ public:
     ~WxxStringArray();
     int elements() const;
     std::string operator[](int i) const;
+    int get_integer_keyed(int i);
+    double get_number_keyed(int i);
     std::string get_string_keyed(int i);
     WxxObjectPtr get_pmc_keyed(int i);
     WxxStringArray& push(WxxObjectPtr obj);
@@ -147,6 +155,9 @@ public:
     ~WxxObjectArray();
     int elements() const;
     WxxObjectPtr operator[](int i) const;
+    int get_integer_keyed(int i);
+    double get_number_keyed(int i);
+    std::string get_string_keyed(int i);
     WxxObjectPtr get_pmc_keyed(int i) const;
     WxxObjectPtr get_pmc_keyed(int i);
     WxxObjectArray& push(WxxObjectPtr obj);

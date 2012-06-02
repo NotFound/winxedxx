@@ -81,6 +81,21 @@ int WxxIntegerArray::operator[](int i) const
     return arr[i];
 }
 
+int WxxIntegerArray::get_integer_keyed(int i)
+{
+    return this->operator[](i);
+}
+
+double WxxIntegerArray::get_number_keyed(int i)
+{
+    return this->operator[](i);
+}
+
+std::string WxxIntegerArray::get_string_keyed(int i)
+{
+    return wxx_string_cast(this->operator[](i));
+}
+
 WxxObjectPtr WxxIntegerArray::get_pmc_keyed(int i)
 {
     return this->operator[](i);
@@ -141,6 +156,21 @@ double WxxFloatArray::operator[](int i) const
     if (i >= size)
          return winxedxxnull;
     return arr[i];
+}
+
+int WxxFloatArray::get_integer_keyed(int i)
+{
+    return this->operator[](i);
+}
+
+double WxxFloatArray::get_number_keyed(int i)
+{
+    return this->operator[](i);
+}
+
+std::string WxxFloatArray::get_string_keyed(int i)
+{
+    return wxx_string_cast(this->operator[](i));
 }
 
 WxxObjectPtr WxxFloatArray::get_pmc_keyed(int i)
@@ -211,6 +241,16 @@ std::string WxxStringArray::operator[](int i) const
     if (i >= size)
          return std::string();
     return arr[i];
+}
+
+int WxxStringArray::get_integer_keyed(int i)
+{
+    return wxx_int_cast(this->operator[](i));
+}
+
+double WxxStringArray::get_number_keyed(int i)
+{
+    return wxx_num_cast(this->operator[](i));
 }
 
 std::string WxxStringArray::get_string_keyed(int i)
@@ -292,6 +332,21 @@ WxxObjectPtr WxxObjectArray::operator[](int i) const
     if (i >= size)
          return winxedxxnull;
     return WxxObjectPtr(*(arr[i]));
+}
+
+int WxxObjectArray::get_integer_keyed(int i)
+{
+    return this->operator[](i).get_integer();
+}
+
+double WxxObjectArray::get_number_keyed(int i)
+{
+    return this->operator[](i).get_number();
+}
+
+std::string WxxObjectArray::get_string_keyed(int i)
+{
+    return this->operator[](i).get_string();
 }
 
 WxxObjectPtr WxxObjectArray::get_pmc_keyed(int i) const
