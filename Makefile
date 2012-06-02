@@ -18,6 +18,7 @@ OBJS = \
                 winxedxx_default.o \
 		winxedxx_objectptr.o \
 		winxedxx_scalar.o \
+		winxedxx_array.o \
 		winxedxx_classes.o \
 		winxedxx_handle.o \
 		winxedxx_namespace.o \
@@ -62,6 +63,9 @@ winxedxx_objectptr.o: winxedxx_objectptr.cxx winxedxx_types.h winxedxx_object.h 
 
 winxedxx_scalar.o: winxedxx_scalar.cxx winxedxx_types.h winxedxx_object.h winxedxx_default.h winxedxx_integer.h
 	$(CXX) $(CXXOPTS) -c winxedxx_scalar.cxx
+
+winxedxx_array.o: winxedxx_array.cxx winxedxx_types.h winxedxx_object.h winxedxx_default.h winxedxx_integer.h
+	$(CXX) $(CXXOPTS) -c winxedxx_array.cxx
 
 winxedxx_classes.o: winxedxx_classes.cxx winxedxx_types.h winxedxx_object.h winxedxx_default.h winxedxx_integer.h
 	$(CXX) $(CXXOPTS) -c winxedxx_classes.cxx
