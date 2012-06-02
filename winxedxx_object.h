@@ -28,6 +28,8 @@ public:
     virtual void decrement() = 0;
     virtual WxxObjectPtr add(const WxxObjectPtr &value) = 0;
     virtual WxxObjectPtr sub(const WxxObjectPtr &value) = 0;
+    virtual int get_integer_keyed(int i) = 0;
+    virtual double get_number_keyed(int i) = 0;
     virtual std::string get_string_keyed(int i) = 0;
     virtual WxxObjectPtr get_pmc_keyed(int i) = 0;
     virtual WxxObjectPtr get_pmc_keyed(const std::string &s) = 0;

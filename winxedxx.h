@@ -49,35 +49,35 @@ protected:
 
 
 template<typename NciParam>
-NciParam getarg(const WxxObjectArray &args, int i);
+NciParam getarg(WxxObjectArray &args, int i);
 
 // Integer types:
 template<>
-int getarg(const WxxObjectArray &args, int i)
-{ return args[i].get_integer(); }
+int getarg(WxxObjectArray &args, int i)
+{ return args.get_integer_keyed(i); }
 template<>
-short getarg(const WxxObjectArray &args, int i)
-{ return args[i].get_integer(); }
+short getarg(WxxObjectArray &args, int i)
+{ return args.get_integer_keyed(i); }
 template<>
-long getarg(const WxxObjectArray &args, int i)
-{ return args[i].get_integer(); }
+long getarg(WxxObjectArray &args, int i)
+{ return args.get_integer_keyed(i); }
 
 // Number types:
 template<>
-double getarg(const WxxObjectArray &args, int i)
-{ return args[i].get_number(); }
+double getarg(WxxObjectArray &args, int i)
+{ return args.get_number_keyed(i); }
 template<>
-float getarg(const WxxObjectArray &args, int i)
-{ return args[i].get_number(); }
+float getarg(WxxObjectArray &args, int i)
+{ return args.get_number_keyed(i); }
 
 // string types - unfinished
 template<>
-std::string getarg(const WxxObjectArray &args, int i)
-{ return args[i].get_string(); }
+std::string getarg(WxxObjectArray &args, int i)
+{ return args.get_string_keyed(i); }
 
 // Raw pointer
 template<>
-void * getarg(const WxxObjectArray &args, int i)
+void * getarg(WxxObjectArray &args, int i)
 { return args[i].get_pointer(); }
 
 

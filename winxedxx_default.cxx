@@ -130,6 +130,16 @@ WxxObjectPtr WxxDefault::sub(const WxxObjectPtr &value)
     return winxedxxnull;
 }
 
+int WxxDefault::get_integer_keyed(int i)
+{
+    return get_pmc_keyed(i).get_integer();
+}
+
+double WxxDefault::get_number_keyed(int i)
+{
+    return get_pmc_keyed(i).get_number();
+}
+
 std::string WxxDefault::get_string_keyed(int i)
 {
     return get_pmc_keyed(i).get_string();

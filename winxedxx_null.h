@@ -29,6 +29,8 @@ public:
     void decrement();
     WxxObjectPtr add(const WxxObjectPtr &value);
     WxxObjectPtr sub(const WxxObjectPtr &value);
+    int get_integer_keyed(int i);
+    double get_number_keyed(int i);
     std::string get_string_keyed(int i);
     WxxObjectPtr get_pmc_keyed(int i);
     WxxObjectPtr get_pmc_keyed(const std::string &s);

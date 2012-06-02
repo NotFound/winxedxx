@@ -102,14 +102,26 @@ void WxxNull::decrement()
 
 WxxObjectPtr WxxNull::add(const WxxObjectPtr &value)
 {
-    nullaccess("ass");
+    nullaccess("add");
     return winxedxxnull;
 }
 
 WxxObjectPtr WxxNull::sub(const WxxObjectPtr &value)
 {
-    nullaccess("ass");
+    nullaccess("sub");
     return winxedxxnull;
+}
+
+int WxxNull::get_integer_keyed(int i)
+{
+    nullaccess("get_integer_keyed");
+    return 0;
+}
+
+double WxxNull::get_number_keyed(int i)
+{
+    nullaccess("get_number_keyed");
+    return 0;
 }
 
 std::string WxxNull::get_string_keyed(int i)
