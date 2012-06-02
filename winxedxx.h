@@ -28,119 +28,248 @@ class WxxObjectArray;
 
 //*************************************************************
 
+
+WxxObjectPtr wxx_loadlib(const std::string &libname);
+void * wxx_ncigetfunc(WxxObjectPtr lib, const std::string &funcname);
+
+//*************************************************************
+
 class WxxNCI : public WxxDefault
 {
 public:
     WxxNCI(const std::string &funcname);
     int get_integer();
     void * get_pointer();
-    WxxObjectPtr operator()(WxxObjectArray &args);
+    WxxObjectPtr operator() (WxxObjectArray &args);
 protected:
+    virtual WxxObjectPtr call(WxxObjectArray &args) = 0;
     std::string name;
     virtual void *getNciFun() = 0;
 };
 
-template <typename NciSig, int nargs>
-class WxxNCIcall : public WxxNCI
-{
-public:
-    WxxNCIcall(WxxObjectPtr lib, const std::string &funcname);
-    WxxObjectPtr operator()(WxxObjectArray &args);
-private:
-    WxxObjectPtr call(WxxObjectArray &args);
-    NciSig fun;
-    void *getNciFun() { return (void *) fun; }
-};
 
-//*************************************************************
+template<typename NciParam>
+NciParam getarg(const WxxObjectArray &args, int i);
 
-WxxObjectPtr wxx_loadlib(const std::string &libname);
-void * wxx_ncigetfunc(WxxObjectPtr lib, const std::string &funcname);
+template<>
+int getarg(const WxxObjectArray &args, int i)
+{ return args[i].get_integer(); }
+template<>
+double getarg(const WxxObjectArray &args, int i)
+{ return args[i].get_number(); }
+template<>
+std::string getarg(const WxxObjectArray &args, int i)
+{ return args[i].get_string(); }
 
 
 template <typename NciSig>
-class WxxNCIcall<NciSig, 0> : public WxxNCI
+class WxxNCIbase : public WxxNCI
 {
 public:
-    WxxNCIcall(WxxObjectPtr lib, const std::string &funcname) :
+    typedef NciSig signature_t;
+    WxxNCIbase(WxxObjectPtr lib, const std::string &funcname) :
         WxxNCI(funcname),
-        fun((NciSig)wxx_ncigetfunc(lib, funcname))
+        fun((signature_t)wxx_ncigetfunc(lib, funcname))
     { }
-    WxxObjectPtr operator()(WxxObjectArray &args)
+protected:
+    NciSig fun;
+    void runcheck()
     {
         if (! fun)
-            throw wxx_error("dynamic function -0- is null: " + name);
-        return (*fun)();
+            throw wxx_error("dynamic function is null");
     }
 private:
-    NciSig fun;
+    WxxObjectPtr call(WxxObjectArray &args) { return operator()(args); }
     void *getNciFun() { return (void *) fun; }
 };
 
-template <typename NciSig>
-class WxxNCIcall<NciSig, 1> : public WxxNCI
-{
-public:
-    WxxNCIcall(WxxObjectPtr lib, const std::string &funcname) :
-        WxxNCI(funcname),
-        fun((NciSig)wxx_ncigetfunc(lib, funcname))
-    { }
-    WxxObjectPtr operator()(WxxObjectArray &args)
-    {
-        if (! fun)
-            throw wxx_error("dynamic function -1- is null: " + name);
-        return (*fun)(args[0]);
-    }
-private:
-    NciSig fun;
-    void *getNciFun() { return (void *) fun; }
-};
 
-template <typename NciSig>
-class WxxNCIcall<NciSig, 2> : public WxxNCI
-{
-public:
-    WxxNCIcall(WxxObjectPtr lib, const std::string &funcname) :
-        WxxNCI(funcname),
-        fun((NciSig)wxx_ncigetfunc(lib, funcname))
-    { }
-    WxxObjectPtr operator()(WxxObjectArray &args)
-    {
-        if (! fun)
-            throw wxx_error("dynamic function -2- is null: " + name);
-        return (*fun)(args[0], args[1]);
-    }
-private:
-    NciSig fun;
-    void *getNciFun() { return (void *) fun; }
-};
 
-template <typename NciSig>
-class WxxNCIcall<NciSig, 3> : public WxxNCI
+inline void checkargs(WxxObjectArray &args, int n)
 {
-public:
-    WxxNCIcall(WxxObjectPtr lib, const std::string &funcname) :
-        WxxNCI(funcname),
-        fun((NciSig)wxx_ncigetfunc(lib, funcname))
-    { }
-    WxxObjectPtr operator()(WxxObjectArray &args)
-    {
-        if (! fun)
-            throw wxx_error("dynamic function -2- is null: " + name);
-        return (*fun)(args[0], args[1], args[2]);
-    }
-private:
-    NciSig fun;
-    void *getNciFun() { return (void *) fun; }
-};
-
-template <typename NciSig, int nargs>
-WxxObjectPtr WxxNCIcall<NciSig, nargs>::operator()(WxxObjectArray &args)
-{
-    if (! fun)
-        throw wxx_error("dynamic function is null: " + name);
-    return winxedxxnull;
+    if (args.elements() != n)
+        throw wxx_error("wrong number of args in nci call");
 }
+
+template <typename NciSig>
+struct callfunc;
+
+template <typename Ret>
+struct callfunc<Ret (*)()>
+{
+    static WxxObjectPtr doit(Ret (*f)(), WxxObjectArray &args)
+    {
+        checkargs(args, 0);
+        return (*f)();
+    }
+};
+template <>
+struct callfunc<void(*)()>
+{
+    static WxxObjectPtr doit(void (*f)(), WxxObjectArray &args)
+    {
+        checkargs(args, 0);
+        (*f)();
+        return winxedxxnull;
+    }
+};
+
+template <typename Ret, typename Arg0>
+struct callfunc<Ret (*)(Arg0)>
+{
+    static WxxObjectPtr doit(Ret (*f)(Arg0), WxxObjectArray &args)
+    {
+        checkargs(args, 1);
+        return (*f)(getarg<Arg0>(args, 0));
+    }
+};
+template <typename Arg0>
+struct callfunc<void (*) (Arg0)>
+{
+    static WxxObjectPtr doit(void (*f)(Arg0), WxxObjectArray &args)
+    {
+        checkargs(args, 1);
+        (*f)(getarg<Arg0>(args, 0));
+        return winxedxxnull;
+    }
+};
+
+template <typename Ret, typename Arg0, typename Arg1>
+struct callfunc<Ret (*)(Arg0, Arg1)>
+{
+    static WxxObjectPtr doit(Ret (*f)(Arg0, Arg1), WxxObjectArray &args)
+    {
+        checkargs(args, 2);
+        return (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1));
+    }
+};
+template <typename Arg0, typename Arg1>
+struct callfunc<void (*) (Arg0, Arg1)>
+{
+    static WxxObjectPtr doit(void (*f)(Arg0, Arg1), WxxObjectArray &args)
+    {
+        checkargs(args, 2);
+        (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1));
+        return winxedxxnull;
+    }
+};
+
+template <typename Ret, typename Arg0, typename Arg1, typename Arg2>
+struct callfunc<Ret (*)(Arg0, Arg1, Arg2)>
+{
+    static WxxObjectPtr doit(Ret (*f)(Arg0, Arg1, Arg2), WxxObjectArray &args)
+    {
+        checkargs(args, 3);
+        return (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2));
+    }
+};
+template <typename Arg0, typename Arg1, typename Arg2>
+struct callfunc<void (*) (Arg0, Arg1, Arg2)>
+{
+    static WxxObjectPtr doit(void (*f)(Arg0, Arg1, Arg2), WxxObjectArray &args)
+    {
+        checkargs(args, 3);
+        (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2));
+        return winxedxxnull;
+    }
+};
+
+template <typename Ret, typename Arg0, typename Arg1, typename Arg2, typename Arg3>
+struct callfunc<Ret (*)(Arg0, Arg1, Arg2, Arg3)>
+{
+    static WxxObjectPtr doit(Ret (*f)(Arg0, Arg1, Arg2, Arg3), WxxObjectArray &args)
+    {
+        checkargs(args, 3);
+        return (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2), getarg<Arg3>(args, 3));
+    }
+};
+template <typename Arg0, typename Arg1, typename Arg2, typename Arg3>
+struct callfunc<void (*)(Arg0, Arg1, Arg2, Arg3)>
+{
+    static WxxObjectPtr doit(void (*f)(Arg0, Arg1, Arg2, Arg3), WxxObjectArray &args)
+    {
+        checkargs(args, 3);
+        (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2), getarg<Arg3>(args, 3));
+        return winxedxxnull;
+    }
+};
+
+template <typename Ret, typename Arg0, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
+struct callfunc<Ret (*)(Arg0, Arg1, Arg2, Arg3, Arg4)>
+{
+    static WxxObjectPtr doit(Ret (*f)(Arg0, Arg1, Arg2, Arg3, Arg4), WxxObjectArray &args)
+    {
+        checkargs(args, 3);
+        return (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2), getarg<Arg3>(args, 3), getarg<Arg4>(args, 4));
+    }
+};
+template <typename Arg0, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
+struct callfunc<void (*)(Arg0, Arg1, Arg2, Arg3, Arg4)>
+{
+    static WxxObjectPtr doit(void (*f)(Arg0, Arg1, Arg2, Arg3, Arg4), WxxObjectArray &args)
+    {
+        checkargs(args, 3);
+        (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2), getarg<Arg3>(args, 3), getarg<Arg4>(args, 4));
+        return winxedxxnull;
+    }
+};
+
+
+template <typename NciSig>
+class WxxNCIcaller : public WxxNCIbase<NciSig>
+{
+    typedef WxxNCIbase<NciSig> base;
+public:
+    WxxNCIcaller(WxxObjectPtr lib, const std::string &funcname) :
+        base(lib, funcname)
+    { }
+    WxxObjectPtr operator()(WxxObjectArray &args)
+    {
+        base::runcheck();
+        return callfunc<NciSig>::doit(base::fun, args);
+    }
+protected:
+};
+
+
+
+template <typename Ret>
+WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib,
+        std::string funcname)
+{
+    return WxxObjectPtr(new WxxNCIcaller<Ret(*)()>(lib, funcname));
+}
+template <typename Ret, typename Arg0>
+WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib,
+        std::string funcname)
+{
+    return WxxObjectPtr(new WxxNCIcaller<Ret(*)(Arg0)>(lib, funcname));
+}
+template <typename Ret, typename Arg0, typename Arg1>
+WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib,
+        std::string funcname)
+{
+    return WxxObjectPtr(new WxxNCIcaller<Ret(*)(Arg0, Arg1)>(lib, funcname));
+}
+template <typename Ret, typename Arg0, typename Arg1, typename Arg2>
+WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib,
+        std::string funcname)
+{
+    return WxxObjectPtr(new WxxNCIcaller<Ret(*)(Arg0, Arg1, Arg2)>(lib, funcname));
+}
+template <typename Ret, typename Arg0, typename Arg1, typename Arg2, typename Arg3>
+WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib,
+        std::string funcname)
+{
+    return WxxObjectPtr(new WxxNCIcaller<Ret(*)(Arg0, Arg1, Arg2, Arg3)>(lib, funcname));
+}
+template <typename Ret, typename Arg0, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
+WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib,
+        std::string funcname)
+{
+    return WxxObjectPtr(new WxxNCIcaller<Ret(*)(Arg0, Arg1, Arg2, Arg3, Arg4)>(lib, funcname));
+}
+
 
 //*************************************************************
 
@@ -253,13 +382,6 @@ WxxObjectPtr wxx_sub(int i1, const WxxObjectPtr &o2);
 WxxObjectPtr wxx_sub(const WxxObjectPtr &o1, int i2);
 
 //*****************************************
-
-template <typename NciSig, int nargs>
-WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib,
-        std::string funcname)
-{
-    return WxxObjectPtr(new WxxNCIcall<NciSig, nargs>(lib, funcname));
-}
 
 } // namespace WinxedXX
 

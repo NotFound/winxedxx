@@ -216,6 +216,7 @@ const string
     REGstring   = "S",
     REGvar      = "P",
     // Generated types
+    Type_Void       = "void",
     Type_Int        = "int",
     Type_Num        = "double",
     Type_String     = "std::string",
@@ -304,7 +305,7 @@ function nciitemtoc(string item)
       case "i":
         return Type_Int;
       case "v":
-        return Type_Int; // Allow void to return something
+        return Type_Void;
       default:
         throw Error("signature unsupported: " + item);
     }
@@ -312,15 +313,9 @@ function nciitemtoc(string item)
 
 function ncisigtoc(string sig)
 {
-    string csig = nciitemtoc(sig[0]);
-    csig += "(*)(";
-    string sep = "";
-    for (string item in substr(sig, 1)) {
-        csig += sep;
-        sep = ARGSEP;
-        csig += nciitemtoc(item);
-    }
-    csig += ")";
+    string csig[];
+    for (string item in sig)
+        push(csig, nciitemtoc(item));
     return csig;
 }
 
@@ -416,11 +411,21 @@ function emit_builtin_dlfunc(out, args)
 {
     var sig = args[2].arg;
     if (! sig.isstringliteral())
-        throw Error("dlfunc siganture must be compile time constant");
-    int nsigargs = length(sig.strval.rawstring()) - 1;
-    string csig = ncisigtoc(sig.strval.rawstring());
+        throw WxxError("dlfunc siganture must be compile time constant");
+    var csig = ncisigtoc(sig.strval.rawstring());
+    int n = elements(csig);
+    if (n < 1)
+        throw WxxError("invalid signature");
 
-    out.print("wxx_dlfunc<", csig, ARGSEP, string(nsigargs), ">(");
+    out.print("wxx_dlfunc<");
+    out.print(csig[0]);
+    for (int i = 1; i < n; ++i) {
+        string item = csig[i];
+        if (item == Type_Void)
+            throw WxxError("invalid signature");
+        out.print(", ", item);
+    }
+    out.print(">(");
     emit_expr(out, args[0].arg);
     out.print(ARGSEP);
     emit_stringexpr(out, args[1].arg);
