@@ -115,6 +115,11 @@ std::string WxxSub::get_string()
     return name;
 }
 
+void * WxxSub::get_pointer()
+{
+    return (void *)fn;
+}
+
 WxxObjectPtr WxxSub::operator()(WxxObjectArray &args)
 {
     return (*fn)(args);
