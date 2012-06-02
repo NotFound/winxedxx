@@ -6,6 +6,8 @@
 #include "winxedxx_default.h"
 #include "winxedxx_integer.h"
 #include "winxedxx_handle.h"
+#include "winxedxx_ptr.h"
+#include "winxedxx_bytebuffer.h"
 
 #include <iostream>
 #include <sstream>
@@ -386,6 +388,8 @@ WxxObjectPtr wxx_new_string(const std::string &name)
         return new WxxHash();
     if (name == "FileHandle")
         return new WxxFileHandle();
+    if (name == "ByteBuffer")
+        return new WxxByteBuffer();
 
     return wxx_new(name);
 }

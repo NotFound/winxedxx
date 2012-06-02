@@ -24,6 +24,7 @@ OBJS = \
 		winxedxx_namespace.o \
 		winxedxx_nci.o \
 		winxedxx_ptr.o \
+		winxedxx_bytebuffer.o \
 		winxedxx_util.o
 
 LIB = winxedxx.so
@@ -79,6 +80,9 @@ winxedxx_namespace.o: winxedxx_namespace.cxx winxedxx_namespace.h
 
 winxedxx_ptr.o: winxedxx_ptr.cxx winxedxx.h
 	$(CXX) $(CXXOPTS) -c winxedxx_ptr.cxx
+
+winxedxx_bytebuffer.o: winxedxx_bytebuffer.cxx winxedxx.h winxedxx_bytebuffer.h
+	$(CXX) $(CXXOPTS) -c winxedxx_bytebuffer.cxx
 
 winxedxx_nci.o: winxedxx_nci.cxx winxedxx.h
 	$(CXX) $(CXXOPTS) -c winxedxx_nci.cxx
