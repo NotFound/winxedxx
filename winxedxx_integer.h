@@ -260,6 +260,7 @@ public:
 
     int get_bool();
     int get_integer();
+    void * get_pointer();
 private:
     void *dl_h;
 };

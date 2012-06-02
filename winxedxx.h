@@ -32,9 +32,12 @@ class WxxNCI : public WxxDefault
 {
 public:
     WxxNCI(const std::string &funcname);
+    int get_integer();
+    void * get_pointer();
     WxxObjectPtr operator()(WxxObjectArray &args);
 protected:
     std::string name;
+    virtual void *getNciFun() = 0;
 };
 
 template <typename NciSig, int nargs>
@@ -46,6 +49,7 @@ public:
 private:
     WxxObjectPtr call(WxxObjectArray &args);
     NciSig fun;
+    void *getNciFun() { return (void *) fun; }
 };
 
 //*************************************************************
@@ -70,6 +74,7 @@ public:
     }
 private:
     NciSig fun;
+    void *getNciFun() { return (void *) fun; }
 };
 
 template <typename NciSig>
@@ -88,6 +93,7 @@ public:
     }
 private:
     NciSig fun;
+    void *getNciFun() { return (void *) fun; }
 };
 
 template <typename NciSig>
@@ -106,6 +112,7 @@ public:
     }
 private:
     NciSig fun;
+    void *getNciFun() { return (void *) fun; }
 };
 
 template <typename NciSig>
@@ -124,6 +131,7 @@ public:
     }
 private:
     NciSig fun;
+    void *getNciFun() { return (void *) fun; }
 };
 
 template <typename NciSig, int nargs>

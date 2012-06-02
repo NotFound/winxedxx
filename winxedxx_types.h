@@ -80,6 +80,8 @@ public:
     std::string get_string() const;
     int get_integer() const;
     double get_number() const;
+    void *get_pointer() const;
+    void set_pointer(void *p) const;
     int elements() const;
     WxxObjectPtr add(const WxxObjectPtr &value);
     WxxObjectPtr sub(const WxxObjectPtr &value);

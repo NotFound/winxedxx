@@ -582,6 +582,11 @@ int WxxLibrary::get_integer()
     return dl_h != 0;
 }
 
+void * WxxLibrary::get_pointer()
+{
+    return dl_h;
+}
+
 void * WxxLibrary::getsym(const std::string &funcname)
 {
     return dlsym(dl_h, funcname.c_str());

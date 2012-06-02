@@ -16,6 +16,16 @@ WxxNCI::WxxNCI(const std::string &funcname) :
 {
 }
 
+int WxxNCI::get_integer()
+{
+    return get_pointer() != 0;
+}
+
+void * WxxNCI::get_pointer()
+{
+    return getNciFun();
+}
+
 WxxObjectPtr WxxNCI::operator()(WxxObjectArray &args)
 {
     return winxedxxnull;

@@ -61,6 +61,17 @@ double WxxDefault::get_number()
     return 0;
 }
 
+void * WxxDefault::get_pointer()
+{
+    notimplemented("get_pointer");
+    return 0;
+}
+
+void WxxDefault::set_pointer(void *)
+{
+    notimplemented("set_pointer");
+}
+
 int WxxDefault::elements() const
 {
     notimplemented("elements");

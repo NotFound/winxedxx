@@ -195,6 +195,16 @@ std::string WxxObjectPtr::get_string() const
     return object->get_string();
 }
 
+void WxxObjectPtr::set_pointer(void *p) const
+{
+    object->set_pointer(p);
+}
+
+void * WxxObjectPtr::get_pointer() const
+{
+    return object->get_pointer();
+}
+
 int WxxObjectPtr::elements() const
 {
 return object->elements();

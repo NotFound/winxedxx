@@ -44,6 +44,17 @@ double WxxNull::get_number()
     return 0;
 }
 
+void * WxxNull::get_pointer()
+{
+    nullaccess("get_pointer");
+    return 0;
+}
+
+void WxxNull::set_pointer(void *)
+{
+    nullaccess("set_pointer");
+}
+
 int WxxNull::elements() const
 {
     nullaccess("elements");

@@ -17,6 +17,8 @@ public:
     int get_bool();
     int get_integer();
     double get_number();
+    void * get_pointer();
+    void set_pointer(void *p);
     int elements() const;
     std::string get_string();
     int is_equal(const WxxObject &to);
