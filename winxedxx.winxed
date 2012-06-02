@@ -29,6 +29,9 @@ class Builtin;
 class ClassSpecifierStr;
 class ClassSpecifierId;
 
+class NullExpr;
+class CastExpr;
+
 class IdentifierExpr;
 class MemberExpr;
 class MemberRefExpr;
@@ -654,6 +657,32 @@ function emit_CallBuiltinExpr(out, expr)
 
 //**********************************************************************
 
+function emit_NullExpr(out, expr)
+{
+    out.print("winxedxxnull");
+}
+
+function emit_CastExpr(out, expr)
+{
+    var arg = expr.arg;
+    string type = expr.type;
+    switch (type) {
+      case REGint:
+        emit_intexpr(out, arg);
+        break;
+      case REGfloat:
+        emit_numexpr(out, arg);
+        break;
+      case REGstring:
+        emit_stringexpr(out, arg);
+        break;
+      default:
+        throw WxxError("unexpected cast");
+    }
+}
+
+//**********************************************************************
+
 function emit_callargs(out, args)
 {
     out.print("WinxedXX::", Type_PMCArray, "()");
@@ -1174,14 +1203,21 @@ function emit_OpNamespaceExpr(out, expr)
 function emit_intexpr(out, expr)
 {
     if (expr.checkresult() != REGint)
-        out.print(Type_Int);
+        out.print("wxx_int_cast");
+    emit_expr(out, expr);
+}
+
+function emit_numexpr(out, expr)
+{
+    if (expr.checkresult() != REGfloat)
+        out.print("wxx_num_cast");
     emit_expr(out, expr);
 }
 
 function emit_stringexpr(out, expr)
 {
     if (expr.checkresult() != REGstring)
-        out.print(Type_String);
+        out.print("wxx_string_cast");
     emit_expr(out, expr);
 }
 
@@ -1207,6 +1243,10 @@ function emit_expr(out, expr)
 
     if (expr instanceof CallBuiltinExpr)
         emit_CallBuiltinExpr(out, expr);
+    else if (expr instanceof NullExpr)
+        emit_NullExpr(out, expr);
+    else if (expr instanceof CastExpr)
+        emit_CastExpr(out, expr);
     else if (expr instanceof CallSubid)
         emit_CallSubid(out, expr);
     else if (expr instanceof CallMemberExpr)
