@@ -215,10 +215,13 @@ const string
     REGfloat    = "N",
     REGstring   = "S",
     REGvar      = "P",
-    // Generated types
+    // Generated types, for own use and for NCI
     Type_Void       = "void",
+    Type_Short      = "short",
     Type_Int        = "int",
+    Type_Long       = "long",
     Type_Num        = "double",
+    Type_Float      = "float",
     Type_String     = "std::string",
     Type_PMC        = "WxxObjectPtr",
     Type_Hash       = "WxxHash",
@@ -302,10 +305,20 @@ function nciitemtoc(string item)
 {
    switch (item)
     {
-      case "i":
-        return Type_Int;
       case "v":
         return Type_Void;
+      case "i": // int
+      case "I": // INTVAL
+        return Type_Int;
+      case "s":
+        return Type_Short;
+      case "l":
+        return Type_Long;
+      case "d":
+      case "N":
+        return Type_Num;
+      case "f":
+        return Type_Float;
       default:
         throw Error("signature unsupported: " + item);
     }

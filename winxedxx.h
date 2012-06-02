@@ -51,12 +51,26 @@ protected:
 template<typename NciParam>
 NciParam getarg(const WxxObjectArray &args, int i);
 
+// Integer types:
 template<>
 int getarg(const WxxObjectArray &args, int i)
 { return args[i].get_integer(); }
 template<>
+short getarg(const WxxObjectArray &args, int i)
+{ return args[i].get_integer(); }
+template<>
+long getarg(const WxxObjectArray &args, int i)
+{ return args[i].get_integer(); }
+
+// Number types:
+template<>
 double getarg(const WxxObjectArray &args, int i)
 { return args[i].get_number(); }
+template<>
+float getarg(const WxxObjectArray &args, int i)
+{ return args[i].get_number(); }
+
+// string types - unfinished
 template<>
 std::string getarg(const WxxObjectArray &args, int i)
 { return args[i].get_string(); }
