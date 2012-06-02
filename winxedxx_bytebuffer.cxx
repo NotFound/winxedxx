@@ -65,6 +65,20 @@ void WxxByteBuffer::set_integer_native(int i)
     }
 }
 
+int WxxByteBuffer::get_integer_keyed(int i)
+{
+    if (i < 0 || (size_t)i >= size)
+        return 0;
+    else {
+        return ((unsigned char *)get_pointer())[i];
+    }
+}
+
+WxxObjectPtr WxxByteBuffer::get_pmc_keyed(int i)
+{
+    return get_integer_keyed(i);
+}
+
 void WxxByteBuffer::set_integer_keyed(int i, int value)
 {
     if (i >= 0 && (size_t)i < size)

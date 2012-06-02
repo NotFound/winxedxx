@@ -16,6 +16,8 @@ public:
 
     int elements() const;
     WxxByteBuffer & set(int i);
+    int get_integer_keyed(int i);
+    WxxObjectPtr get_pmc_keyed(int i);
     void set_integer_native(int i);
     void set_integer_keyed(int i, int value);
     void set_pmc_keyed(int i, const WxxObjectPtr &value);
