@@ -23,6 +23,29 @@ namespace More
 
 static int counter;
 
+WxxObjectPtr diag(const WxxObjectArray &args)
+{
+    std::string msg;
+    for (int i = 0; i < args.elements(); ++i)
+         msg += args.get_pmc_keyed(i).get_string();
+    size_t pos = msg.find('\n');
+    while (pos != std::string::npos) {
+        std::string part = msg.substr(0, pos);
+        if (part.length() == 0 || part[0] != '#')
+            std::cout << "# ";
+        std::cout << part << '\n';
+        msg.erase(pos + 1);
+        pos = msg.find('\n');
+    }
+    if (msg != "") {
+        if (msg[0] != '#')
+            std::cout << "# ";
+        std::cout << msg << '\n';
+    }
+
+    return winxedxxnull;
+}
+
 WxxObjectPtr plan(const WxxObjectArray &args)
 {
     counter = 0;
@@ -131,6 +154,7 @@ void initialize()
     counter = 0;
     WxxNamespace &ns = getRootNamespace().
             childNamespace("Test").childNamespace("More");
+    ns.set("diag", new WxxSub(&diag));
     ns.set("plan", new WxxSub(&plan));
     ns.set("ok", new WxxSub(&ok));
     ns.set("nok", new WxxSub(&nok));
