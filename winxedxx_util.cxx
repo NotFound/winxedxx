@@ -287,13 +287,17 @@ int wxx_ord(std::string src, int pos)
     return (unsigned char)src.at(pos);
 }
 
-std::string wxx_substr(const std::string &from, int start)
-{
-    return from.substr(start);
-}
 std::string wxx_substr(const std::string &from, int start, int length)
 {
+    if (start < 0)
+        start += length;
+    if (start < 0 || start > length || length < 0)
+        throw wxx_error("Cannot take substr outside string");
     return from.substr(start, length);
+}
+std::string wxx_substr(const std::string &from, int start)
+{
+    return wxx_substr(from, start, from.length());
 }
 
 int wxx_indexof(const std::string &from, const std::string &search)
