@@ -78,6 +78,11 @@ WxxHash &WxxHash::set(const std::string &key, WxxObjectPtr value)
     return *this;
 }
 
+int WxxHash::elements() const
+{
+    return hsh.size();
+}
+
 WxxObjectPtr WxxHash::get_pmc_keyed(const std::string &s)
 {
     return hsh[s];
