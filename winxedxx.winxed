@@ -347,6 +347,15 @@ function emit_plainfun1(var out, string name, var arg)
     out.print(")");
 }
 
+function emit_plainfun1string(var out, string name, var arg)
+{
+    out.print(name, "(");
+    if (arg.checkresult() != REGstring)
+        out.print(STRINGCAST);
+    emit_expr(out, arg);
+    out.print(")");
+}
+
 function emit_plainfun2(var out, string name, var arg1, var arg2)
 {
     out.print(name, "(");
@@ -642,12 +651,10 @@ function emit_CallBuiltinExpr(out, expr)
         break;
 
       case "escape":
-        emit_plainfun1(out, "wxx_escape", arg0);
+        emit_plainfun1string(out, "wxx_escape", arg0);
         break;
-
-      // Unimplemented, just to allow some testing
       case "unescape":
-        emit_expr(out, arg0);
+        emit_plainfun1string(out, "wxx_unescape", arg0);
         break;
 
       default:

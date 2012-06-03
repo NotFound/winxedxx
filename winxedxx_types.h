@@ -147,6 +147,7 @@ int wxx_indexof(const std::string &from, const std::string &search, int pos);
 std::string wxx_chomp(const std::string &src);
 
 std::string wxx_escape(const std::string &src);
+std::string wxx_unescape(const std::string &src);
 
 WxxObjectPtr wxx_new(const std::string &name);
 WxxObjectPtr wxx_new(const std::string &name, WxxObjectArray args);

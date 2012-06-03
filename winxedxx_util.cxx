@@ -351,12 +351,10 @@ std::string wxx_escape(const std::string &src)
     for (std::string::size_type i = 0; i < src.size(); ++i) {
         unsigned char c = src[i];
         switch (c) {
-        case '\n':
-            oss << "\\n"; break;
-        case '\t':
-            oss << "\\t"; break;
-        case '\\':
-            oss << "\\\\"; break;
+        case '\n': oss << "\\n"; break;
+        case '\r': oss << "\\n"; break;
+        case '\t': oss << "\\t"; break;
+        case '\\': oss << "\\\\"; break;
         default:
             if (c < 0x20 || c >= 0x80)
                 oss << "\\x{" << std::hex << (int) c << "}";
@@ -365,6 +363,31 @@ std::string wxx_escape(const std::string &src)
         }
     }
     return oss.str();
+}
+
+std::string wxx_unescape(const std::string &src)
+{
+    const int l = src.length();
+    std::string result = "";
+    for (int i = 0; i < l; ++i) {
+        char c = src[i];
+        switch (c) {
+            case '\\':
+            c = src[++i];
+            switch (c) {
+              case 'n': result += '\n'; break;
+              case 'r': result += '\r'; break;
+              case 't': result += '\t'; break;
+              case '\\': result += '\\'; break;
+              default:
+                throw wxx_error("unescape not fully implemented");
+            }
+            break;
+          default:
+            result += c;
+        }
+    }
+    return result;
 }
 
 WxxObjectPtr wxx_new(const std::string &name)
