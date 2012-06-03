@@ -1420,32 +1420,27 @@ function emit_VarStatement(out, st)
     }
 }
 
-function emit_nativetypestatement(out, st, string simpletype, string nullinit)
+function emit_nativetypestatement(out, st, string type, string nullinit)
 {
     string name = st.name;
     var init = st.init;
 
-    out.print(simpletype, " ", name);
+    out.print(generatedType(type), " ", name, " = ");
     if (init == null) {
-        out.print(" = ", nullinit);
+        out.print(nullinit);
     }
     else {
-        string inittype = generatedType(init.checkresult());
-        out.print(" = (");
-        switch {
-          case simpletype == inittype:
+        switch (type) {
+          case REGint:
+            emit_intexpr(out, init);
             break;
-          case simpletype == Type_String:
-            switch (inittype) {
-              case Type_Int:
-              case Type_Num:
-                out.print(STRINGCAST);
-                break;
-            }
+          case REGfloat:
+            emit_numexpr(out, init);
+            break;
+          case REGstring:
+            emit_stringexpr(out, init);
             break;
         }
-        emit_expr(out, init);
-        out.print(")");
     }
 }
 
@@ -1700,11 +1695,11 @@ function emit_statement(out, st)
     else if (st instanceof ConstStatement)
         emit_conststatement(out, st);
     else if (st instanceof IntStatement)
-        emit_nativetypestatement(out, st, Type_Int, "0");
+        emit_nativetypestatement(out, st, REGint, "0");
     else if (st instanceof FloatStatement)
-        emit_nativetypestatement(out, st, Type_Num, "0.0");
+        emit_nativetypestatement(out, st, REGfloat, "0.0");
     else if (st instanceof StringStatement)
-        emit_nativetypestatement(out, st, Type_String, "\"\"");
+        emit_nativetypestatement(out, st, REGstring, "\"\"");
     else if (st instanceof IntArrayStatement)
         emit_nativearraystatement(out, st, "Integer");
     else if (st instanceof FloatArrayStatement)
