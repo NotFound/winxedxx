@@ -153,6 +153,24 @@ WxxObjectPtr isnt(const WxxObjectArray &args)
     return winxedxxnull;
 }
 
+WxxObjectPtr is_null(const WxxObjectArray &args)
+{
+    int numargs = args.elements();
+    WxxObjectPtr value = args.get_pmc_keyed(0);
+    std::string msg = numargs > 1 ? args.get_pmc_keyed(1).get_string() : "";
+
+    bool result = value.is_null();
+
+    if (! result)
+        std::cout << "n";
+    std::cout << "ok " << numNewTest();
+    if (msg != "")
+        std::cout << " - " << msg;
+    std::cout << "\n";
+
+    return winxedxxnull;
+}
+
 //******************************************************
 
 void initialize()
@@ -167,6 +185,7 @@ void initialize()
     ns.set("nok", new WxxSub(&nok));
     ns.set("is", new WxxSub(&is));
     ns.set("isnt", new WxxSub(&isnt));
+    ns.set("is_null", new WxxSub(&is_null));
 }
 
 } // namespace Test
