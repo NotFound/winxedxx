@@ -30,8 +30,10 @@ WxxObjectPtr winxedxxnull;
 class WxxException : public WxxDefault
 {
 public:
-    WxxException(const std::string &message, int severity = 2, int type = 0);
+    WxxException(const std::string &message = "",
+            int severity = 2, int type = 0);
     std::string get_string();
+    WxxObjectPtr get_pmc_keyed(const std::string &str);
 private:
     std::string msg;
     int sev;
@@ -51,6 +53,11 @@ WxxException::WxxException(const std::string &message, int severity, int type) :
 
 std::string WxxException::get_string()
 { return msg; }
+
+WxxObjectPtr WxxException::get_pmc_keyed(const std::string &str)
+{
+    return get_attr_str(str);
+}
 
 //*************************************************************
 
@@ -386,6 +393,8 @@ WxxObjectPtr wxx_new_string(const std::string &name)
         return new WxxString("");
     if (name == "Hash")
         return new WxxHash();
+    if (name == "Exception")
+        return new WxxException();
     if (name == "FileHandle")
         return new WxxFileHandle();
     if (name == "ByteBuffer")
