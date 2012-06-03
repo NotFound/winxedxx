@@ -12,6 +12,9 @@ executes the result.
 
 */
 
+$include_const "iglobals.pasm";
+$include_const "libpaths.pasm";
+
 $include "winxedxx.winxhead";
 $load "winxedxx.pbc";
 
@@ -144,6 +147,7 @@ class Options : ["Getopt", "Obj" ]
           [ "o=s",       "Object name" ],
           [ "target=s",  "Set target type: cxx, exe or run. Default is cxx." ],
           [ "stage=s",   "Use a compiler stage instead of default." ],
+          [ "I=s",       "Add to parrot include search path" ],
           [ "verbose=i", "Talk a lot" ]
         ];
         for (var o in self.options)
@@ -232,6 +236,7 @@ function main [main](var argv)
     string target  = cloptions.getstring("target", "run");
     string outfile = cloptions.getstring("o");
     string stage   = cloptions.getstring("stage");
+    string incs    = cloptions.getstring("I");
     int    verbose = cloptions.getint("verbose");
 
     switch (target) {
@@ -255,6 +260,13 @@ function main [main](var argv)
     int argc = elements(argv);
     if (argc < 1)
         throw Error("No source files");
+
+    if (incs != null) {
+        var interp = getinterp();
+	var lpaths = interp[IGLOBALS_LIB_PATHS];
+	var pathinc = lpaths[PARROT_LIB_PATH_INCLUDE];
+	pathinc.push(string(incs));
+    }
 
     string cxxfiles[];
     string objfiles[];
