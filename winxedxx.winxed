@@ -757,8 +757,7 @@ function emit_CallExpr(out, callexpr)
         }
         break;
       default:
-        if (__DEBUG__) cry("In Call expression:");
-        WxxUnsupported(funref);
+        emit_expr(out, funref);
     }
 
     out.print("(");
