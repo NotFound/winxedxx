@@ -114,29 +114,35 @@ WxxObjectPtr WxxNull::sub(const WxxObjectPtr &value)
 
 int WxxNull::get_integer_keyed(int i)
 {
-    nullaccess("get_integer_keyed");
+    nullaccess("get_integer_keyed_int");
     return 0;
 }
 
 double WxxNull::get_number_keyed(int i)
 {
-    nullaccess("get_number_keyed");
+    nullaccess("get_number_keyed_int");
     return 0;
 }
 
 std::string WxxNull::get_string_keyed(int i)
 {
-    nullaccess("get_pmc_keyed");
+    nullaccess("get_pmc_keyed_int");
     return std::string();
 }
 
 WxxObjectPtr WxxNull::get_pmc_keyed(int i)
 {
-    nullaccess("get_pmc_keyed");
+    nullaccess("get_pmc_keyed_int");
     return winxedxxnull;
 }
 
 WxxObjectPtr WxxNull::get_pmc_keyed(const std::string &s)
+{
+    nullaccess("get_pmc_keyed_str");
+    return winxedxxnull;
+}
+
+WxxObjectPtr WxxNull::get_pmc_keyed(const WxxObjectPtr &key)
 {
     nullaccess("get_pmc_keyed");
     return winxedxxnull;
@@ -144,12 +150,12 @@ WxxObjectPtr WxxNull::get_pmc_keyed(const std::string &s)
 
 void WxxNull::set_pmc_keyed(int i, const WxxObjectPtr &value)
 {
-    nullaccess("set_pmc_keyed");
+    nullaccess("set_pmc_keyed_int");
 }
 
 WxxObjectPtr & WxxNull::set_pmc_keyed(const std::string &s, const WxxObjectPtr &value)
 {
-    nullaccess("set_pmc_keyed");
+    nullaccess("set_pmc_keyed_str");
     return winxedxxnull;
 }
 

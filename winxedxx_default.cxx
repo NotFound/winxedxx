@@ -1,9 +1,10 @@
 // winxedxx_default.cxx
-// (C) 2011 Julián Albo
+// (C) 2011-2012 Julián Albo
 
 #include "winxedxx_types.h"
 #include "winxedxx_object.h"
 #include "winxedxx_default.h"
+#include "winxedxx_integer.h"
 
 #include <iostream>
 #include <sstream>
@@ -147,11 +148,16 @@ std::string WxxDefault::get_string_keyed(int i)
 
 WxxObjectPtr WxxDefault::get_pmc_keyed(int i)
 {
-    notimplemented("get_pmc_keyed");
-    return winxedxxnull;
+    return get_pmc_keyed(WxxObjectPtr(new WxxInteger(i)));
 }
 
 WxxObjectPtr WxxDefault::get_pmc_keyed(const std::string &s)
+{
+    notimplemented("get_pmc_keyed_str");
+    return winxedxxnull;
+}
+
+WxxObjectPtr WxxDefault::get_pmc_keyed(const WxxObjectPtr &key)
 {
     notimplemented("get_pmc_keyed");
     return winxedxxnull;
@@ -159,12 +165,12 @@ WxxObjectPtr WxxDefault::get_pmc_keyed(const std::string &s)
 
 void WxxDefault::set_pmc_keyed(int i, const WxxObjectPtr &value)
 {
-    notimplemented("set_pmc_keyed");
+    notimplemented("set_pmc_keyed_int");
 }
 
 WxxObjectPtr & WxxDefault::set_pmc_keyed(const std::string &s, const WxxObjectPtr &value)
 {
-    notimplemented("set_pmc_keyed");
+    notimplemented("set_pmc_keyed_str");
     return winxedxxnull;
 }
 int WxxDefault::exists(const std::string &key)
