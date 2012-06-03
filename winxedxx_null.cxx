@@ -153,10 +153,9 @@ void WxxNull::set_pmc_keyed(int i, const WxxObjectPtr &value)
     nullaccess("set_pmc_keyed_int");
 }
 
-WxxObjectPtr & WxxNull::set_pmc_keyed(const std::string &s, const WxxObjectPtr &value)
+void WxxNull::set_pmc_keyed(const std::string &s, const WxxObjectPtr &value)
 {
     nullaccess("set_pmc_keyed_str");
-    return winxedxxnull;
 }
 
 int WxxNull::exists(const std::string &key)

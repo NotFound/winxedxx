@@ -59,6 +59,11 @@ WxxObjectPtr WxxNamespace::get_pmc_keyed(const std::string &s)
     return get(s);
 }
 
+void WxxNamespace::set_pmc_keyed(const std::string &s, const WxxObjectPtr &value)
+{
+    set(s, value);
+}
+
 WxxObjectPtr WxxNamespace::call_method(const std::string &methname, WxxObjectArray &args)
 {
     if (methname == "get_parent")

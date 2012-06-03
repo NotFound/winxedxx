@@ -31,6 +31,8 @@ private:
     // vtable functions
     std::string get_string();
     WxxObjectPtr get_pmc_keyed(const std::string &s);
+    void set_pmc_keyed(const std::string &s, const WxxObjectPtr &value);
+
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
 
     const std::string name;

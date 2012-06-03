@@ -168,10 +168,9 @@ void WxxDefault::set_pmc_keyed(int i, const WxxObjectPtr &value)
     notimplemented("set_pmc_keyed_int");
 }
 
-WxxObjectPtr & WxxDefault::set_pmc_keyed(const std::string &s, const WxxObjectPtr &value)
+void WxxDefault::set_pmc_keyed(const std::string &s, const WxxObjectPtr &value)
 {
     notimplemented("set_pmc_keyed_str");
-    return winxedxxnull;
 }
 int WxxDefault::exists(const std::string &key)
 {

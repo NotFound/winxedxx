@@ -200,7 +200,7 @@ public:
     WxxHash & set(const std::string &key, WxxObjectPtr value);
     int elements() const;
     using WxxDefault::set_pmc_keyed;
-    WxxObjectPtr &set_pmc_keyed(const std::string &s, const WxxObjectPtr &value);
+    void set_pmc_keyed(const std::string &s, const WxxObjectPtr &value);
     WxxObjectPtr get_pmc_keyed(const std::string &s);
     int exists(const std::string &key);
 private:

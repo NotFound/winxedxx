@@ -88,10 +88,9 @@ WxxObjectPtr WxxHash::get_pmc_keyed(const std::string &s)
     return hsh[s];
 }
 
-WxxObjectPtr & WxxHash::set_pmc_keyed(const std::string &s, const WxxObjectPtr &value)
+void WxxHash::set_pmc_keyed(const std::string &s, const WxxObjectPtr &value)
 {
     hsh[s] = value;
-    return hsh[s];
 }
 
 int WxxHash::exists(const std::string &key)

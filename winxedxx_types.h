@@ -90,8 +90,8 @@ public:
     WxxObjectPtr get_pmc_keyed(const std::string &s) const;
     WxxObjectPtr get_pmc_keyed(const WxxObjectPtr &key) const;
     void set_pmc_keyed(int i, const WxxObjectPtr &value) const;
-    WxxObjectPtr & set_pmc_keyed(const std::string &s, const WxxObjectPtr &value) const;
-    WxxObjectPtr & set_pmc_keyed(const WxxObjectPtr &key, const WxxObjectPtr &value) const;
+    void set_pmc_keyed(const std::string &s, const WxxObjectPtr &value) const;
+    void set_pmc_keyed(const WxxObjectPtr &key, const WxxObjectPtr &value) const;
     int exists(const std::string &key) const;
     WxxObjectPtr & get_attr_str(const std::string &s) const;
     void set_attr_str(const std::string &s, const WxxObjectPtr &value) const;
@@ -145,6 +145,7 @@ int wxx_indexof(const std::string &from, const std::string &search);
 int wxx_indexof(const std::string &from, const std::string &search, int pos);
 
 std::string wxx_chomp(const std::string &src);
+
 std::string wxx_escape(const std::string &src);
 
 WxxObjectPtr wxx_new(const std::string &name);
