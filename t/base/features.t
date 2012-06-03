@@ -222,6 +222,9 @@ function bar()
     return "Foo.bar";
 }
 
+// This is to avoid a C++ compiler warning.
+class Unused { }
+
 } // namespace Foo
 
 function bar()

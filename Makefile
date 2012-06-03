@@ -25,6 +25,7 @@ OBJS = \
 		winxedxx_nci.o \
 		winxedxx_ptr.o \
 		winxedxx_bytebuffer.o \
+		winxedxx_builtin_test_more.o \
 		winxedxx_util.o
 
 LIB = winxedxx.so
@@ -90,6 +91,9 @@ winxedxx_nci.o: winxedxx_nci.cxx winxedxx.h
 winxedxx_util.o: winxedxx_util.cxx winxedxx_types.h winxedxx_object.h winxedxx_default.h winxedxx_integer.h winxedxx_handle.h
 	$(CXX) $(CXXOPTS) -c winxedxx_util.cxx
 
+winxedxx_builtin_test_more.o: winxedxx_builtin_test_more.cxx winxedxx_types.h winxedxx_object.h winxedxx_default.h winxedxx_integer.h winxedxx_handle.h
+	$(CXX) $(CXXOPTS) -c winxedxx_builtin_test_more.cxx
+
 #-----------------------------------------------------------------------
 
 winxedxc.pir: winxedxc.winxed winxedxx.winxhead
@@ -101,12 +105,12 @@ winxedxc.pbc: winxedxc.pir
 #-----------------------------------------------------------------------
 
 test: winxedxx.pbc $(FRONTEND) winxedxx.h $(LIB)
-	prove -v -e "$(WINXED) t/runtests.winxed" t/base/features.t
+	prove -v -e "$(WINXED) t/runtests.winxed" t/base/00test.t t/base/features.t
 
 #-----------------------------------------------------------------------
 
 exetest: t/runtests
-	prove -v -e t/runtests t/base/features.t
+	prove -v -e t/runtests t/base/00test.t t/base/features.t
 
 t/runtests: winxedxx.pbc $(FRONTEND) winxedxx.h $(LIB) t/runtests.winxed
 	$(PARROT) $(FRONTEND) --target=exe -o t/runtests t/runtests.winxed
@@ -127,6 +131,9 @@ clean:
 		t/runtests \
 		t/runtests.o \
 		t/runtests.cxx \
+		t/base/00test \
+		t/base/00test.o \
+		t/base/00test.cxx \
 		t/base/features \
 		t/base/features.o \
 		t/base/features.cxx

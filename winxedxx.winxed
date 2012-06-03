@@ -2243,6 +2243,7 @@ function get_main(ns)
 
 #include "winxedxx.h"
 #include "winxedxx_namespace.h"
+#include "winxedxx_builtin_test_more.h"
 
 namespace WinxedXX
 {
@@ -2325,6 +2326,8 @@ INITIALIZER:>>
         self.emit_initialize_namespace(rootns, "rootns");
         self.emit_initialize_child_namespaces(rootns, "rootns");
 
+        self.emit_initialize_modules(rootns);
+
         self.print(<<:INITIALIZEREND
     return 1;
 }
@@ -2379,6 +2382,33 @@ INITIALIZEREND:>>
             self.print(sprintf(CXXMAIN, [ mainfunc ] ));
 
         self.print("// End\n");
+    }
+
+    function emit_initialize_modules(var ns)
+    {
+        var loads = ns.loads;
+        for (string module in loads)
+            self.emit_load_module(module);
+
+    }
+    function emit_load_module(string modulename)
+    {
+        // Harcoded for a now, don't even check functions to import
+        if (modulename = "Test/More.pbc") {
+            self.print("    // Initialize builtin module ", modulename, "\n");
+            self.print("    WinxedXX::Builtin::Test::More::initialize();\n");
+            self.print("    WxxNamespace &modTestMode = rootns.childNamespace(\"Test\").childNamespace(\"More\");\n");
+            self.print("    WxxObjectPtr fun;\n");
+            for (string objname in [ "plan", "ok", "nok", "is", "isnt" ] ) {
+                objname = "\"" + objname + "\"";
+                self.print("    fun = modTestMode.get(",
+                        objname, ");\n");
+                self.print("    if (fun.is_null()) fun = new WxxInteger(42);\n");
+                self.print("    rootns.set(", objname, ", fun);\n");
+            }
+            return;
+        }
+        cry("LOAD: ", modulename);
     }
 
     function print(args[slurpy])
