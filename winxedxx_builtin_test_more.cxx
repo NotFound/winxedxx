@@ -54,6 +54,12 @@ WxxObjectPtr plan(const WxxObjectArray &args)
     return winxedxxnull;
 }
 
+WxxObjectPtr done_testing(const WxxObjectArray &args)
+{
+    std::cout << "1.." << counter << "\n";
+    return winxedxxnull;
+}
+
 static int numNewTest()
 {
     return ++counter;
@@ -156,6 +162,7 @@ void initialize()
             childNamespace("Test").childNamespace("More");
     ns.set("diag", new WxxSub(&diag));
     ns.set("plan", new WxxSub(&plan));
+    ns.set("done_testing", new WxxSub(&done_testing));
     ns.set("ok", new WxxSub(&ok));
     ns.set("nok", new WxxSub(&nok));
     ns.set("is", new WxxSub(&is));
