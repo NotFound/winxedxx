@@ -851,43 +851,39 @@ function emit_OpAssignExpr(out, assignexpr)
     var rexpr = assignexpr.rexpr;
     string ltype = lexpr.checkresult();
     string rtype = rexpr.checkresult();
-    if (lexpr instanceof IdentifierExpr) {
+    switch {
+      case lexpr instanceof IdentifierExpr:
         out.print(lexpr.name, " = ");
         switch {
-          case ltype == REGstring && rtype == REGint:
-            out.print(STRINGCAST);
-            emit_expr(out, rexpr);
+          case ltype == REGint:
+            emit_intexpr(out, rexpr);
             break;
-          case ltype == REGint && rtype == REGstring:
-            out.print(INTCAST);
-            emit_expr(out, rexpr);
+          case ltype == REGstring:
+            emit_stringexpr(out, rexpr);
             break;
-          case ltype == REGstring && rtype == REGfloat:
-            out.print(STRINGCAST);
-            emit_expr(out, rexpr);
+          case ltype == REGfloat:
+            emit_numexpr(out, rexpr);
             break;
-          case ltype == REGfloat && rtype == REGstring:
-            out.print(NUMCAST);
-            emit_expr(out, rexpr);
+          case ltype == REGvar && rtype == REGvar:
+            emit_expr(out, rexpr); // Nothing in particular
             break;
           default:
-            // Coerce result type to avoid ambiguities
-            out.print(generatedType(lexpr.checkresult()));
+            out.print(generatedType(ltype));
             emit_expr(out, rexpr);
         }
-    }
-    else if (lexpr instanceof MemberExpr) {
+        break;
+      case lexpr instanceof MemberExpr:
         emit_expr(out, lexpr.left);
         string ident = lexpr.right.getidentifier();
         out.print(".set_attr_str(\"" + ident + "\",");
         emit_varexpr(out, rexpr);
         out.print(")");
-    }
-    else if (lexpr instanceof MemberRefExpr) {
+        break;
+      case lexpr instanceof MemberRefExpr:
         // Fake implementation to allow some testing.
         out.print("winxedxxnull");
-    }
-    else if (lexpr instanceof IndexExpr) {
+        break;
+      case lexpr instanceof IndexExpr:
         var left = lexpr.left;
         emit_expr(out, left);
         var arg = lexpr.args.getarg(0);
@@ -896,8 +892,8 @@ function emit_OpAssignExpr(out, assignexpr)
         out.print(ARGSEP);
         emit_expr(out, rexpr);
         out.print(")");
-    }
-    else {
+        break;
+      default:
         if (__DEBUG__) cry("In assignment:");
         throw WxxUnsupported(lexpr);
     }
