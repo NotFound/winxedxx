@@ -265,7 +265,6 @@ const string
 function strtoxx(string str)
 {
     string result = "";
-    str = unescape(str);
     for (string c in str) {
         switch (c) {
           case "\"":
@@ -295,7 +294,7 @@ function strtoxx(string str)
 function tokstringtoxx(strval)
 {
     __ASSERT__(strval instanceof TokenString);
-    return strtoxx(strval.getasquoted());
+    return strtoxx(unescape(strval.getasquoted()));
 }
 
 function stringtoxx(literal)
