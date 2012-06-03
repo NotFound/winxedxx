@@ -1208,23 +1208,35 @@ function emit_OpNamespaceExpr(out, expr)
 
 function emit_intexpr(out, expr)
 {
-    if (expr.checkresult() != REGint)
-        out.print("wxx_int_cast");
-    emit_expr(out, expr);
+    if (expr.isliteral())
+        out.print(expr.getIntegerValue());
+    else {
+        if (expr.checkresult() != REGint)
+            out.print("wxx_int_cast");
+        emit_expr(out, expr);
+    }
 }
 
 function emit_numexpr(out, expr)
 {
-    if (expr.checkresult() != REGfloat)
-        out.print("wxx_num_cast");
-    emit_expr(out, expr);
+    if (expr.isliteral())
+        out.print(expr.getFloatValue());
+    else {
+        if (expr.checkresult() != REGfloat)
+            out.print("wxx_num_cast");
+        emit_expr(out, expr);
+    }
 }
 
 function emit_stringexpr(out, expr)
 {
-    if (expr.checkresult() != REGstring)
-        out.print("wxx_string_cast");
-    emit_expr(out, expr);
+    if (expr.isliteral())
+        out.print("std::string(\"", strtoxx(expr.getStringValue()), "\")");
+    else {
+        if (expr.checkresult() != REGstring)
+            out.print("wxx_string_cast");
+        emit_expr(out, expr);
+    }
 }
 
 function emit_varexpr(out, expr)
