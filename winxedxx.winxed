@@ -842,7 +842,20 @@ function emit_NewIndexedExpr(out, expr)
 
     // TESTING
     string name = key[0];
-    out.print("wxx_new_string(\"", name, "\")");
+    out.print("wxx_new_string(\"", name, "\"");
+    var initializer = expr.initializer;
+    int numinits = initializer == null ? -1 : initializer.numargs();
+    switch (numinits) {
+      case -1:
+        break;
+      case 1:
+        out.print(ARGSEP);
+        emit_expr(out, initializer.getfreearg(0));
+        break;
+      default:
+        throw WxxError("Invalid initializer");
+    }
+    out.print(")");
 }
 
 function emit_OpAssignExpr(out, assignexpr)

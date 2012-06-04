@@ -13,6 +13,11 @@ namespace WinxedXX
 
 //*************************************************************
 
+void WxxNull::init_pmc(const WxxObjectPtr &arg)
+{
+    nullaccess("init_pmc");
+}
+
 std::string WxxNull::class_name() const
 {
     return "Null";

@@ -30,6 +30,11 @@ WxxDefault::~WxxDefault()
     //std::cerr << "~WxxDefault " << name << "\n";
 }
 
+void WxxDefault::init_pmc(const WxxObjectPtr &arg)
+{
+    notimplemented("init_pmc");
+}
+
 std::string WxxDefault::class_name() const
 {
     return name;

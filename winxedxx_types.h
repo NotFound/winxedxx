@@ -152,6 +152,7 @@ std::string wxx_unescape(const std::string &src);
 WxxObjectPtr wxx_new(const std::string &name);
 WxxObjectPtr wxx_new(const std::string &name, WxxObjectArray args);
 WxxObjectPtr wxx_new_string(const std::string &name);
+WxxObjectPtr wxx_new_string(const std::string &name, WxxObjectPtr arg);
 
 WxxObjectPtr wxx_open(const std::string &filename);
 WxxObjectPtr wxx_open(const std::string &filename, const std::string &mode);

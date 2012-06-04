@@ -21,6 +21,11 @@ WxxInteger::WxxInteger(int value) : WxxDefault("Integer")
     i = value;
 }
 
+void WxxInteger::init_pmc(const WxxObjectPtr &arg)
+{
+    i = arg.get_integer();
+}
+
 std::string WxxInteger::class_name() const
 {
     return "Integer";

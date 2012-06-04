@@ -11,6 +11,7 @@ namespace WinxedXX
 class WxxNull : public WxxObject
 {
 public:
+    void init_pmc(const WxxObjectPtr &arg);
     std::string class_name() const;
     int is_null() const;
     int instanceof(const std::string &type);

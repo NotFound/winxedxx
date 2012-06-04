@@ -32,6 +32,7 @@ class WxxException : public WxxDefault
 public:
     WxxException(const std::string &message = "",
             int severity = 2, int type = 0);
+    void init_pmc(const WxxObjectPtr &arg);
     std::string get_string();
     WxxObjectPtr get_pmc_keyed(const std::string &str);
 private:
@@ -49,6 +50,20 @@ WxxException::WxxException(const std::string &message, int severity, int type) :
     set_attr_str(std::string("message"), WxxObjectPtr(new WxxString(message)));
     set_attr_str(std::string("severity"), WxxObjectPtr(severity));
     set_attr_str(std::string("type"), WxxObjectPtr(type));
+}
+
+void WxxException::init_pmc(const WxxObjectPtr &arg)
+{
+    WxxObjectPtr aux;
+    aux = arg.get_pmc_keyed("message");
+    if (! aux.is_null())
+        set_attr_str(std::string("message"), aux);
+    aux = arg.get_pmc_keyed("severity");
+    if (! aux.is_null())
+        set_attr_str(std::string("severity"), aux);
+    aux = arg.get_pmc_keyed("type");
+    if (! aux.is_null())
+        set_attr_str(std::string("type"), aux);
 }
 
 std::string WxxException::get_string()
@@ -409,7 +424,7 @@ WxxObjectPtr wxx_new(const std::string &name, WxxObjectArray args)
     return obj;
 }
 
-WxxObjectPtr wxx_new_string(const std::string &name)
+static WxxObject * new_string(const std::string name)
 {
     // Sepcial cases for parrot PMC names
     if (name == "Integer")
@@ -426,8 +441,25 @@ WxxObjectPtr wxx_new_string(const std::string &name)
         return new WxxFileHandle();
     if (name == "ByteBuffer")
         return new WxxByteBuffer();
+    return 0;
+}
 
-    return wxx_new(name);
+WxxObjectPtr wxx_new_string(const std::string &name)
+{
+    WxxObject * obj = new_string(name);
+    if (obj)
+        return WxxObjectPtr(obj);
+    else
+        return wxx_new(name);
+}
+
+WxxObjectPtr wxx_new_string(const std::string &name, WxxObjectPtr arg)
+{
+    WxxObject * obj = new_string(name);
+    if (! obj)
+        obj = new WxxInstance(name);
+    obj->init_pmc(arg);
+    return WxxObjectPtr(obj);
 }
 
 WxxObjectPtr wxx_open(const std::string &filename)

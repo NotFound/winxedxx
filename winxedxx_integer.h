@@ -31,6 +31,7 @@ class WxxInteger : public WxxDefault
 {
 public:
     WxxInteger(int value);
+    void init_pmc(const WxxObjectPtr &arg);
     std::string class_name() const;
     int get_integer();
     double get_number();

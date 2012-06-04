@@ -10,6 +10,7 @@ namespace WinxedXX
 class WxxObject : public WxxRefcounted
 {
 public:
+    virtual void init_pmc(const WxxObjectPtr &arg) = 0;
     virtual int is_null() const = 0;
     virtual std::string class_name() const = 0;
     virtual int instanceof(const std::string &type) = 0;
