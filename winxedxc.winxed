@@ -186,7 +186,7 @@ function winxed_compile(var winxed, string sourcefile, var outhandle)
 
 // Helper functions
 
-function getExtension(string filename)
+function splitExtension(string filename)
 {
 /*
         Get the extension from file name.
@@ -197,12 +197,13 @@ function getExtension(string filename)
         string c = filename[pos - 1];
         switch (c) {
           case "/":
-            return string(null);
+            return filename, string(null);
           case ".":
-            return substr(filename, pos);
+            if (pos > 0)
+                return substr(filename, 0, pos - 1), substr(filename, pos);
         }
     }
-    return string(null);
+    return filename, string(null);
 }
 
 function is_relative(string path)
@@ -275,7 +276,7 @@ function main [main](var argv)
         string sourcefile = argv.shift();
         if (sourcefile == "--")
           break;
-        string ext = getExtension(sourcefile);
+        :(string barename, string ext) = splitExtension(sourcefile);
         switch (ext) {
           case "cxx":
             push(cxxfiles, sourcefile);
@@ -287,11 +288,7 @@ function main [main](var argv)
           default:
             if (verbose)
                 say("Compiling winxed: ", sourcefile);
-            string cxxfile = ext == null ?
-                    sourcefile :
-                    substr(sourcefile, 0,
-                        length(sourcefile) - length(ext) - 1);
-            cxxfile += ".cxx";
+            string cxxfile = barename + ".cxx";
             var cxxout = open(cxxfile, "w");
             winxed_compile(winxed, sourcefile, cxxout);
             cxxout.close();
