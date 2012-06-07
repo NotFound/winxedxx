@@ -462,6 +462,11 @@ WxxObjectPtr wxx_new_string(const std::string &name, WxxObjectPtr arg)
     return WxxObjectPtr(obj);
 }
 
+WxxObjectPtr wxx_new_keyed(const char * const name[], int n)
+{
+    return winxedxxnull;
+}
+
 WxxObjectPtr wxx_open(const std::string &filename)
 {
     WxxFileHandle *handle = new WxxFileHandle();

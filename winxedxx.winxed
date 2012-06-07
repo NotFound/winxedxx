@@ -40,6 +40,7 @@ class StringIndexExpr;
 class OpExistsExpr;
 class NewExpr;
 class NewIndexedExpr;
+class NewQualifiedExpr;
 class ArrayExpr;
 class HashExpr;
 class FunctionExpr;
@@ -858,6 +859,27 @@ function emit_NewIndexedExpr(out, expr)
     out.print(")");
 }
 
+function emit_NewQualifiedExpr(out, expr)
+{
+    var newkey = expr.nskey;
+    var nskey = newkey.checknskey(expr);
+
+    var initializer = expr.initializer;
+    int numinits = initializer == null ? -1 : initializer.numargs();
+
+    // TESTING
+    var key = newkey.key;
+    out.print("wxx_new_obj(getRootNamespace()");
+    int n = elements(key);
+    for (int i = 0; i < n - 1; ++i)
+        out.print(".childNamespace(\"", key[i], "\")");
+    string clname = "\"" + string(key[n - 1]) + "\"";
+    out.print(".get(", clname, ")");
+    if (numinits >= 0)
+        out.print(", ", clname);
+    out.print(")");
+}
+
 function emit_OpAssignExpr(out, assignexpr)
 {
     var lexpr = assignexpr.lexpr;
@@ -1304,6 +1326,8 @@ function emit_expr(out, expr)
         emit_NewExpr(out, expr);
     else if (expr instanceof NewIndexedExpr)
         emit_NewIndexedExpr(out, expr);
+    else if (expr instanceof NewQualifiedExpr)
+        emit_NewQualifiedExpr(out, expr);
     else if (expr instanceof ArrayExpr)
         emit_ArrayExpr(out, expr);
     else if (expr instanceof HashExpr)
@@ -2176,7 +2200,7 @@ function emit_declare_namespacest(out, ns)
                 push(functions, item);
         });
 
-    if (elements(functions) || elements(ns.namespaces)) {
+    if (elements(functions) || elements(ns.namespaces) || elements(ns.classes)) {
         int is_root = ns instanceof RootNamespace;
         if (! is_root) {
             out.print("namespace ", ns.name, "\n{\n");
