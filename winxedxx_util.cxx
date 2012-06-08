@@ -188,6 +188,56 @@ WxxObjectPtr wxx_sub(const WxxObjectPtr &o1, int i2)
     return int(o1) - i2;
 }
 
+//*********** operator / ****************
+
+static void checkdivzero(int value)
+{
+    if (value == 0)
+        throw wxx_error("Division by zero");
+}
+static void checkdivzero(double value)
+{
+    if (value == 0)
+        throw wxx_error("Division by zero");
+}
+
+int wxx_div(int i1, int i2)
+{
+    checkdivzero(i2);
+    return i1 / i2;
+}
+
+double wxx_div(double f1, double f2)
+{
+    checkdivzero(f2);
+    return f1 / f2;
+}
+
+double wxx_div(double f1, int  i2)
+{
+    checkdivzero(i2);
+    return f1 / i2;
+}
+
+double wxx_div(int i1, double f2)
+{
+    checkdivzero(f2);
+    return i1 / f2;
+}
+
+WxxObjectPtr wxx_div(int i1, const WxxObjectPtr &o2)
+{
+    int i2 = int(o2);
+    checkdivzero(i2);
+    return i1 / i2;
+}
+
+WxxObjectPtr wxx_div(const WxxObjectPtr &o1, int i2)
+{
+    checkdivzero(i2);
+    return int(o1) / i2;
+}
+
 //******************************************************
 
 int wxx_print(int i) { std::cout << i; return 0; }

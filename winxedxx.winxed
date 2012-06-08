@@ -1051,9 +1051,7 @@ function emit_OpMulExpr(out, expr)
 
 function emit_OpDivExpr(out, expr)
 {
-    emit_expr(out, expr.lexpr);
-    out.print(" / ");
-    emit_expr(out, expr.rexpr);
+    emit_plainfun2(out, "wxx_div", expr.lexpr, expr.rexpr);
 }
 
 function emit_ConcatString(out, concatstr)

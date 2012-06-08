@@ -408,6 +408,15 @@ double wxx_sub(int i1, double f2);
 WxxObjectPtr wxx_sub(int i1, const WxxObjectPtr &o2);
 WxxObjectPtr wxx_sub(const WxxObjectPtr &o1, int i2);
 
+//*********** operator / ****************
+
+int wxx_div(int i1, int i2);
+double wxx_div(double f1, double f2);
+double wxx_div(double f1, int  i2);
+double wxx_div(int i1, double f2);
+WxxObjectPtr wxx_div(int i1, const WxxObjectPtr &o2);
+WxxObjectPtr wxx_div(const WxxObjectPtr &o1, int i2);
+
 //*****************************************
 
 } // namespace WinxedXX
