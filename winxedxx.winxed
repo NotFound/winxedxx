@@ -2440,7 +2440,7 @@ INITIALIZEREND:>>
     function emit_load_module(string modulename)
     {
         // Harcoded for a now, don't even check functions to import
-        if (modulename = "Test/More.pbc") {
+        if (modulename == "\"Test/More.pbc\"") {
             self.print("    // Initialize builtin module ", modulename, "\n");
             self.print("    WinxedXX::Builtin::Test::More::initialize();\n");
             self.print("    WxxNamespace &modTestMode = rootns.childNamespace(\"Test\").childNamespace(\"More\");\n");
@@ -2454,7 +2454,7 @@ INITIALIZEREND:>>
             }
             return;
         }
-        cry("LOAD: ", modulename);
+        cry("LOAD NON BUILTIN MODULE UNIMPLEMENTED: ", modulename);
     }
 
     function print(args[slurpy])
