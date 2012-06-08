@@ -435,6 +435,14 @@ static WxxObject * new_string(const std::string name)
         return new WxxString("");
     if (name == "Hash")
         return new WxxHash();
+    if (name == "ResizableIntegerArray" || name == "FixedIntegerArray")
+        return new WxxIntegerArray();
+    if (name == "ResizableFloatArray" || name == "FixedFloatArray")
+        return new WxxFloatArray();
+    if (name == "ResizableStringArray" || name == "FixedStringArray")
+        return new WxxStringArray();
+    if (name == "ResizablePMCArray" || name == "FixedPMCArray")
+        return new WxxObjectArray();
     if (name == "Exception")
         return new WxxException();
     if (name == "FileHandle")
