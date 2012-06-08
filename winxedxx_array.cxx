@@ -69,6 +69,12 @@ int WxxIntegerArray::elements() const
     return arr.size();
 }
 
+WxxObject & WxxIntegerArray::set(int value)
+{
+    arr.resize(value);
+    return *this;
+}
+
 int WxxIntegerArray::operator[](int i) const
 {
     int size = arr.size();
@@ -144,6 +150,12 @@ WxxFloatArray::~WxxFloatArray()
 int WxxFloatArray::elements() const
 {
     return arr.size();
+}
+
+WxxObject & WxxFloatArray::set(int value)
+{
+    arr.resize(value);
+    return *this;
 }
 
 double WxxFloatArray::operator[](int i) const
@@ -229,6 +241,12 @@ WxxStringArray::~WxxStringArray()
 int WxxStringArray::elements() const
 {
     return arr.size();
+}
+
+WxxObject & WxxStringArray::set(int value)
+{
+    arr.resize(value);
+    return *this;
 }
 
 std::string WxxStringArray::operator[](int i) const
@@ -320,6 +338,12 @@ WxxObjectArray::~WxxObjectArray()
 int WxxObjectArray::elements() const
 {
     return arr.size();
+}
+
+WxxObject & WxxObjectArray::set(int value)
+{
+    arr.resize(value);
+    return *this;
 }
 
 WxxObjectPtr WxxObjectArray::operator[](int i) const

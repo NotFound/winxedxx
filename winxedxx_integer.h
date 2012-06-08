@@ -93,6 +93,7 @@ public:
     WxxIntegerArray();
     ~WxxIntegerArray();
     int elements() const;
+    WxxObject & set(int value);
     int operator[](int i) const;
     int get_integer_keyed(int i);
     std::string get_string_keyed(int i);
@@ -113,6 +114,7 @@ public:
     WxxFloatArray();
     ~WxxFloatArray();
     int elements() const;
+    WxxObject & set(int value);
     double operator[](int i) const;
     int get_integer_keyed(int i);
     double get_number_keyed(int i);
@@ -134,6 +136,7 @@ public:
     WxxStringArray(char **argv);
     ~WxxStringArray();
     int elements() const;
+    WxxObject & set(int value);
     std::string operator[](int i) const;
     int get_integer_keyed(int i);
     double get_number_keyed(int i);
@@ -155,6 +158,7 @@ public:
     WxxObjectArray();
     ~WxxObjectArray();
     int elements() const;
+    WxxObject & set(int value);
     WxxObjectPtr operator[](int i) const;
     int get_integer_keyed(int i);
     double get_number_keyed(int i);
