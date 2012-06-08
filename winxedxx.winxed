@@ -2202,19 +2202,8 @@ function emit_declare_namespacest(out, ns)
 
     if (elements(functions) || elements(ns.namespaces) || elements(ns.classes)) {
         int is_root = ns instanceof RootNamespace;
-        if (! is_root) {
+        if (! is_root)
             out.print("namespace ", ns.name, "\n{\n");
-            out.print("static WxxNamespace &wxxGetCurrentNamespace()\n");
-            out.print("{\n");
-            out.print("    return getRootNamespace()");
-            string nschain = "";
-            var curns = ns;
-            do {
-                nschain = ".childNamespace(\"" + string(curns.name) + "\")" + nschain;
-                curns = curns.parent;
-            } while (! (curns instanceof RootNamespace));
-            out.print(nschain, ";\n}\n");
-        }
 
         for (var fun in functions)
             emit_declare_function(out, fun);
@@ -2225,6 +2214,41 @@ function emit_declare_namespacest(out, ns)
         if (! is_root)
             out.print("\n} // ", ns.name, "\n");
     }
+}
+
+function emit_namespace_initializers(var out, var ns)
+{
+    var childs = {};
+    for (var child in ns.namespaces) {
+        string name = child.name;
+        if (name == "Winxed_Builtins")
+            continue;
+        if (! exists childs[name])
+            childs[name] = child;
+    }
+
+    int is_root = ns instanceof RootNamespace;
+    if (! is_root)
+        out.print("namespace ", ns.name, "\n{\n");
+
+    out.print("static WxxNamespace &wxxGetCurrentNamespace()\n");
+    out.print("{\n");
+    out.print("    return getRootNamespace()");
+    string nschain = "";
+    var curns = ns;
+    while (! (curns instanceof RootNamespace)) {
+        nschain = ".childNamespace(\"" + string(curns.name) + "\")" + nschain;
+        curns = curns.parent;
+    }
+    out.print(nschain, ";\n}\n");
+
+    for (string childname in childs) {
+        var child = childs[childname];
+        emit_namespace_initializers(out, child);
+    }
+
+    if (! is_root)
+        out.print("\n} // ", ns.name, "\n");
 }
 
 function emit_declare_subid(out, ns, key[optional], seen[optional])
@@ -2294,10 +2318,7 @@ function get_main(ns)
 namespace WinxedXX
 {
 
-static WxxNamespace &wxxGetCurrentNamespace()
-{
-    return getRootNamespace();
-}
+static WxxNamespace &wxxGetCurrentNamespace();
 
 HEADER:>>
     ;
@@ -2419,6 +2440,8 @@ INITIALIZEREND:>>
         emit_declare_subid(self, ns);
 
         emit_namespacest(self, ns);
+
+        emit_namespace_initializers(self, ns);
 
         self.emit_initializer(parsed.rootns);
 
