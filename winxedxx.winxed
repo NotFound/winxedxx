@@ -915,8 +915,12 @@ function emit_OpAssignExpr(out, assignexpr)
         out.print(")");
         break;
       case lexpr instanceof MemberRefExpr:
-        // Fake implementation to allow some testing.
-        out.print("winxedxxnull");
+        emit_expr(out, lexpr.left);
+        out.print(".set_attr_str(");
+        emit_stringexpr(out, lexpr.right);
+        out.print(", ");
+        emit_varexpr(out, rexpr);
+        out.print(")");
         break;
       case lexpr instanceof IndexExpr:
         var left = lexpr.left;
