@@ -33,6 +33,18 @@ WxxObjectPtr WxxNamespace::get(const std::string &name)
     return WxxObjectPtr(it->second);
 }
 
+WxxObjectPtr WxxNamespace::find_symbol(const std::string &name)
+{
+    symbols_t::const_iterator it = symbols.find(name);
+    if (it == symbols.end()) {
+        if (parentns)
+            return parentns->find_symbol(name);
+        else
+            return winxedxxnull;
+    }
+    return WxxObjectPtr(it->second);
+}
+
 WxxNamespace &WxxNamespace::childNamespace(const std::string &name)
 {
     childs_t::const_iterator it = childs.find(name);

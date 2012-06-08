@@ -760,7 +760,7 @@ function emit_CallExpr(out, callexpr)
             if (sym != null)
                 out.print(callname);
             else
-                out.print("wxxGetCurrentNamespace().get(\"", callname, "\")");
+                out.print("wxxGetCurrentNamespace().find_symbol(\"", callname, "\")");
         }
         break;
       default:
