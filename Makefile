@@ -124,8 +124,15 @@ t/runtests: winxedxx.pbc $(FRONTEND) winxedxx.h $(LIB) t/runtests.winxed
 
 #-----------------------------------------------------------------------
 
-clean:
-	rm -f \
+cleantest:
+	rm -f -- \
+		t/runtests \
+		t/runtests.o \
+		t/runtests.cxx \
+		t/base/dotest t/base/*.o t/base/*.cxx
+
+clean: cleantest
+	rm -f -- \
 		winxedxx \
 		winxedxx.c \
 		winxedxx.o \
@@ -134,15 +141,6 @@ clean:
 		winxedxc.pbc \
 		winxedxc.pir \
 		$(LIB) \
-		$(OBJS) \
-		t/runtests \
-		t/runtests.o \
-		t/runtests.cxx \
-		t/base/00test \
-		t/base/00test.o \
-		t/base/00test.cxx \
-		t/base/features \
-		t/base/features.o \
-		t/base/features.cxx
+		$(OBJS)
 
 # End

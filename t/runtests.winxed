@@ -2,10 +2,10 @@
 // runtests.t
 // Compile and execute the tests
 
-function strip_ext(string src)
+function strip_name(string src)
 {
-    int pos = indexof(src, '.');
-    for (int npos = pos; npos != -1; npos = indexof(src, '.', pos + 1))
+    int pos = indexof(src, '/');
+    for (int npos = pos; npos != -1; npos = indexof(src, '/', pos + 1))
         pos = npos;
     if (pos >= 0)
         return substr(src, 0, pos);
@@ -15,7 +15,8 @@ function strip_ext(string src)
 
 function runtest(string srcname)
 {
-    string objname = strip_ext(srcname);
+    string objname = strip_name(srcname);
+    objname += "/dotest";
     if (objname == srcname)
         objname += '.exe';
 
