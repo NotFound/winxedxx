@@ -177,6 +177,38 @@ WxxObjectPtr is_null(const WxxObjectArray &args)
     return winxedxxnull;
 }
 
+WxxObjectPtr throws_type(const WxxObjectArray &args)
+{
+    int numargs = args.elements();
+    WxxObjectPtr fun = args.get_pmc_keyed(0);
+    int type = args.get_pmc_keyed(1).get_integer();
+    std::string msg = numargs > 2 ? args.get_pmc_keyed(2).get_string() : "";
+    std::string diag;
+
+    int result = 0;
+    try {
+        fun(WxxObjectArray());
+        diag = "not thrown";
+    }
+    catch (WxxObjectPtr ex) {
+        if (ex.get_pmc_keyed("type").get_integer() == type)
+            result = 1;
+        else
+            diag = "not the expected type";
+    }
+
+    if (! result)
+        std::cout << "n";
+    std::cout << "ok " << numNewTest();
+    if (msg != "")
+        std::cout << " - " << msg;
+    std::cout << "\n";
+    if (diag != "")
+        std::cout << "# " << diag << "\n";
+
+    return winxedxxnull;
+}
+
 //******************************************************
 
 void initialize()
@@ -192,6 +224,7 @@ void initialize()
     ns.set("is", new WxxSub(&is));
     ns.set("isnt", new WxxSub(&isnt));
     ns.set("is_null", new WxxSub(&is_null));
+    ns.set("throws_type", new WxxSub(&throws_type));
 }
 
 } // namespace Test

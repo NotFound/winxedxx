@@ -2470,7 +2470,7 @@ INITIALIZEREND:>>
             self.print("    WinxedXX::Builtin::Test::More::initialize();\n");
             self.print("    WxxNamespace &modTestMode = rootns.childNamespace(\"Test\").childNamespace(\"More\");\n");
             self.print("    WxxObjectPtr fun;\n");
-            for (string objname in [ "diag", "plan", "done_testing", "ok", "nok", "is", "isnt", "is_null" ] ) {
+            for (string objname in [ "diag", "plan", "done_testing", "ok", "nok", "is", "isnt", "is_null", "throws_type" ] ) {
                 objname = "\"" + objname + "\"";
                 self.print("    fun = modTestMode.get(",
                         objname, ");\n");
