@@ -194,7 +194,7 @@ WxxObjectPtr & WxxDefault::get_attr_str(const std::string &s)
 
 void WxxDefault::set_attr_str(const std::string &s, const WxxObjectPtr &value)
 {
-    attributes[s] = value;
+    attributes.insert(std::make_pair(s, value));
 }
 
 WxxObjectPtr WxxDefault::get_iter()
