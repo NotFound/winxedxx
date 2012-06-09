@@ -131,8 +131,8 @@ WxxObjectPtr is(const WxxObjectArray &args)
         std::cout << " - " << msg;
     std::cout << "\n";
     if (! result)
-        std::cout << "# Got: " << value.get_string() <<
-                " expected " << expected.get_string() << "\n";
+        std::cout << "# Have: " << value.get_string() <<
+                "\n# Want: " << expected.get_string() << "\n";
 
     return winxedxxnull;
 }
@@ -152,9 +152,10 @@ WxxObjectPtr isnt(const WxxObjectArray &args)
     if (msg != "")
         std::cout << " - " << msg;
     std::cout << "\n";
-    if (result)
-        std::cout << "# Got: " << value.get_string() <<
-                " expected " << expected.get_string() << "\n";
+    if (result) {
+        std::string s = value.get_string();
+        std::cout << "# Have: " << s << "\n# Want: not " << s << "\n";
+    }
 
     return winxedxxnull;
 }
