@@ -483,7 +483,7 @@ WxxObjectPtr wxx_new(const std::string &name, WxxObjectArray args)
 static WxxObject * new_string(const std::string name)
 {
     // Sepcial cases for parrot PMC names
-    if (name == "Integer")
+    if (name == "Integer" || name == "Boolean")
         return new WxxInteger(0);
     if (name == "Float")
         return new WxxFloat(0.0);
@@ -503,6 +503,8 @@ static WxxObject * new_string(const std::string name)
         return new WxxException();
     if (name == "FileHandle")
         return new WxxFileHandle();
+    if (name == "StringHandle")
+        return new WxxStringHandle();
     if (name == "ByteBuffer")
         return new WxxByteBuffer();
     return 0;

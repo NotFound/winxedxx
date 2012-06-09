@@ -25,6 +25,24 @@ private:
     WxxObjectPtr readline();
 };
 
+class WxxStringHandle : public WxxDefault
+{
+public:
+    WxxStringHandle();
+    ~WxxStringHandle();
+    WxxObject *open(const std::string &name);
+    WxxObject *open(const std::string & name, const std::string &mode);
+    WxxObject *open(WxxObjectPtr name);
+    WxxObject *open(WxxObjectPtr name, WxxObjectPtr mode);
+    WxxObjectPtr close();
+    void print(WxxObjectPtr obj);
+    WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
+private:
+    std::string s;
+    int pos;
+    WxxObjectPtr read(int n);
+};
+
 } // namespace WinxedXX
 
 #endif

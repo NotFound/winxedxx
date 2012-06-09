@@ -162,6 +162,117 @@ WxxObjectPtr WxxFileHandle::call_method(const std::string &methname, WxxObjectAr
 
 //*************************************************************
 
+WxxStringHandle::WxxStringHandle() : WxxDefault("StringHandle"),
+        pos(-1)
+{
+}
+
+WxxStringHandle::~WxxStringHandle()
+{
+}
+
+WxxObject *WxxStringHandle::open(const std::string &name)
+{
+    pos = 0;
+    return this;
+}
+
+WxxObject *WxxStringHandle::open(const std::string & name,
+        const std::string &mode)
+{
+    if (pos >= 0)
+        throw wxx_error("StringHandle is already open");
+    for (size_t i = 0; i < mode.length(); ++i) {
+        switch (mode[i]) {
+          case 'r':
+          case 'w':
+          case 'a':
+          case 'b':
+            break;
+          default:
+            throw wxx_error("Invalid mode in open");
+        }
+    }
+    pos = 0;
+    return this;
+}
+
+WxxObject *WxxStringHandle::open(WxxObjectPtr name)
+{
+    return open(name.get_string());
+}
+
+WxxObject *WxxStringHandle::open(WxxObjectPtr name, WxxObjectPtr mode)
+{
+    return open(name.get_string(), mode.get_string());
+}
+
+WxxObjectPtr WxxStringHandle::close()
+{
+    int r = 0;
+    if (pos >= 0) {
+        pos = -1;
+    }
+    else
+        r = -1;
+    return r;
+}
+
+void WxxStringHandle::print(WxxObjectPtr obj)
+{
+    if (pos < 0)
+        throw wxx_error("StringHandle is closed");
+}
+
+WxxObjectPtr WxxStringHandle::read(int n)
+{
+    if (pos < 0)
+        throw wxx_error("StringHandle is closed");
+    std::string result = std::string();
+    return WxxObjectPtr(new WxxString(result));
+}
+
+WxxObjectPtr WxxStringHandle::call_method(const std::string &methname, WxxObjectArray &args)
+{
+    if (methname == "print") {
+        if (args.elements() != 1)
+            throw wxx_error("wrong number of positional arguments in print");
+        print(args.get_pmc_keyed(0));
+        return winxedxxnull;
+    }
+    if (methname == "read") {
+        if (args.elements() != 1)
+            throw wxx_error("wrong number of positional arguments in read");
+        return read(args.get_pmc_keyed(0));
+    }
+    if (methname == "open") {
+        switch (args.elements()) {
+          case 1:
+            return open(args.get_pmc_keyed(0));
+          case 2:
+            return open(args.get_pmc_keyed(0), args.get_pmc_keyed(1));
+          default:
+            throw wxx_error("too many positional arguments in close");
+        }
+    }
+    if (methname == "close") {
+        if (args.elements() > 0)
+            throw wxx_error("too many positional arguments in close");
+        return close();
+    }
+    if (methname == "eof") {
+        if (args.elements() > 0)
+            throw wxx_error("too many positional arguments in close");
+        return pos < 0;
+    }
+    if (methname == "encoding")
+        return winxedxxnull;
+    else
+        return WxxDefault::call_method(methname, args);
+}
+
+//*************************************************************
+
 } // namespace WinxedXX
 
 // End
