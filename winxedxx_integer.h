@@ -216,7 +216,7 @@ public:
     WxxObjectArray& push(const std::string &str);
     void set_pmc_keyed(int i, const WxxObjectPtr &value);
 private:
-    std::vector<WxxObjectPtr *> arr;
+    std::vector<WxxObjectPtr> arr;
 };
 
 class WxxArrayIterator : public WxxDefault

@@ -520,8 +520,6 @@ WxxObjectArray::WxxObjectArray() :
 
 WxxObjectArray::~WxxObjectArray()
 {
-    for (unsigned int i = 0; i < arr.size(); ++i)
-        delete arr[i];
 }
 
 int WxxObjectArray::elements() const
@@ -544,7 +542,7 @@ WxxObjectPtr WxxObjectArray::operator[](int i) const
         throw out_of_bounds(*this);
     if (i >= size)
          return winxedxxnull;
-    return WxxObjectPtr(*(arr[i]));
+    return arr[i];
 }
 
 int WxxObjectArray::get_integer_keyed(int i)
@@ -574,30 +572,30 @@ WxxObjectPtr WxxObjectArray::get_pmc_keyed(int i)
 
 void WxxObjectArray::set_pmc_keyed(int i, const WxxObjectPtr &value)
 {
-    arr[i] = new WxxObjectPtr(value);
+    arr[i] = value;
 }
 
 WxxObjectArray& WxxObjectArray::push(int i)
 {
-    arr.push_back(new WxxObjectPtr(i));
+    arr.push_back(WxxObjectPtr(i));
     return *this;
 }
 
 WxxObjectArray& WxxObjectArray::push(double value)
 {
-    arr.push_back(new WxxObjectPtr(value));
+    arr.push_back(WxxObjectPtr(value));
     return *this;
 }
 
 WxxObjectArray& WxxObjectArray::push(const std::string &str)
 {
-    arr.push_back(new WxxObjectPtr(new WxxString(str)));
+    arr.push_back(WxxObjectPtr(new WxxString(str)));
     return *this;
 }
 
 WxxObjectArray& WxxObjectArray::push(WxxObjectPtr obj)
 {
-    arr.push_back(new WxxObjectPtr(obj));
+    arr.push_back(WxxObjectPtr(obj));
     return *this;
 }
 
