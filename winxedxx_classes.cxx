@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 
 #include <stdlib.h>
 
@@ -38,7 +39,7 @@ void WxxRefcounted::incref()
 void WxxRefcounted::decref()
 {
     if (refcount <= 0)
-        throw "Byebye";
+        throw std::logic_error("refcounting error");
     if (--refcount == 0)
         delete this;
 }
