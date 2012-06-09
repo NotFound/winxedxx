@@ -109,13 +109,15 @@ winxedxc.pbc: winxedxc.pir
 
 #-----------------------------------------------------------------------
 
+TESTS = t/base/00test.t t/base/02opadd.t t/base/features.t
+
 test: winxedxx.pbc $(FRONTEND) winxedxx.h $(LIB)
-	prove -v -e "$(WINXED) t/runtests.winxed" t/base/00test.t t/base/features.t
+	prove -v -e "$(WINXED) t/runtests.winxed" $(TESTS)
 
 #-----------------------------------------------------------------------
 
 exetest: t/runtests
-	prove -v -e t/runtests t/base/00test.t t/base/features.t
+	prove -v -e t/runtests $(TESTS)
 
 t/runtests: winxedxx.pbc $(FRONTEND) winxedxx.h $(LIB) t/runtests.winxed
 	$(PARROT) $(FRONTEND) --target=exe -o t/runtests t/runtests.winxed
