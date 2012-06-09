@@ -12,7 +12,7 @@
 namespace WinxedXX
 {
 
-namespace Builtin
+namespace BuiltinModule
 {
 
 namespace Test
@@ -230,7 +230,7 @@ void initialize()
 
 } // namespace Test
 } // namespace More
-} // namespace Builtin
+} // namespace BuiltinModule
 } // namespace WinxedXX
 
 

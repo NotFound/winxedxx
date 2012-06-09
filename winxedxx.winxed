@@ -2354,7 +2354,7 @@ FOOTER1:>>
 int main(int argc, char **argv)
 {
     try {
-        WinxedXX::WxxObjectPtr mainarg(new WinxedXX::WxxStringArray(argv));
+        WinxedXX::WxxObjectPtr mainarg(new WinxedXX::WxxResizableStringArray(argc, argv));
         WinxedXX::WxxObjectPtr objresult =
                 WinxedXX::%s(WinxedXX::WxxObjectArray().push(mainarg));
         int result = objresult.is_null() ? 0 : int(objresult);
@@ -2479,7 +2479,7 @@ INITIALIZEREND:>>
         // Harcoded for a now, don't even check functions to import
         if (modulename == "\"Test/More.pbc\"") {
             self.print("    // Initialize builtin module ", modulename, "\n");
-            self.print("    WinxedXX::Builtin::Test::More::initialize();\n");
+            self.print("    WinxedXX::BuiltinModule::Test::More::initialize();\n");
             self.print("    WxxNamespace &modTestMode = rootns.childNamespace(\"Test\").childNamespace(\"More\");\n");
             self.print("    WxxObjectPtr fun;\n");
             for (string objname in [ "diag", "plan", "done_testing", "ok", "nok", "is", "isnt", "is_null", "throws_type" ] ) {

@@ -373,14 +373,6 @@ WxxStringArray::WxxStringArray(int size) :
     resize(size);
 }
 
-// Special purpose initialization intended only for usage from main.
-WxxStringArray::WxxStringArray(char **argv) :
-        WxxArrayBase("FixedStringArray")
-{
-    for (int argi = 0; argv[argi]; ++argi)
-        push(std::string(argv[argi]));
-}
-
 WxxStringArray::~WxxStringArray()
 {
 }
@@ -504,6 +496,14 @@ WxxResizableStringArray::WxxResizableStringArray() :
 WxxResizableStringArray::WxxResizableStringArray(int size) :
         WxxStringArray("ResizableStringArray", size)
 {
+}
+
+// Special purpose initialization intended only for usage from main.
+WxxResizableStringArray::WxxResizableStringArray(int argc, char **argv) :
+        WxxStringArray("ResizableStringArray", argc)
+{
+    for (int argi = 0; argi < argc; ++argi)
+        arr[argi] = std::string(argv[argi]);
 }
 
 void WxxResizableStringArray::resize(int size)

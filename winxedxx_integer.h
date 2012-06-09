@@ -168,7 +168,6 @@ protected:
 public:
     WxxStringArray();
     WxxStringArray(int size);
-    WxxStringArray(char **argv);
     ~WxxStringArray();
     int elements() const;
     WxxObject & set(int value);
@@ -194,6 +193,7 @@ class WxxResizableStringArray : public WxxStringArray
 public:
     WxxResizableStringArray();
     WxxResizableStringArray(int size);
+    WxxResizableStringArray(int argc, char **argv);
     void resize(int size);
 };
 
