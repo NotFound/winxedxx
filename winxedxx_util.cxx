@@ -192,8 +192,9 @@ WxxObjectPtr wxx_sub(const WxxObjectPtr &o1, int i2)
 
 static void checkdivzero(int value)
 {
+    // Type and severity hardcoded.
     if (value == 0)
-        throw wxx_error("Division by zero");
+        throw wxx_error("Division by zero", 2, 29);
 }
 static void checkdivzero(double value)
 {
