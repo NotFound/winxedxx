@@ -156,6 +156,11 @@ WxxObjectPtr wxx_add(const WxxObjectPtr &o1, int i2)
     return int(o1) + i2;
 }
 
+WxxObjectPtr wxx_add(WxxObjectPtr &o1, WxxObjectPtr &o2)
+{
+    return o1.add(o2);
+}
+
 //*********** operator - ****************
 
 int wxx_sub(int i1, int i2)

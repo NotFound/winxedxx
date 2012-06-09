@@ -210,6 +210,11 @@ int WxxObjectPtr::elements() const
 return object->elements();
 }
 
+WxxObjectPtr WxxObjectPtr::add(const WxxObjectPtr &value)
+{
+    return object->add(value);
+}
+
 std::string WxxObjectPtr::get_string_keyed(int i) const
 {
     return object->get_string_keyed(i);

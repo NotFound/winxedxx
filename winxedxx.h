@@ -398,6 +398,7 @@ std::string wxx_add(int i1, std::string s2);
 std::string wxx_add(std::string s1, int i2);
 WxxObjectPtr wxx_add(int i1, const WxxObjectPtr &o2);
 WxxObjectPtr wxx_add(const WxxObjectPtr &o1, int i2);
+WxxObjectPtr wxx_add(WxxObjectPtr &o1, WxxObjectPtr &o2);
 
 //*********** operator - ****************
 
