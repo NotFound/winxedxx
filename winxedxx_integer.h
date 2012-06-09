@@ -89,55 +89,91 @@ public:
 
 class WxxIntegerArray : public WxxArrayBase
 {
+protected:
+    WxxIntegerArray(const std::string &name);
+    WxxIntegerArray(const std::string &name, int size);
+    virtual void resize(int size);
 public:
     WxxIntegerArray();
+    WxxIntegerArray(int size);
     ~WxxIntegerArray();
     int elements() const;
     WxxObject & set(int value);
     int operator[](int i) const;
+    int & operator[](int i);
     int get_integer_keyed(int i);
     std::string get_string_keyed(int i);
     double get_number_keyed(int i);
     WxxObjectPtr get_pmc_keyed(int i);
+    WxxIntegerArray& set_keyed(int i, int value);
     WxxIntegerArray& push(WxxObjectPtr obj);
     WxxIntegerArray& push(int i);
     WxxIntegerArray& push(double value);
     WxxIntegerArray& push(const std::string &str);
     void set_pmc_keyed(int i, const WxxObjectPtr &value);
-private:
+protected:
     std::vector<int> arr;
+};
+
+class WxxResizableIntegerArray : public WxxIntegerArray
+{
+public:
+    WxxResizableIntegerArray();
+    WxxResizableIntegerArray(int size);
+    void resize(int size);
 };
 
 class WxxFloatArray : public WxxArrayBase
 {
+protected:
+    WxxFloatArray(const std::string &name);
+    WxxFloatArray(const std::string &name, int size);
+    virtual void resize(int size);
 public:
     WxxFloatArray();
+    WxxFloatArray(int size);
     ~WxxFloatArray();
     int elements() const;
     WxxObject & set(int value);
     double operator[](int i) const;
+    double & operator[](int i);
     int get_integer_keyed(int i);
     double get_number_keyed(int i);
     std::string get_string_keyed(int i);
     WxxObjectPtr get_pmc_keyed(int i);
+    WxxFloatArray& set_keyed(int i, float value);
     WxxFloatArray& push(WxxObjectPtr obj);
     WxxFloatArray& push(int i);
     WxxFloatArray& push(double value);
     WxxFloatArray& push(const std::string &str);
     void set_pmc_keyed(int i, const WxxObjectPtr &value);
-private:
+protected:
     std::vector<double> arr;
+};
+
+class WxxResizableFloatArray : public WxxFloatArray
+{
+public:
+    WxxResizableFloatArray();
+    WxxResizableFloatArray(int size);
+    void resize(int size);
 };
 
 class WxxStringArray : public WxxArrayBase
 {
+protected:
+    WxxStringArray(const std::string &name);
+    WxxStringArray(const std::string &name, int size);
+    virtual void resize(int size);
 public:
     WxxStringArray();
+    WxxStringArray(int size);
     WxxStringArray(char **argv);
     ~WxxStringArray();
     int elements() const;
     WxxObject & set(int value);
     std::string operator[](int i) const;
+    std::string & operator[](int i);
     int get_integer_keyed(int i);
     double get_number_keyed(int i);
     std::string get_string_keyed(int i);
@@ -147,9 +183,18 @@ public:
     WxxStringArray& push(double value);
     WxxStringArray& push(const std::string &str);
     void set_pmc_keyed(int i, const WxxObjectPtr &value);
+    WxxStringArray& set_keyed(int i, const std::string &value);
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
-private:
+protected:
     std::vector<std::string> arr;
+};
+
+class WxxResizableStringArray : public WxxStringArray
+{
+public:
+    WxxResizableStringArray();
+    WxxResizableStringArray(int size);
+    void resize(int size);
 };
 
 class WxxObjectArray : public WxxArrayBase

@@ -11,6 +11,18 @@
 namespace WinxedXX
 {
 
+WxxObjectPtr out_of_bounds(const WxxArrayBase &arr)
+{
+    // Hardcoded values
+    return wxx_error(arr.class_name() + ": index out of bounds!", 2, 33);
+}
+
+WxxObjectPtr cannot_resize(const WxxArrayBase &arr)
+{
+    // Hardcoded values
+    return wxx_error(arr.class_name() + ": Can't resize!", 2, 33);
+}
+
 //*************************************************************
 
 WxxArrayBase::WxxArrayBase(const std::string &name) :
@@ -55,13 +67,37 @@ WxxObjectPtr WxxArrayIterator::shift_pmc()
 
 //*************************************************************
 
-WxxIntegerArray::WxxIntegerArray() :
-        WxxArrayBase("ResizableIntegerArray")
+WxxIntegerArray::WxxIntegerArray(const std::string &name) :
+       WxxArrayBase(name)
 {
+}
+
+WxxIntegerArray::WxxIntegerArray(const std::string &name, int size) :
+       WxxArrayBase(name)
+{
+    resize(size);
+}
+
+WxxIntegerArray::WxxIntegerArray() :
+        WxxArrayBase("FixedIntegerArray")
+{
+}
+
+WxxIntegerArray::WxxIntegerArray(int size) :
+        WxxArrayBase("FixedIntegerArray")
+{
+    resize(size);
 }
 
 WxxIntegerArray::~WxxIntegerArray()
 {
+}
+
+void WxxIntegerArray::resize(int size)
+{
+    if (elements())
+        throw cannot_resize(*this);
+    arr.resize(size);
 }
 
 int WxxIntegerArray::elements() const
@@ -71,7 +107,7 @@ int WxxIntegerArray::elements() const
 
 WxxObject & WxxIntegerArray::set(int value)
 {
-    arr.resize(value);
+    resize(value);
     return *this;
 }
 
@@ -81,9 +117,21 @@ int WxxIntegerArray::operator[](int i) const
     if (i < 0)
         i += size;
     if (i < 0)
-        throw wxx_error(getname() + ": index out of bounds!");
+        throw out_of_bounds(*this);
     if (i >= size)
-         return winxedxxnull;
+        return 0;
+    return arr[i];
+}
+
+int & WxxIntegerArray::operator[](int i)
+{
+    int size = arr.size();
+    if (i < 0)
+        i += size;
+    if (i < 0)
+        throw out_of_bounds(*this);
+    if (i >= size)
+         resize(i + 1);
     return arr[i];
 }
 
@@ -105,6 +153,12 @@ std::string WxxIntegerArray::get_string_keyed(int i)
 WxxObjectPtr WxxIntegerArray::get_pmc_keyed(int i)
 {
     return this->operator[](i);
+}
+
+WxxIntegerArray& WxxIntegerArray::set_keyed(int i, int value)
+{
+    this->operator[](i) = value;
+    return *this;
 }
 
 void WxxIntegerArray::set_pmc_keyed(int i, const WxxObjectPtr &value)
@@ -136,15 +190,56 @@ WxxIntegerArray& WxxIntegerArray::push(WxxObjectPtr obj)
     return *this;
 }
 
+//-------------------------------------------------------------
+
+WxxResizableIntegerArray::WxxResizableIntegerArray() :
+        WxxIntegerArray("ResizableIntegerArray")
+{
+}
+
+WxxResizableIntegerArray::WxxResizableIntegerArray(int size) :
+        WxxIntegerArray("ResizableIntegerArray", size)
+{
+}
+
+void WxxResizableIntegerArray::resize(int size)
+{
+    arr.resize(size);
+}
+
 //*************************************************************
 
-WxxFloatArray::WxxFloatArray() :
-        WxxArrayBase("ResizableFloatArray")
+WxxFloatArray::WxxFloatArray(const std::string &name) :
+       WxxArrayBase(name)
 {
+}
+
+WxxFloatArray::WxxFloatArray(const std::string &name, int size) :
+       WxxArrayBase(name)
+{
+    resize(size);
+}
+
+WxxFloatArray::WxxFloatArray() :
+        WxxArrayBase("FixedFloatArray")
+{
+}
+
+WxxFloatArray::WxxFloatArray(int size) :
+        WxxArrayBase("FixedFloatArray")
+{
+    resize(size);
 }
 
 WxxFloatArray::~WxxFloatArray()
 {
+}
+
+void WxxFloatArray::resize(int size)
+{
+    if (elements())
+        throw cannot_resize(*this);
+    arr.resize(size);
 }
 
 int WxxFloatArray::elements() const
@@ -154,7 +249,7 @@ int WxxFloatArray::elements() const
 
 WxxObject & WxxFloatArray::set(int value)
 {
-    arr.resize(value);
+    resize(value);
     return *this;
 }
 
@@ -164,9 +259,21 @@ double WxxFloatArray::operator[](int i) const
     if (i < 0)
         i += size;
     if (i < 0)
-        throw wxx_error(getname() + ": index out of bounds!");
+        throw out_of_bounds(*this);
     if (i >= size)
-         return winxedxxnull;
+        return 0;
+    return arr[i];
+}
+
+double & WxxFloatArray::operator[](int i)
+{
+    int size = arr.size();
+    if (i < 0)
+        i += size;
+    if (i < 0)
+        throw out_of_bounds(*this);
+    if (i >= size)
+        resize(i + 1);
     return arr[i];
 }
 
@@ -188,6 +295,12 @@ std::string WxxFloatArray::get_string_keyed(int i)
 WxxObjectPtr WxxFloatArray::get_pmc_keyed(int i)
 {
     return this->operator[](i);
+}
+
+WxxFloatArray& WxxFloatArray::set_keyed(int i, float value)
+{
+    this->operator[](i) = value;
+    return *this;
 }
 
 void WxxFloatArray::set_pmc_keyed(int i, const WxxObjectPtr &value)
@@ -219,16 +332,50 @@ WxxFloatArray& WxxFloatArray::push(WxxObjectPtr obj)
     return *this;
 }
 
+//-------------------------------------------------------------
+
+WxxResizableFloatArray::WxxResizableFloatArray() :
+        WxxFloatArray("ResizableFloatArray")
+{
+}
+
+WxxResizableFloatArray::WxxResizableFloatArray(int size) :
+        WxxFloatArray("ResizableFloatArray", size)
+{
+}
+
+void WxxResizableFloatArray::resize(int size)
+{
+    arr.resize(size);
+}
+
 //*************************************************************
 
-WxxStringArray::WxxStringArray() :
-        WxxArrayBase("ResizableStringArray")
+WxxStringArray::WxxStringArray(const std::string &name) :
+       WxxArrayBase(name)
 {
+}
+
+WxxStringArray::WxxStringArray(const std::string &name, int size) :
+       WxxArrayBase(name)
+{
+    resize(size);
+}
+
+WxxStringArray::WxxStringArray() :
+        WxxArrayBase("FixedStringArray")
+{
+}
+
+WxxStringArray::WxxStringArray(int size) :
+        WxxArrayBase("FixedStringArray")
+{
+    resize(size);
 }
 
 // Special purpose initialization intended only for usage from main.
 WxxStringArray::WxxStringArray(char **argv) :
-        WxxArrayBase("ResizableStringArray")
+        WxxArrayBase("FixedStringArray")
 {
     for (int argi = 0; argv[argi]; ++argi)
         push(std::string(argv[argi]));
@@ -238,6 +385,13 @@ WxxStringArray::~WxxStringArray()
 {
 }
 
+void WxxStringArray::resize(int size)
+{
+    if (elements())
+        throw cannot_resize(*this);
+    arr.resize(size);
+}
+
 int WxxStringArray::elements() const
 {
     return arr.size();
@@ -245,7 +399,7 @@ int WxxStringArray::elements() const
 
 WxxObject & WxxStringArray::set(int value)
 {
-    arr.resize(value);
+    resize(value);
     return *this;
 }
 
@@ -255,9 +409,21 @@ std::string WxxStringArray::operator[](int i) const
     if (i < 0)
         i += size;
     if (i < 0)
-        throw wxx_error(getname() + ": index out of bounds!");
+        throw out_of_bounds(*this);
     if (i >= size)
-         return std::string();
+        return std::string();
+    return arr[i];
+}
+
+std::string & WxxStringArray::operator[](int i)
+{
+    int size = arr.size();
+    if (i < 0)
+        i += size;
+    if (i < 0)
+        throw out_of_bounds(*this);
+    if (i >= size)
+        resize(i + 1);
     return arr[i];
 }
 
@@ -279,6 +445,12 @@ std::string WxxStringArray::get_string_keyed(int i)
 WxxObjectPtr WxxStringArray::get_pmc_keyed(int i)
 {
     return new WxxString(this->operator[](i));
+}
+
+WxxStringArray& WxxStringArray::set_keyed(int i, const std::string &value)
+{
+    this->operator[](i) = value;
+    return *this;
 }
 
 void WxxStringArray::set_pmc_keyed(int i, const WxxObjectPtr &value)
@@ -322,6 +494,23 @@ WxxObjectPtr WxxStringArray::call_method(const std::string &methname, WxxObjectA
     return WxxDefault::call_method(methname, args);
 }
 
+//-------------------------------------------------------------
+
+WxxResizableStringArray::WxxResizableStringArray() :
+        WxxStringArray("ResizableStringArray")
+{
+}
+
+WxxResizableStringArray::WxxResizableStringArray(int size) :
+        WxxStringArray("ResizableStringArray", size)
+{
+}
+
+void WxxResizableStringArray::resize(int size)
+{
+    arr.resize(size);
+}
+
 //*************************************************************
 
 WxxObjectArray::WxxObjectArray() :
@@ -352,7 +541,7 @@ WxxObjectPtr WxxObjectArray::operator[](int i) const
     if (i < 0)
         i += size;
     if (i < 0)
-        throw wxx_error(getname() + ": index out of bounds!");
+        throw out_of_bounds(*this);
     if (i >= size)
          return winxedxxnull;
     return WxxObjectPtr(*(arr[i]));

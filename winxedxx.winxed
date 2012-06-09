@@ -1494,11 +1494,23 @@ function emit_nativearraystatement(out, st, string arraytype)
 {
     string name = st.name;
     var init = st.initarray;
+    var size = st.size;
 
-    out.print(Type_PMC, " ", name, "(&((*new Wxx", arraytype, "Array())");
+    out.print(Type_PMC, " ", name, "(&((*new Wxx");
+    if (size == null)
+        out.print("Resizable");
+    out.print(arraytype, "Array(");
+    if (size != null)
+        emit_intexpr(out, size);
+    else if (init != null) {
+        int ninit = elements(init);
+        out.print(ninit);
+    }
+    out.print("))");
     if (init != null) {
+        int i = 0;
         for (var item in init) {
-            out.print(".push(");
+            out.print(".set_keyed(", i++, ", ");
             emit_expr(out, item);
             out.print(")");
         }
