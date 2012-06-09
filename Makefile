@@ -40,6 +40,11 @@ pbc: winxedxx.pbc $(FRONTEND)
 
 #-----------------------------------------------------------------------
 
+winxedxc: winxedxc.pbc
+	pbc_to_exe winxedxc.pbc
+
+#-----------------------------------------------------------------------
+
 lib: winxedxx.so
 
 winxedxx.so: $(OBJS)
