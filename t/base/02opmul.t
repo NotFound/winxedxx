@@ -7,7 +7,7 @@ using extern Test.More plan, ok, nok, is;
 
 function main [main] (var args)
 {
-    plan(6);
+    plan(7);
 
     is(1 * 1, 1, "mul int constants");
     int i1 = 1;
