@@ -815,12 +815,36 @@ function emit_FunctionId(out, funid)
 
 function emit_NewExpr(out, expr)
 {
+    var initializer = expr.initializer;
+    int numinits = initializer == null ? -1 : initializer.numargs();
+
     var value = expr.value;
     if (value.isidentifier()) {
-        var initializer = expr.initializer;
-        int numinits = initializer == null ? -1 : initializer.numargs();
-        out.print("wxx_new(\"", value, "\"");
-        if (numinits >= 0) {
+        var id = expr.owner.getvar(value);
+        if (id != null) {
+            out.print("wxx_new(");
+            emit_expr("test");
+        }
+        else {
+            var cl = expr.owner.checkclass(value);
+            if (cl != null) {
+                var key = cl.getpath().path;
+
+                out.print("wxx_new_obj(getRootNamespace()");
+                int n = elements(key);
+                for (int i = 0; i < n - 1; ++i)
+                out.print(".childNamespace(\"", key[i], "\")");
+                string clname = "\"" + string(key[n - 1]) + "\"";
+                out.print(".get(", clname, ")");
+
+                if (numinits >= 0)
+                    out.print(ARGSEP, clname);
+
+            }
+            else
+                out.print("wxx_new(\"", value, "\"");
+        }
+        if (numinits > 0) {
             out.print(ARGSEP);
             emit_callargs(out, initializer);
         }
@@ -875,7 +899,7 @@ function emit_NewQualifiedExpr(out, expr)
         out.print(".childNamespace(\"", key[i], "\")");
     string clname = "\"" + string(key[n - 1]) + "\"";
     out.print(".get(", clname, ")");
-    if (numinits >= 0) {
+    if (numinits > 0) {
         out.print(ARGSEP, clname, ARGSEP);
         emit_callargs(out, initializer);
     }
@@ -2141,6 +2165,21 @@ static WxxClass * init_class()
     WxxClass *cl = new WxxClass("%s");
 CLINIT:>>
         , argname ));
+
+    var bases = clst.bases;
+    if (bases != null) {
+        for (var base in bases) {
+            out.print("    cl->addbase(");
+            out.print("wxxGetCurrentNamespace()");
+            var key = base.key;
+            int n = elements(key) - 1;
+            for (int i = 0; i < n; ++i)
+                out.print(".childNamespace(\"", key[i], "\")");
+            out.print(".getClass(\"", key[n], "\")");
+            out.print(");\n");
+        }
+    }
+
     for_each(clst.members, function(string member)
         {
             out.print("    cl->addattribute(\"" + member + "\");\n");
@@ -2156,7 +2195,7 @@ CLINIT:>>
     );
 
     out.print(sprintf(<<:CLINITEND
-    wxxGetCurrentNamespace().set("%s", cl);
+    wxxGetCurrentNamespace().setClass("%s", cl);
     return cl;
 }
 CLINITEND:>>
