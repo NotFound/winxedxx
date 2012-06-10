@@ -1,5 +1,5 @@
 // winxedxx_classes.cxx
-// (C) 2011 Julián Albo
+// (C) 2011-2012 Julián Albo
 
 #include "winxedxx_types.h"
 #include "winxedxx_object.h"
@@ -152,6 +152,9 @@ WxxObjectPtr WxxClosure::operator()(WxxObjectArray &args)
 //*************************************************************
 
 typedef std::map<std::string, WxxClass *> WxxClassReg;
+typedef std::vector<std::string> attrs_t;
+typedef std::map<std::string, WxxClass::memberfun> regfun_t;
+
 static WxxClassReg *wxxclassreg = 0;
 
 WxxClass * WxxClass::getclass(const std::string &name)
@@ -179,6 +182,18 @@ std::string WxxClass::get_string()
 std::string WxxClass::class_name() const
 {
     return clname;
+}
+
+void WxxClass::addbase(WxxClass *base)
+{
+    if (!base)
+        throw std::runtime_error("Invalid call to addbase");
+    attrs_t & baseattrs = base->attrs;
+    for (attrs_t::iterator it = baseattrs.begin(); it != baseattrs.end(); ++it)
+        addattribute(*it);
+    regfun_t & baseregfun = base->regfun;
+    for (regfun_t::iterator it = baseregfun.begin(); it != baseregfun.end(); ++it)
+        addfunction(it->first, it->second);
 }
 
 void WxxClass::addattribute(const std::string &attrname)

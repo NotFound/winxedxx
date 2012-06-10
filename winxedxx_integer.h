@@ -289,6 +289,7 @@ public:
     std::string get_string();
 
     std::string class_name() const;
+    void addbase(WxxClass *base);
     void addattribute(const std::string &attrname);
     void addfunction(const std::string &fname, memberfun);
     memberfun getfunction(const std::string &fname);
