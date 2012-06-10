@@ -875,8 +875,10 @@ function emit_NewQualifiedExpr(out, expr)
         out.print(".childNamespace(\"", key[i], "\")");
     string clname = "\"" + string(key[n - 1]) + "\"";
     out.print(".get(", clname, ")");
-    if (numinits >= 0)
-        out.print(", ", clname);
+    if (numinits >= 0) {
+        out.print(ARGSEP, clname, ARGSEP);
+        emit_callargs(out, initializer);
+    }
     out.print(")");
 }
 
@@ -2000,6 +2002,8 @@ class EmitFunction
         if (params != null)
             params = params.paramlist;
         int nparams = params == null ? 0 : elements(params);
+        if (nparams != 0)
+            out.print("if (", nparams, " != wxx_fun_args.elements()) throw wxx_error(\"Wrong number of params\");\n");
         if (self.localfuncs != null) {
             string dataname = self.dataname;
             out.print(declareDataInstance(dataname));
