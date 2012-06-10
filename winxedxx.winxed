@@ -460,7 +460,7 @@ function emit_builtin_dlfunc(out, args)
         string item = csig[i];
         if (item == Type_Void)
             throw WxxError("invalid signature");
-        out.print(", ", item);
+        out.print(ARGSEP, item);
     }
     out.print(">(");
     emit_expr(out, args[0].arg);
@@ -951,7 +951,7 @@ function emit_OpAssignExpr(out, assignexpr)
         emit_expr(out, lexpr.left);
         out.print(".set_attr_str(");
         emit_stringexpr(out, lexpr.right);
-        out.print(", ");
+        out.print(ARGSEP);
         emit_varexpr(out, rexpr);
         out.print(")");
         break;
@@ -1541,7 +1541,7 @@ function emit_nativearraystatement(out, st, string arraytype)
     if (init != null) {
         int i = 0;
         for (var item in init) {
-            out.print(".set_keyed(", i++, ", ");
+            out.print(".set_keyed(", i++, ARGSEP);
             emit_expr(out, item);
             out.print(")");
         }
