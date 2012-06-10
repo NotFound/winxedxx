@@ -2,7 +2,7 @@
 #define INCLUDE_WINXEDXX_HANDLE_H
 
 // winxedxx_handle.h
-// (C) 2011 Julián Albo "NotFound"
+// (C) 2011-2012 Julián Albo "NotFound"
 
 namespace WinxedXX
 {
@@ -40,6 +40,7 @@ public:
 private:
     std::string s;
     int pos;
+    bool eof() const;
     WxxObjectPtr read(int n);
 };
 

@@ -1,5 +1,5 @@
 // winxedxx_handle.cxx
-// (C) 2011 Julián Albo
+// (C) 2011-2012 Julián Albo
 
 #include "winxedxx_types.h"
 #include "winxedxx_object.h"
@@ -218,17 +218,27 @@ WxxObjectPtr WxxStringHandle::close()
     return r;
 }
 
+bool WxxStringHandle::eof() const
+{
+    return pos < 0 || pos >= int(s.length());
+}
+
 void WxxStringHandle::print(WxxObjectPtr obj)
 {
     if (pos < 0)
         throw wxx_error("StringHandle is closed");
+    s += obj.get_string();
 }
 
 WxxObjectPtr WxxStringHandle::read(int n)
 {
     if (pos < 0)
         throw wxx_error("StringHandle is closed");
-    std::string result = std::string();
+    if (eof())
+        return winxedxxnull;
+
+    std::string result = s.substr(pos, n);
+    pos += result.length();
     return WxxObjectPtr(new WxxString(result));
 }
 
@@ -263,7 +273,7 @@ WxxObjectPtr WxxStringHandle::call_method(const std::string &methname, WxxObject
     if (methname == "eof") {
         if (args.elements() > 0)
             throw wxx_error("too many positional arguments in close");
-        return pos < 0;
+        return eof();
     }
     if (methname == "encoding")
         return winxedxxnull;
