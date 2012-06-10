@@ -193,6 +193,43 @@ WxxObjectPtr wxx_sub(const WxxObjectPtr &o1, int i2)
     return int(o1) - i2;
 }
 
+//*********** operator * ****************
+
+int wxx_mul(int i1, int i2)
+{
+    return i1 * i2;
+}
+
+double wxx_mul(double f1, double f2)
+{
+    return f1 * f2;
+}
+
+double wxx_mul(double f1, int  i2)
+{
+    return f1 * i2;
+}
+
+double wxx_mul(int i1, double f2)
+{
+    return i1 * f2;
+}
+
+WxxObjectPtr wxx_mul(int i1, const WxxObjectPtr &o2)
+{
+    return i1 * o2.get_integer();
+}
+
+WxxObjectPtr wxx_mul(const WxxObjectPtr &o1, int i2)
+{
+    return o1.get_integer() * i2;
+}
+
+WxxObjectPtr wxx_mul(WxxObjectPtr &o1, WxxObjectPtr &o2)
+{
+    return o1.get_integer() * o2.get_integer();
+}
+
 //*********** operator / ****************
 
 static void checkdivzero(int value)

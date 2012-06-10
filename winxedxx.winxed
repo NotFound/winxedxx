@@ -1077,9 +1077,7 @@ function emit_RepeatString(out, expr)
 
 function emit_OpMulExpr(out, expr)
 {
-    emit_expr(out, expr.lexpr);
-    out.print(" * ");
-    emit_expr(out, expr.rexpr);
+    emit_plainfun2(out, "wxx_mul", expr.lexpr, expr.rexpr);
 }
 
 function emit_OpDivExpr(out, expr)

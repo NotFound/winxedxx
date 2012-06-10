@@ -409,6 +409,16 @@ double wxx_sub(int i1, double f2);
 WxxObjectPtr wxx_sub(int i1, const WxxObjectPtr &o2);
 WxxObjectPtr wxx_sub(const WxxObjectPtr &o1, int i2);
 
+//*********** operator * ****************
+
+int wxx_mul(int i1, int i2);
+double wxx_mul(double f1, double f2);
+double wxx_mul(double f1, int  i2);
+double wxx_mul(int i1, double f2);
+WxxObjectPtr wxx_mul(int i1, const WxxObjectPtr &o2);
+WxxObjectPtr wxx_mul(const WxxObjectPtr &o1, int i2);
+WxxObjectPtr wxx_mul(WxxObjectPtr &o1, WxxObjectPtr &o2);
+
 //*********** operator / ****************
 
 int wxx_div(int i1, int i2);
