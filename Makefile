@@ -138,6 +138,9 @@ clean: cleantest
 		winxedxx.o \
 		winxedxx.pbc \
 		winxedxx.pir \
+		winxedxc \
+		winxedxc.o \
+		winxedxc.c \
 		winxedxc.pbc \
 		winxedxc.pir \
 		$(LIB) \
