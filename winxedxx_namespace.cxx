@@ -61,6 +61,20 @@ void WxxNamespace::set(const std::string &name, const WxxObjectPtr &value)
     symbols[name] = value;
 }
 
+void WxxNamespace::setClass(const std::string &name, WxxClass *value)
+{
+    classes[name] = value;
+    symbols[name] = WxxObjectPtr(value);
+}
+
+WxxClass * WxxNamespace::getClass(const std::string &name)
+{
+    WxxClass *cl = classes[name];
+    if (!cl)
+        throw wxx_error("class not found in namespace: " + name);
+    return cl;
+}
+
 std::string WxxNamespace::get_string()
 {
     return name;
