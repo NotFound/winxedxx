@@ -339,6 +339,15 @@ function ncisigtoc(string sig)
 }
 
 //**********************************************************************
+//           Emit helpers
+//**********************************************************************
+
+function emit_namespacefromroot(var out, var path)
+{
+    out.print("getRootNamespace()");
+    for (string item in path)
+        out.print(".childNamespace(\"", item, "\")");
+}
 
 function emit_plainfun1(var out, string name, var arg)
 {
@@ -746,9 +755,7 @@ function emit_CallExpr(out, callexpr)
       case funref instanceof FunctionRef:
         var path = funref.sym.owner.getpath().path;
         var name = funref.getstart();
-        out.print("getRootNamespace()");
-        for (string item in path)
-            out.print(".childNamespace(\"", item, "\")");
+        emit_namespacefromroot(out, path);
         out.print(".get(\"", name.getidentifier(), "\")");
         break;
       case funref.isidentifier():
@@ -1257,10 +1264,8 @@ function emit_OpNamespaceExpr(out, expr)
     if (sym == null)
         WxxError("unknow namespace", expr);
     var path = sym.getpath().path;
-    out.print("WxxObjectPtr(& (getRootNamespace()");
-    int l = elements(path);
-    for (int i = 0; i < l; ++i)
-        out.print(".childNamespace(\"", path[i], "\")");
+    out.print("WxxObjectPtr(& (");
+    emit_namespacefromroot(out, path);
     out.print("))");
 }
 
