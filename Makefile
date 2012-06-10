@@ -109,7 +109,10 @@ winxedxc.pbc: winxedxc.pir
 
 #-----------------------------------------------------------------------
 
-TESTS = t/base/00test.t t/base/02opadd.t t/base/02opmul.t t/base/03pmc.t t/base/features.t
+TESTS = t/base/00test.t \
+	t/base/02opadd.t t/base/02opmul.t \
+	t/base/03pmc.t t/base/03class.t \
+	t/base/features.t
 
 test: winxedxx.pbc $(FRONTEND) winxedxx.h $(LIB)
 	prove -v -e "$(WINXED) t/runtests.winxed" $(TESTS)
