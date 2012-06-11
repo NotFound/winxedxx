@@ -13,14 +13,14 @@ typedef std::map<std::string, WxxNamespace *> childs_t;
 
 WxxNamespace::WxxNamespace() :
         WxxDefault("NameSpace"),
-	name("winxedxx"),
+        name("winxedxx"),
         parentns(0)
 {
 }
 
 WxxNamespace::WxxNamespace(const std::string &nsname, WxxNamespace *parent) :
         WxxDefault("NameSpace"),
-	name(nsname),
+        name(nsname),
         parentns(parent)
 {
 }
@@ -98,7 +98,7 @@ WxxObjectPtr WxxNamespace::call_method(const std::string &methname, WxxObjectArr
         return get(args.get_string_keyed(0));
     else if (methname == "add_var") {
         set(args.get_string_keyed(0), args.get_pmc_keyed(1));
-	return winxedxxnull;
+        return winxedxxnull;
     }
     else
         return WxxDefault::call_method(methname, args);

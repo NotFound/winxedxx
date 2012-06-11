@@ -365,8 +365,8 @@ int wxx_sleep(double t)
 {
     if (t >= 1.0) {
         int seconds = floor(t);
-	sleep(seconds);
-	t -= seconds;
+        sleep(seconds);
+        t -= seconds;
     }
     usleep(t * 1.0e6);
     return 0;

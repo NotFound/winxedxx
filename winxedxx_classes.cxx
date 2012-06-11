@@ -103,7 +103,7 @@ int WxxHash::exists(const std::string &key)
 
 WxxSub::WxxSub(WxxObjectPtr(*fnarg)(const WxxObjectArray &)) :
         WxxDefault("Sub"),
-	fn(fnarg)
+        fn(fnarg)
 {
 }
 
@@ -111,7 +111,7 @@ WxxSub::WxxSub(WxxObjectPtr(*fnarg)(const WxxObjectArray &),
             const std::string &subname) :
         WxxDefault("Sub"),
         name(subname),
-	fn(fnarg)
+        fn(fnarg)
 {
 }
 
@@ -134,7 +134,7 @@ WxxObjectPtr WxxSub::operator()(WxxObjectArray &args)
 
 WxxClosure::WxxClosure(WxxInnerFunction * fnarg) :
         WxxDefault("Sub"),
-	fn(fnarg)
+        fn(fnarg)
 {
     fn->incref();
 }

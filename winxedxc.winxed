@@ -267,9 +267,9 @@ function main [main](var argv)
 
     if (incs != null) {
         var interp = getinterp();
-	var lpaths = interp[IGLOBALS_LIB_PATHS];
-	var pathinc = lpaths[PARROT_LIB_PATH_INCLUDE];
-	pathinc.push(string(incs));
+        var lpaths = interp[IGLOBALS_LIB_PATHS];
+        var pathinc = lpaths[PARROT_LIB_PATH_INCLUDE];
+        pathinc.push(string(incs));
     }
 
     string cxxfiles[];

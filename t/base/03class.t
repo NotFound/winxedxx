@@ -17,7 +17,7 @@ class Foo
         if (self.value != null)
             return self.value;
         else
-	    return 27;
+            return 27;
     }
 }
 
@@ -35,10 +35,10 @@ class FooBar
     {
         int i;
         if (self.n != null)
-	    i = self.n;
+            i = self.n;
         else
-	    i = 7;
-	return i;
+            i = 7;
+        return i;
     }
 }
 

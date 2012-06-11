@@ -40,18 +40,18 @@ void WxxByteBuffer::set_integer_native(int i)
             set_pointer(0);
             allocated_size = 0;
             size = 0;
-	}
-	else {
-	    if ((size_t)i > allocated_size) {
+        }
+        else {
+            if ((size_t)i > allocated_size) {
                 void *newptr = realloc(ptr, i);
-		if (! newptr)
-		    return;
+                if (! newptr)
+                    return;
                 set_pointer(newptr);
                 allocated_size = i;
                 size = i;
-	    }
-	    size = i;
-	}
+            }
+            size = i;
+        }
     }
     else {
         if (i > 0) {
