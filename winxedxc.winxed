@@ -8,7 +8,7 @@
 and modules, call external compilers and linkers and eventually
 executes the result.
 
-    This version works only with g++ and a fixed set of options.
+    This version works only with g++.
 
 */
 
@@ -61,6 +61,16 @@ function is_relative(string path)
       default:
         return true;
     }
+}
+
+function load_config(string filename)
+{
+    var json = load_language("data_json");
+    var file = open(filename);
+    file.encoding("utf8");
+    var code = json.compile(file.readall());
+    file.close();
+    return code();
 }
 
 inline check_exit_code(int code) return int
@@ -152,49 +162,73 @@ class WinxedCompiler
 
 class CompilerCxx
 {
+    var includedir;
+    var dynlib;
+
+    function CompilerCxx(var config)
+    {
+        if (config != null) {
+            var includedir = config["I"];
+            if (includedir != null)
+                self.includedir = includedir;
+            var dynlib = config["dynlib"];
+            if (dynlib != null)
+                self.dynlib = dynlib;
+        }
+    }
     function compile(string cxxfile, string outfile)
     {
-        int r = spawnw( [
-            "g++",
-            "-Wall", "-O2", "-I.",
-            "-fPIC",
-            "-o", outfile,
-            "-c", cxxfile
-        ] );
+        string command[];
+        push(command, "g++");
+        push(command, "-Wall");
+        push(command, "-O2");
+
+        var includedir = self.includedir;
+        if (includedir != null)
+            push(command, "-I" + string(includedir));
+
+        push(command, "-fPIC");
+
+        push(command, "-o");
+        push(command, outfile);
+        push(command, "-c");
+        push(command, cxxfile);
+
+        int r = spawnw(command);
         return check_exit_code(r);
     }
     function link(string outfile, var objs)
     {
         string args[] = [
             "g++",
-            "-Wall", "-O2", "-I.",
+            "-g",
             "-o", outfile
         ];
         for (string obj in objs)
             push(args, obj);
-        push(args, "winxedxx.so");
+        if (self.dynlib != null)
+            push(args, self.dynlib);
         push(args, "-ldl");
 
         int r = spawnw(args);
-        r = (r >> 8) & 0xFF;
-        return r;
+        return check_exit_code(r);
     }
     function linkshared(string outfile, var objs)
     {
         string args[] = [
             "g++",
-            "-g", "-Wall", "-O2", "-I.",
+            "-g",
             "-shared",
             "-o", outfile
         ];
         for (string obj in objs)
             push(args, obj);
-        push(args, "winxedxx.so");
+        if (self.dynlib != null)
+            push(args, self.dynlib);
         push(args, "-ldl");
 
         int r = spawnw(args);
-        r = (r >> 8) & 0xFF;
-        return r;
+        return check_exit_code(r);
     }
 }
 
@@ -214,6 +248,7 @@ class Options : ["Getopt", "Obj" ]
           [ "target=s",  "Set target type: cxx, exe or run. Default is cxx." ],
           [ "stage=s",   "Use a compiler stage instead of default." ],
           [ "I=s",       "Add to parrot include search path" ],
+          [ "config=s",  "Configuration file" ],
           [ "verbose=i", "Talk a lot" ]
         ];
         for (var o in self.options)
@@ -248,6 +283,28 @@ function main [main](var argv)
     string stage   = cloptions.getstring("stage");
     string incs    = cloptions.getstring("I");
     int    verbose = cloptions.getint("verbose");
+    string configfile = cloptions.getstring("config");
+
+    // Load config from json file or use defaults.
+    var config = configfile != null ?
+        load_config(configfile) :
+        {
+            "cxx" : {
+                "dynlib" : "winxedxx.so",
+                "I"      : "."
+            }
+        };
+
+    var configwinxed = config["winxed"];
+    if (configwinxed != null) {
+        string libs = configwinxed["L"];
+        if (libs != null) {
+            var interp = getinterp();
+            var lpaths = interp[IGLOBALS_LIB_PATHS];
+            var pathlibs = lpaths[PARROT_LIB_PATH_LIBRARY];
+            pathlibs.push(libs);
+        }
+    }
 
     switch (target) {
       case "cxx":
@@ -318,7 +375,8 @@ function main [main](var argv)
     int r; // Result code from external calls
     //--------------------------------------------------
     // Compile the generated C++ to obj.
-    var cxx = new CompilerCxx;
+    var cxxconfig = config["cxx"];
+    var cxx = new CompilerCxx(cxxconfig);
     for (string cxxfile in cxxfiles) {
         if (verbose)
             say("Compiling C++: ", cxxfile);
