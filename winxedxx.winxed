@@ -209,6 +209,14 @@ function bindlast(func, arglast[slurpy])
     return function (arg2 [slurpy]) { func(arg2:[flat], arglast:[flat]); };
 }
 
+function bindmethod(string name)
+{
+    return function(var obj, var args[slurpy])
+    {
+        return obj.*name(args:[flat]);
+    };
+}
+
 // Types
 
 const string DATA = "__data";
@@ -2252,33 +2260,6 @@ function emit_namespacest(out, ns)
     }
 }
 
-function emit_declare_namespacest(out, ns)
-{
-    // Declare functions
-    var functions [];
-    for_each(ns.items,
-        function(item)
-        {
-            if (item instanceof FunctionStatement)
-                push(functions, item);
-        });
-
-    if (elements(functions) || elements(ns.namespaces) || elements(ns.classes)) {
-        int is_root = ns instanceof RootNamespace;
-        if (! is_root)
-            out.print("namespace ", ns.name, "\n{\n");
-
-        for (var fun in functions)
-            emit_declare_function(out, fun);
-
-        // Declare child namespaces
-        for_each(ns.namespaces, bindfirst(emit_declare_namespacest, out));
-
-        if (! is_root)
-            out.print("\n} // ", ns.name, "\n");
-    }
-}
-
 function emit_namespace_initializers(var out, var ns)
 {
     var childs = {};
@@ -2314,43 +2295,6 @@ function emit_namespace_initializers(var out, var ns)
         out.print("\n} // ", ns.name, "\n");
 }
 
-function emit_declare_subid(out, ns, key[optional], seen[optional])
-{
-    if (key == null) {
-        string newkey[];
-        key = newkey;
-        // This is a bit hackish for anow
-        seen = {};
-        seen =: 5;
-        seen.set_value_type(1);
-    }
-    else {
-        key = clone(key);
-        push(key, ns.name);
-    }
-    // Declare own functions
-    for (var fun in ns.items) {
-        if (fun instanceof Builtin)
-            continue;
-        if (fun instanceof NamespaceStatement)
-            continue;
-        if (fun instanceof ConstStatement)
-            continue;
-        if (fun instanceof ClassStatement)
-            continue;
-        if (fun instanceof MultiStatement)
-            continue;
-        if (! exists seen[fun]) {
-            emit_declare_function_subid(out, fun, key);
-            seen[fun] = 1;
-        }
-    }
-
-    // Declare child functions
-    for_each(ns.namespaces,
-            bindlast(bindfirst(emit_declare_subid, out), key, seen));
-}
-
 function get_main(ns)
 {
     var functions = ns.funcont.functions;
@@ -2363,6 +2307,134 @@ function get_main(ns)
                 name == "main";
     });
     return result != null ? string(result) : "";
+}
+
+//**********************************************************************
+
+class NamespaceGen
+{
+    var st;
+    var childs;
+    var functions;
+    var classes;
+
+    function NamespaceGen(var namespacest)
+    {
+        self.st = namespacest;
+        var functions [];
+        for_each(namespacest.items,
+            function(item)
+            {
+                if (item instanceof FunctionStatement)
+                    push(functions, item);
+            });
+        self.functions = functions;
+        var childs [];
+        for (var childst in namespacest.namespaces) {
+            push(childs, new ChildNamespaceGen(childst));
+        }
+        self.childs = childs;
+    }
+    function emit_declare(var out)
+    {
+        var ns = self.st;
+        var functions = self.functions;
+        var childs = self.childs;
+        var classes = self.st.classes;
+        if (elements(functions) || elements(childs) || elements(classes)) {
+            self.emit_nsopen(out);
+
+            for (var fun in functions)
+                emit_declare_function(out, fun);
+
+            // Declare child namespaces
+            for_each(childs, bindlast(bindmethod("emit_declare"), out));
+
+            self.emit_nsclose(out);
+        }
+    }
+    function emit_declare_funsubid(var out, var key)
+    {
+        for (var fun in self.functions)
+            emit_declare_function_subid(out, fun, key);
+    }
+    function emit_declare_childsubid(var out, var key)
+    {
+        for (var child in self.childs)
+            child.emit_declare_subid(out, key);
+    }
+    function emit_initialize(var out, string nsvarname)
+    {
+        for (var f in self.st.items) {
+            if (f instanceof FunctionStatement) {
+                string name = f.name;
+                if (f.subid != null) {
+                    out.print("    ", nsvarname, ".set(\"", name, "\", ",
+                        "WxxObjectPtr(new WxxSub(", f.subid, ", \"", name, "\"))",
+                        ");\n");
+                }
+            }
+        }
+        int counter = 0;
+        for (var child in self.childs) {
+            string name = child.name;
+            // Special case
+            if (name == "Winxed_Builtins")
+                continue;
+            string childvarname = nsvarname + "_child_" + string(counter++);
+            out.print("    WxxNamespace &", childvarname,
+                    " = ", nsvarname, ".childNamespace(\"", name, "\");\n");
+            child.emit_initialize(out, childvarname);
+        }
+    }
+}
+
+class ChildNamespaceGen : NamespaceGen
+{
+    var name;
+
+    function ChildNamespaceGen(var namespacest)
+    {
+        self.NamespaceGen(namespacest);
+        self.name = namespacest.name;
+    }
+    function emit_nsopen(var out)
+    {
+        out.print("namespace ", self.name, "\n{\n");
+    }
+    function emit_nsclose(var out)
+    {
+        out.print("\n} // ", self.name, "\n");
+    }
+    function emit_declare_subid(var out, var key)
+    {
+        key = clone(key);
+        push(key, self.name);
+        self.emit_declare_funsubid(out, key);
+        self.emit_declare_childsubid(out, key);
+    }
+}
+
+class RootNamespaceGen : NamespaceGen
+{
+    function RootNamespaceGen(var namespacest)
+    {
+        self.NamespaceGen(namespacest);
+    }
+    function emit_nsopen(var out)
+    {
+        // Do nothing
+    }
+    function emit_nsclose(var out)
+    {
+        // Do nothing
+    }
+    function emit_declare_subid(var out)
+    {
+        string key[];
+        self.emit_declare_funsubid(out, key);
+        self.emit_declare_childsubid(out, key);
+    }
 }
 
 //**********************************************************************
@@ -2438,6 +2510,7 @@ CXXMAIN:>>
 class Output
 {
     var handle;
+    var nsgen;
 
     function Output(handle)
     {
@@ -2453,8 +2526,7 @@ static int initialize()
 INITIALIZER:>>
         );
 
-        self.emit_initialize_namespace(rootns, "rootns");
-        self.emit_initialize_child_namespaces(rootns, "rootns");
+        self.nsgen.emit_initialize(self, "rootns");
 
         self.emit_initialize_modules(rootns);
 
@@ -2464,34 +2536,6 @@ INITIALIZER:>>
 INITIALIZEREND:>>
         );
     }
-    function emit_initialize_namespace(var ns, string nsvarname)
-    {
-        for (var f in ns.items) {
-            if (f instanceof FunctionStatement) {
-                string name = f.name;
-                if (f.subid != null) {
-                    self.print("    ", nsvarname, ".set(\"", name, "\", ",
-                        "WxxObjectPtr(new WxxSub(", f.subid, ", \"", name, "\"))",
-                        ");\n");
-                }
-            }
-        }
-    }
-    function emit_initialize_child_namespaces(var ns, string nsvarname)
-    {
-        int counter = 0;
-        for (var child in ns.namespaces) {
-            string name = child.name;
-            // Special case
-            if (name == "Winxed_Builtins")
-                continue;
-            string childvarname = nsvarname + "_child_" + string(counter++);
-            self.print("    WxxNamespace &", childvarname,
-                    " = ", nsvarname, ".childNamespace(\"", name, "\");\n");
-            self.emit_initialize_namespace(child, childvarname);
-            self.emit_initialize_child_namespaces(child, childvarname);
-        }
-    }
     function emit(parsed)
     {
         var ns = parsed.rootns;
@@ -2499,8 +2543,10 @@ INITIALIZEREND:>>
 
         self.print(HEADER);
 
-        emit_declare_namespacest(self, ns);
-        emit_declare_subid(self, ns);
+        var nsgen = new RootNamespaceGen(ns);
+        self.nsgen = nsgen;
+        nsgen.emit_declare(self);
+        nsgen.emit_declare_subid(self);
 
         emit_namespacest(self, ns);
 
