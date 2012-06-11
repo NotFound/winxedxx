@@ -181,62 +181,182 @@ struct callfunc<void (*) (Arg0, Arg1)>
     }
 };
 
-template <typename Ret, typename Arg0, typename Arg1, typename Arg2>
+template <typename Ret, typename Arg0, typename Arg1,
+        typename Arg2>
 struct callfunc<Ret (*)(Arg0, Arg1, Arg2)>
 {
-    static WxxObjectPtr doit(Ret (*f)(Arg0, Arg1, Arg2), WxxObjectArray &args)
+    static WxxObjectPtr doit(Ret (*f)(Arg0, Arg1, Arg2),
+            WxxObjectArray &args)
     {
         checkargs(args, 3);
-        return handleResult((*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2)));
+        return handleResult((*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1),
+                getarg<Arg2>(args, 2)));
     }
 };
-template <typename Arg0, typename Arg1, typename Arg2>
+template <typename Arg0, typename Arg1,
+        typename Arg2>
 struct callfunc<void (*) (Arg0, Arg1, Arg2)>
 {
-    static WxxObjectPtr doit(void (*f)(Arg0, Arg1, Arg2), WxxObjectArray &args)
+    static WxxObjectPtr doit(void (*f)(Arg0, Arg1, Arg2),
+            WxxObjectArray &args)
     {
         checkargs(args, 3);
-        (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2));
+        (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1),
+                getarg<Arg2>(args, 2));
         return winxedxxnull;
     }
 };
 
-template <typename Ret, typename Arg0, typename Arg1, typename Arg2, typename Arg3>
+template <typename Ret, typename Arg0, typename Arg1,
+        typename Arg2, typename Arg3>
 struct callfunc<Ret (*)(Arg0, Arg1, Arg2, Arg3)>
 {
-    static WxxObjectPtr doit(Ret (*f)(Arg0, Arg1, Arg2, Arg3), WxxObjectArray &args)
+    static WxxObjectPtr doit(Ret (*f)(Arg0, Arg1, Arg2, Arg3),
+            WxxObjectArray &args)
     {
         checkargs(args, 4);
-        return handleResult((*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2), getarg<Arg3>(args, 3)));
+        return handleResult((*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1),
+                getarg<Arg2>(args, 2), getarg<Arg3>(args, 3)));
     }
 };
-template <typename Arg0, typename Arg1, typename Arg2, typename Arg3>
+template <typename Arg0, typename Arg1,
+        typename Arg2, typename Arg3>
 struct callfunc<void (*)(Arg0, Arg1, Arg2, Arg3)>
 {
-    static WxxObjectPtr doit(void (*f)(Arg0, Arg1, Arg2, Arg3), WxxObjectArray &args)
+    static WxxObjectPtr doit(void (*f)(Arg0, Arg1, Arg2, Arg3),
+            WxxObjectArray &args)
     {
         checkargs(args, 4);
-        (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2), getarg<Arg3>(args, 3));
+        (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1),
+                getarg<Arg2>(args, 2), getarg<Arg3>(args, 3));
         return winxedxxnull;
     }
 };
 
-template <typename Ret, typename Arg0, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
+template <typename Ret, typename Arg0, typename Arg1,
+        typename Arg2, typename Arg3,
+        typename Arg4>
 struct callfunc<Ret (*)(Arg0, Arg1, Arg2, Arg3, Arg4)>
 {
-    static WxxObjectPtr doit(Ret (*f)(Arg0, Arg1, Arg2, Arg3, Arg4), WxxObjectArray &args)
+    static WxxObjectPtr doit(Ret (*f)(Arg0, Arg1, Arg2, Arg3, Arg4),
+            WxxObjectArray &args)
     {
         checkargs(args, 5);
-        return handleResult((*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2), getarg<Arg3>(args, 3), getarg<Arg4>(args, 4)));
+        return handleResult((*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1),
+                getarg<Arg2>(args, 2), getarg<Arg3>(args, 3),
+                getarg<Arg4>(args, 4)));
     }
 };
-template <typename Arg0, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
+template <typename Arg0, typename Arg1,
+        typename Arg2, typename Arg3,
+        typename Arg4>
 struct callfunc<void (*)(Arg0, Arg1, Arg2, Arg3, Arg4)>
 {
-    static WxxObjectPtr doit(void (*f)(Arg0, Arg1, Arg2, Arg3, Arg4), WxxObjectArray &args)
+    static WxxObjectPtr doit(void (*f)(Arg0, Arg1, Arg2, Arg3, Arg4),
+            WxxObjectArray &args)
     {
         checkargs(args, 5);
-        (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2), getarg<Arg3>(args, 3), getarg<Arg4>(args, 4));
+        (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1),
+                getarg<Arg2>(args, 2), getarg<Arg3>(args, 3),
+                getarg<Arg4>(args, 4));
+        return winxedxxnull;
+    }
+};
+
+template <typename Ret, typename Arg0, typename Arg1,
+        typename Arg2, typename Arg3,
+        typename Arg4, typename Arg5>
+struct callfunc<Ret (*)(Arg0, Arg1, Arg2, Arg3, Arg4, Arg5)>
+{
+    static WxxObjectPtr doit(Ret (*f)(Arg0, Arg1, Arg2, Arg3, Arg4, Arg5),
+            WxxObjectArray &args)
+    {
+        checkargs(args, 6);
+        return handleResult((*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1),
+                getarg<Arg2>(args, 2), getarg<Arg3>(args, 3),
+                getarg<Arg4>(args, 4), getarg<Arg5>(args, 5)));
+    }
+};
+template <typename Arg0, typename Arg1,
+        typename Arg2, typename Arg3,
+        typename Arg4, typename Arg5>
+struct callfunc<void (*)(Arg0, Arg1, Arg2, Arg3, Arg4, Arg5)>
+{
+    static WxxObjectPtr doit(void (*f)(Arg0, Arg1, Arg2, Arg3, Arg4, Arg5),
+            WxxObjectArray &args)
+    {
+        checkargs(args, 6);
+        (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1),
+                getarg<Arg2>(args, 2), getarg<Arg3>(args, 3),
+                getarg<Arg4>(args, 4), getarg<Arg5>(args, 5));
+        return winxedxxnull;
+    }
+};
+
+template <typename Ret, typename Arg0, typename Arg1,
+        typename Arg2, typename Arg3,
+        typename Arg4, typename Arg5,
+        typename Arg6>
+struct callfunc<Ret (*)(Arg0, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6)>
+{
+    static WxxObjectPtr doit(Ret (*f)(Arg0, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6),
+            WxxObjectArray &args)
+    {
+        checkargs(args, 7);
+        return handleResult((*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1),
+                getarg<Arg2>(args, 2), getarg<Arg3>(args, 3),
+                getarg<Arg4>(args, 4), getarg<Arg5>(args, 5),
+                getarg<Arg6>(args, 6)));
+    }
+};
+template <typename Arg0, typename Arg1,
+        typename Arg2, typename Arg3,
+        typename Arg4, typename Arg5,
+        typename Arg6>
+struct callfunc<void (*)(Arg0, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6)>
+{
+    static WxxObjectPtr doit(void (*f)(Arg0, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6),
+            WxxObjectArray &args)
+    {
+        checkargs(args, 7);
+        (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1),
+                getarg<Arg2>(args, 2), getarg<Arg3>(args, 3),
+                getarg<Arg4>(args, 4), getarg<Arg5>(args, 5),
+                getarg<Arg6>(args, 6));
+        return winxedxxnull;
+    }
+};
+
+template <typename Ret, typename Arg0, typename Arg1,
+        typename Arg2, typename Arg3,
+        typename Arg4, typename Arg5,
+        typename Arg6, typename Arg7>
+struct callfunc<Ret (*)(Arg0, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7)>
+{
+    static WxxObjectPtr doit(Ret (*f)(Arg0, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7),
+            WxxObjectArray &args)
+    {
+        checkargs(args, 8);
+        return handleResult((*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1),
+                getarg<Arg2>(args, 2), getarg<Arg3>(args, 3),
+                getarg<Arg4>(args, 4), getarg<Arg5>(args, 5),
+                getarg<Arg6>(args, 6), getarg<Arg7>(args, 7)));
+    }
+};
+template <typename Arg0, typename Arg1,
+        typename Arg2, typename Arg3,
+        typename Arg4, typename Arg5,
+        typename Arg6, typename Arg7>
+struct callfunc<void (*)(Arg0, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7)>
+{
+    static WxxObjectPtr doit(void (*f)(Arg0, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7),
+            WxxObjectArray &args)
+    {
+        checkargs(args, 8);
+        (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1),
+                getarg<Arg2>(args, 2), getarg<Arg3>(args, 3),
+                getarg<Arg4>(args, 4), getarg<Arg5>(args, 5),
+                getarg<Arg6>(args, 6), getarg<Arg7>(args, 7));
         return winxedxxnull;
     }
 };
@@ -261,42 +381,83 @@ protected:
 
 
 template <typename Ret>
-WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib,
-        std::string funcname)
+WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib, std::string funcname)
 {
-    return WxxObjectPtr(new WxxNCIcaller<Ret(*)()>(lib, funcname));
-}
-template <typename Ret, typename Arg0>
-WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib,
-        std::string funcname)
-{
-    return WxxObjectPtr(new WxxNCIcaller<Ret(*)(Arg0)>(lib, funcname));
-}
-template <typename Ret, typename Arg0, typename Arg1>
-WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib,
-        std::string funcname)
-{
-    return WxxObjectPtr(new WxxNCIcaller<Ret(*)(Arg0, Arg1)>(lib, funcname));
-}
-template <typename Ret, typename Arg0, typename Arg1, typename Arg2>
-WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib,
-        std::string funcname)
-{
-    return WxxObjectPtr(new WxxNCIcaller<Ret(*)(Arg0, Arg1, Arg2)>(lib, funcname));
-}
-template <typename Ret, typename Arg0, typename Arg1, typename Arg2, typename Arg3>
-WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib,
-        std::string funcname)
-{
-    return WxxObjectPtr(new WxxNCIcaller<Ret(*)(Arg0, Arg1, Arg2, Arg3)>(lib, funcname));
-}
-template <typename Ret, typename Arg0, typename Arg1, typename Arg2, typename Arg3, typename Arg4>
-WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib,
-        std::string funcname)
-{
-    return WxxObjectPtr(new WxxNCIcaller<Ret(*)(Arg0, Arg1, Arg2, Arg3, Arg4)>(lib, funcname));
+    return WxxObjectPtr(new
+            WxxNCIcaller<Ret(*)()>(lib, funcname));
 }
 
+template <typename Ret, typename Arg0>
+WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib, std::string funcname)
+{
+    return WxxObjectPtr(new
+            WxxNCIcaller<Ret(*)(Arg0)>(lib, funcname));
+}
+
+template <typename Ret, typename Arg0, typename Arg1>
+WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib, std::string funcname)
+{
+    return WxxObjectPtr(new
+            WxxNCIcaller<Ret(*)(Arg0, Arg1)>(lib, funcname));
+}
+
+template <typename Ret, typename Arg0, typename Arg1,
+        typename Arg2>
+WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib, std::string funcname)
+{
+    return WxxObjectPtr(new
+            WxxNCIcaller<Ret(*)(Arg0, Arg1, Arg2)>(lib, funcname));
+}
+
+template <typename Ret, typename Arg0, typename Arg1,
+        typename Arg2, typename Arg3>
+WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib, std::string funcname)
+{
+    return WxxObjectPtr(new
+            WxxNCIcaller<Ret(*)(Arg0, Arg1, Arg2, Arg3)>(lib, funcname));
+}
+
+template <typename Ret, typename Arg0, typename Arg1,
+        typename Arg2, typename Arg3,
+        typename Arg4>
+WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib, std::string funcname)
+{
+    return WxxObjectPtr(new
+            WxxNCIcaller<Ret(*)(Arg0, Arg1, Arg2, Arg3, Arg4)>
+                (lib, funcname));
+}
+
+template <typename Ret, typename Arg0, typename Arg1,
+        typename Arg2, typename Arg3,
+        typename Arg4, typename Arg5>
+WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib, std::string funcname)
+{
+    return WxxObjectPtr(new
+            WxxNCIcaller<Ret(*)(Arg0, Arg1, Arg2, Arg3, Arg4, Arg5)>
+                (lib, funcname));
+}
+
+template <typename Ret, typename Arg0, typename Arg1,
+        typename Arg2, typename Arg3,
+        typename Arg4, typename Arg5,
+        typename Arg6>
+WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib, std::string funcname)
+{
+    return WxxObjectPtr(new
+            WxxNCIcaller<Ret(*)(Arg0, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6)>
+                (lib, funcname));
+}
+
+template <typename Ret, typename Arg0, typename Arg1,
+        typename Arg2, typename Arg3,
+        typename Arg4, typename Arg5,
+        typename Arg6, typename Arg7>
+WxxObjectPtr wxx_dlfunc(WxxObjectPtr lib, std::string funcname)
+{
+    return WxxObjectPtr(new
+            WxxNCIcaller<Ret(*)(Arg0, Arg1, Arg2, Arg3, Arg4, Arg5, Arg6, Arg7)>
+                (lib, funcname));
+}
 
 //*************************************************************
 
