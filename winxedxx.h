@@ -206,7 +206,7 @@ struct callfunc<Ret (*)(Arg0, Arg1, Arg2, Arg3)>
 {
     static WxxObjectPtr doit(Ret (*f)(Arg0, Arg1, Arg2, Arg3), WxxObjectArray &args)
     {
-        checkargs(args, 3);
+        checkargs(args, 4);
         return handleResult((*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2), getarg<Arg3>(args, 3)));
     }
 };
@@ -215,7 +215,7 @@ struct callfunc<void (*)(Arg0, Arg1, Arg2, Arg3)>
 {
     static WxxObjectPtr doit(void (*f)(Arg0, Arg1, Arg2, Arg3), WxxObjectArray &args)
     {
-        checkargs(args, 3);
+        checkargs(args, 4);
         (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2), getarg<Arg3>(args, 3));
         return winxedxxnull;
     }
@@ -226,7 +226,7 @@ struct callfunc<Ret (*)(Arg0, Arg1, Arg2, Arg3, Arg4)>
 {
     static WxxObjectPtr doit(Ret (*f)(Arg0, Arg1, Arg2, Arg3, Arg4), WxxObjectArray &args)
     {
-        checkargs(args, 3);
+        checkargs(args, 5);
         return handleResult((*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2), getarg<Arg3>(args, 3), getarg<Arg4>(args, 4)));
     }
 };
@@ -235,7 +235,7 @@ struct callfunc<void (*)(Arg0, Arg1, Arg2, Arg3, Arg4)>
 {
     static WxxObjectPtr doit(void (*f)(Arg0, Arg1, Arg2, Arg3, Arg4), WxxObjectArray &args)
     {
-        checkargs(args, 3);
+        checkargs(args, 5);
         (*f)(getarg<Arg0>(args, 0), getarg<Arg1>(args, 1), getarg<Arg2>(args, 2), getarg<Arg3>(args, 3), getarg<Arg4>(args, 4));
         return winxedxxnull;
     }
