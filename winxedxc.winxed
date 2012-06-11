@@ -16,7 +16,6 @@ $include_const "iglobals.pasm";
 $include_const "libpaths.pasm";
 
 $include "winxedxx.winxhead";
-$load "winxedxx.pbc";
 
 namespace WinxedXC
 {
@@ -62,6 +61,11 @@ function is_relative(string path)
       default:
         return true;
     }
+}
+
+inline check_exit_code(int code) return int
+{
+    return (code >> 8) & 0xFF;
 }
 
 //**************************************************************
@@ -113,9 +117,28 @@ function load_winxed_stage(string stage)
     return winxed;
 }
 
-inline check_exit_code(int code) return int
+class WinxedCompiler
 {
-    return (code >> 8) & 0xFF;
+    var winxed;
+    function WinxedCompiler(string stage)
+    {
+        self.winxed = stage == null ?
+                get_winxed_compiler() :
+                load_winxed_stage(stage);
+    }
+    function version_string()
+    {
+        return self.winxed.version_string();
+    }
+    function compile(string sourcefile, var outhandle)
+    {
+        // Compile a winxed source to pir.
+        var parsed = self.winxed.compile_from_file(sourcefile,
+                "parse":[named("target")]
+        );
+        var output = new WinxedXX.Output(outhandle);
+        output.emit(parsed);
+    }
 }
 
 //**************************************************************
@@ -173,20 +196,6 @@ class CompilerCxx
         r = (r >> 8) & 0xFF;
         return r;
     }
-}
-
-//**************************************************************
-
-function winxed_compile(var winxed, string sourcefile, var outhandle)
-{
-/*
-        Compile a winxed source to pir.
-*/
-    var parsed = winxed.compile_from_file(sourcefile,
-        "parse":[named("target")]
-    );
-    var output = new WinxedXX.Output(outhandle);
-    output.emit(parsed);
 }
 
 //**************************************************************
@@ -252,12 +261,6 @@ function main [main](var argv)
         exit(1);
     }
 
-    var winxed = stage == null ?
-            get_winxed_compiler() :
-            load_winxed_stage(stage);
-    if (verbose)
-        say("Using winxed ", winxed.version_string());
-
     int argc = elements(argv);
     if (argc < 1)
         throw Error("No source files");
@@ -271,6 +274,8 @@ function main [main](var argv)
 
     string cxxfiles[];
     string objfiles[];
+
+    var winxed = null;
 
     while (elements(argv) > 0) {
         string sourcefile = argv.shift();
@@ -286,11 +291,21 @@ function main [main](var argv)
             break;
           case "winxed":
           default:
+            if (winxed == null) {
+                if (verbose)
+                    say("Loading winxed");
+                winxed = new WinxedXC.WinxedCompiler(stage);
+                if (verbose)
+                    say("Using winxed ", winxed.version_string());
+                if (verbose)
+                    say("Loading winxedxx");
+                load_bytecode("winxedxx.pbc");
+            }
             if (verbose)
                 say("Compiling winxed: ", sourcefile);
             string cxxfile = barename + ".cxx";
             var cxxout = open(cxxfile, "w");
-            winxed_compile(winxed, sourcefile, cxxout);
+            winxed.compile(sourcefile, cxxout);
             cxxout.close();
             push(cxxfiles, cxxfile);
             break;
