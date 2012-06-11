@@ -906,9 +906,12 @@ function emit_NewQualifiedExpr(out, expr)
         out.print(".childNamespace(\"", key[i], "\")");
     string clname = "\"" + string(key[n - 1]) + "\"";
     out.print(".get(", clname, ")");
-    if (numinits > 0) {
-        out.print(ARGSEP, clname, ARGSEP);
-        emit_callargs(out, initializer);
+    if (numinits >= 0) {
+        out.print(ARGSEP, clname);
+        if (numinits > 0) {
+            out.print(ARGSEP);
+            emit_callargs(out, initializer);
+        }
     }
     out.print(")");
 }

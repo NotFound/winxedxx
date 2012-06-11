@@ -153,30 +153,12 @@ WxxObjectPtr wxx_new(const std::string &name);
 WxxObjectPtr wxx_new(const std::string &name, WxxObjectArray args);
 WxxObjectPtr wxx_new_string(const std::string &name);
 WxxObjectPtr wxx_new_string(const std::string &name, WxxObjectPtr arg);
-/*
-WxxObjectPtr wxx_new_keyed(const char * const name[], int n);
-template <int N>
-WxxObjectPtr wxx_new_keyed(const char * const name[N])
-{
-    return wxx_new_keyed(name, N);
-}
-*/
-inline WxxObjectPtr wxx_new_obj(const WxxObjectPtr &clobj)
-{
-    return clobj.instantiate();
-}
-inline WxxObjectPtr wxx_new_obj(const WxxObjectPtr &clobj, const std::string &constructor)
-{
-    WxxObjectPtr obj = clobj.instantiate();
-    obj.call_method(constructor);
-    return obj;
-}
-inline WxxObjectPtr wxx_new_obj(const WxxObjectPtr &clobj, const std::string &constructor, WxxObjectArray &args)
-{
-    WxxObjectPtr obj = clobj.instantiate();
-    obj.call_method(constructor, args);
-    return obj;
-}
+
+WxxObjectPtr wxx_new_obj(const WxxObjectPtr &clobj);
+WxxObjectPtr wxx_new_obj(const WxxObjectPtr &clobj,
+        const std::string &constructor);
+WxxObjectPtr wxx_new_obj(const WxxObjectPtr &clobj,
+        const std::string &constructor, WxxObjectArray args);
 
 WxxObjectPtr wxx_open(const std::string &filename);
 WxxObjectPtr wxx_open(const std::string &filename, const std::string &mode);

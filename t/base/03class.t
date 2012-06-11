@@ -46,12 +46,14 @@ class Parent { }
 
 class Foo : Parent
 {
+    var n;
     function Foo()
     {
+        self.n = 3;
     }
     function get()
     {
-        return 3;
+        return self.n;
     }
 }
 
@@ -75,7 +77,7 @@ function main [main] (var args)
     is(i, 7, "new qualified without constructor call");
     foo = new Bar.Foo();
     i = foo.get();
-    is(i, 3, "class with same name in other namespace");
+    is(i, 3, "class with same name in other namespace - constructor with 0 args");
 }
 
 // End
