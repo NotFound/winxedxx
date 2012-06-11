@@ -23,6 +23,49 @@ namespace WinxedXC
 
 //**************************************************************
 
+// Helper functions
+
+function splitExtension(string filename)
+{
+/*
+        Get the extension from file name.
+        Return null string if no dot, empty string if the dot is the last
+        character.
+*/
+    for (int pos = length(filename); pos > 0; --pos) {
+        string c = filename[pos - 1];
+        switch (c) {
+          case "/":
+            return filename, string(null);
+          case ".":
+            if (pos > 0)
+                return substr(filename, 0, pos - 1), substr(filename, pos);
+        }
+    }
+    return filename, string(null);
+}
+
+function is_relative(string path)
+{
+    int l = length(path);
+    if (l == 0)
+        return true;
+    string c = path[0];
+    switch (c) {
+      case "/":
+        return false;
+      case ".":
+        if (l == 1)
+            return false;
+        c = path[1];
+        return c != "." && c != "/";
+      default:
+        return true;
+    }
+}
+
+//**************************************************************
+
 function get_winxed_compiler()
 {
     // Load language module and compreg it, exit with error if not found.
@@ -134,6 +177,20 @@ class CompilerCxx
 
 //**************************************************************
 
+function winxed_compile(var winxed, string sourcefile, var outhandle)
+{
+/*
+        Compile a winxed source to pir.
+*/
+    var parsed = winxed.compile_from_file(sourcefile,
+        "parse":[named("target")]
+    );
+    var output = new WinxedXX.Output(outhandle);
+    output.emit(parsed);
+}
+
+//**************************************************************
+
 $load "Getopt/Obj.pbc";
 
 class Options : ["Getopt", "Obj" ]
@@ -165,63 +222,6 @@ class Options : ["Getopt", "Obj" ]
     {
         var value = self.opts[option];
         return value != null ? int(value) : default_value;
-    }
-}
-
-//**************************************************************
-
-function winxed_compile(var winxed, string sourcefile, var outhandle)
-{
-/*
-        Compile a winxed source to pir.
-*/
-    var parsed = winxed.compile_from_file(sourcefile,
-        "parse":[named("target")]
-    );
-    var output = new WinxedXX.Output(outhandle);
-    output.emit(parsed);
-}
-
-//**************************************************************
-
-// Helper functions
-
-function splitExtension(string filename)
-{
-/*
-        Get the extension from file name.
-        Return null string if no dot, empty string if the dot is the last
-        character.
-*/
-    for (int pos = length(filename); pos > 0; --pos) {
-        string c = filename[pos - 1];
-        switch (c) {
-          case "/":
-            return filename, string(null);
-          case ".":
-            if (pos > 0)
-                return substr(filename, 0, pos - 1), substr(filename, pos);
-        }
-    }
-    return filename, string(null);
-}
-
-function is_relative(string path)
-{
-    int l = length(path);
-    if (l == 0)
-        return true;
-    string c = path[0];
-    switch (c) {
-      case "/":
-        return false;
-      case ".":
-        if (l == 1)
-            return false;
-        c = path[1];
-        return c != "." && c != "/";
-      default:
-        return true;
     }
 }
 
