@@ -15,6 +15,7 @@ public:
     WxxPtr();
     WxxPtr(void *ptr);
 
+    int get_integer();
     void * get_pointer();
     void set_pointer(void *ptr);
     WxxObjectPtr call_method

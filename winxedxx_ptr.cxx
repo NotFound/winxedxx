@@ -18,6 +18,11 @@ WxxPtr::WxxPtr(void *ptr) : WxxDefault("Ptr"), p(ptr)
 {
 }
 
+int WxxPtr::get_integer()
+{
+    return p != 0;
+}
+
 void * WxxPtr::get_pointer()
 {
     return p;
