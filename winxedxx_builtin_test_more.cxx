@@ -70,7 +70,7 @@ WxxObjectPtr ok(const WxxObjectArray &args)
     int numargs = args.elements();
     int value = args.get_pmc_keyed(0).get_integer();
     if (! value)
-        std::cout << "n";
+        std::cout << "not ";
     std::cout << "ok " << numNewTest();
     if (numargs > 1)
         std::cout << " - " << args.get_pmc_keyed(1).get_string();
@@ -84,7 +84,7 @@ WxxObjectPtr nok(const WxxObjectArray &args)
     int numargs = args.elements();
     int value = args.get_pmc_keyed(0).get_integer();
     if (value)
-        std::cout << "n";
+        std::cout << "not ";
     std::cout << "ok " << numNewTest();
     if (numargs > 1)
         std::cout << " - " << args.get_pmc_keyed(1).get_string();
@@ -125,7 +125,7 @@ WxxObjectPtr is(const WxxObjectArray &args)
     bool result = args_equal(value, expected);
 
     if (! result)
-        std::cout << "n";
+        std::cout << "not ";
     std::cout << "ok " << numNewTest();
     if (msg != "")
         std::cout << " - " << msg;
@@ -147,7 +147,7 @@ WxxObjectPtr isnt(const WxxObjectArray &args)
     bool result = args_equal(value, expected);
 
     if (result)
-        std::cout << "n";
+        std::cout << "not ";
     std::cout << "ok " << numNewTest();
     if (msg != "")
         std::cout << " - " << msg;
@@ -169,7 +169,7 @@ WxxObjectPtr is_null(const WxxObjectArray &args)
     bool result = value.is_null();
 
     if (! result)
-        std::cout << "n";
+        std::cout << "not ";
     std::cout << "ok " << numNewTest();
     if (msg != "")
         std::cout << " - " << msg;
@@ -199,7 +199,7 @@ WxxObjectPtr throws_type(const WxxObjectArray &args)
     }
 
     if (! result)
-        std::cout << "n";
+        std::cout << "not ";
     std::cout << "ok " << numNewTest();
     if (msg != "")
         std::cout << " - " << msg;
