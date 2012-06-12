@@ -2,127 +2,47 @@
 // Test file for winxedxx supported features
 // All features used here should at least compile
 
-//**********************************************************************
-
-// Minimalistic TAP functions
-
-class Test
-{
-    var count;
-    function Test()
-    {
-        self.count = 0;
-    }
-    function inc_count()
-    {
-        return int(++self.count);
-    }
-
-    function ok(int check, string message)
-    {
-        if (! check)
-            print("not ");
-        print("ok ");
-        print(self.inc_count());
-        say(" - ", message);
-    }
-    function nok(int check, string message)
-    {
-        if (check)
-            print("not ");
-        print("ok ");
-        print(self.inc_count());
-        say(" - ", message);
-    }
-    function todo(int check, string message)
-    {
-        if (! check)
-            print("not ");
-        print("ok ");
-        print(self.inc_count());
-        say(" - ", message, " # TODO");
-    }
-    function ntodo(int check, string message)
-    {
-        self.todo(! check, message);
-    }
-
-    function is(int value, int check, string message)
-    {
-        if (value != check)
-            print("not ");
-        print("ok ");
-        print(self.inc_count());
-        say(" - ", message);
-        if (value != check)
-            say("# got: ", value, ", excpected: ", check);
-    }
-    function is_float(float value, float check, string message)
-    {
-        if (value != check)
-            print("not ");
-        print("ok ");
-        print(self.inc_count());
-        say(" - ", message);
-        if (value != check)
-            say("# got: '", value, "', expected: '", check, "'");
-    }
-    function is_string(string value, string check, string message)
-    {
-        if (value != check)
-            print("not ");
-        print("ok ");
-        print(self.inc_count());
-        say(" - ", message);
-        if (value != check)
-            say("# got: '", value, "', expected: '", check, "'");
-    }
-
-    function done_testing()
-    {
-        say("1..", self.count);
-    }
-}
+using extern Test.More ok, nok, is, done_testing;
 
 //**********************************************************************
 
-function test_string_misc(test)
+function test_string_misc()
 {
     var arr = [ "a", "b", "c" ];
     string s = join("-", arr);
-    test.is_string(s, "a-b-c", "join with literal string");
+    is(s, "a-b-c", "join with literal string");
     string sep = "<<";
     s = join(sep, arr);
-    test.is_string(s, "a<<b<<c", "join with string var");
+    is(s, "a<<b<<c", "join with string var");
     var arr2 = split("<<", s);
-    test.is(elements(arr2), 3, "split");
+    is(elements(arr2), 3, "split");
 
     s = chr(0x30);
-    test.is_string(s, "0", "chr literal int");
+    is(s, "0", "chr literal int");
     int i = 0x31;
     s = chr(i);
-    test.is_string(s, "1", "chr int");
+    is(s, "1", "chr int");
     var code = 0x32;
     s = chr(code);
-    test.is_string(s, "2", "chr var");
+    is(s, "2", "chr var");
 
     s = "012012";
-    test.is(ord(s), 0x30, "ord 1 arg");
-    test.is(ord(s, 1), 0x31, "ord 2 args");
+    is(ord(s), 0x30, "ord 1 arg");
+    is(ord(s, 1), 0x31, "ord 2 args");
 
     int pos = indexof(s, "2");
-    test.is(pos, 2, "indexof 2 args");
+    is(pos, 2, "indexof 2 args");
     pos = indexof(s, "2", pos + 1);
-    test.is(pos, 5, "indexof 3 args");
+    is(pos, 5, "indexof 3 args");
 
-    test.is_string(substr(s, 2), "2012", "substr 2 args");
-    test.is_string(substr(s, 2, 3), "201", "substr 3 args");
+    is(substr(s, 2), "2012", "substr 2 args");
+    is(substr(s, 2, 3), "201", "substr 3 args");
 
     s = "a\t\nb\\c";
-    test.is_string(escape(s), 'a\t\nb\\c', "escape");
+    is(escape(s), 'a\t\nb\\c', "escape");
 }
 
-function test_string_iter(test)
+function test_string_iter()
 {
     string s = "hello";
     string r = '';
@@ -131,8 +51,8 @@ function test_string_iter(test)
         ++count;
         r = c + r;
     }
-    test.is(count, length(s), "string iterator - length");
-    test.is_string(r, "olleh", "string iterator gives chars");
+    is(count, length(s), "string iterator - length");
+    is(r, "olleh", "string iterator gives chars");
 }
 
 function aux0()
@@ -150,46 +70,46 @@ function aux2()
     return "aux2";
 }
 
-function test_array(test)
+function test_array()
 {
     var arr = [ "a", "b", "c", "d" ];
-    test.ok(arr instanceof "ResizablePMCArray", "array literal has expected type");
-    test.is(elements(arr), 4, "array literal has expected size");
-    test.is_string(arr[2], "c", "array element initialized");
+    ok(arr instanceof "ResizablePMCArray", "array literal has expected type");
+    is(elements(arr), 4, "array literal has expected size");
+    is(arr[2], "c", "array element initialized");
 
     string sarr[] = [ "foo", "bar" ];
-    test.ok(sarr instanceof "ResizableStringArray", "string array has expected type");
+    ok(sarr instanceof "ResizableStringArray", "string array has expected type");
     int iarr[] = [ 42 ];
-    test.ok(iarr instanceof "ResizableIntegerArray", "int array has expected type");
+    ok(iarr instanceof "ResizableIntegerArray", "int array has expected type");
 }
 
-function test_hash(test)
+function test_hash()
 {
     var hash = { "a" : 1, "b" : "x" };
-    test.is_string(hash["b"], "x", "hash element initialized");
+    is(hash["b"], "x", "hash element initialized");
     var key = "b";
     hash[key] = "y";
-    test.is_string(hash["b"], "y", "hash kayed with String var - set");
+    is(hash["b"], "y", "hash kayed with String var - set");
     hash["b"] = "z";
-    test.is_string(hash[key], "z", "hash kayed with String var - get");
+    is(hash[key], "z", "hash kayed with String var - get");
 
-    test.nok(exists hash["none"], "hash exists false case");
-    test.ok(exists hash["a"], "hash exists true case");
+    nok(exists hash["none"], "hash exists false case");
+    ok(exists hash["a"], "hash exists true case");
 }
 
-function test_func(test)
+function test_func()
 {
     var f = aux1;
     string s = f();
-    test.is_string(s, "aux1", "assign function to var");
+    is(s, "aux1", "assign function to var");
 
     var h = { "a" : aux1, "b" : aux2 };
     f = h["b"];
-    test.is_string(f(), "aux2", "initialize hash value with function");
+    is(f(), "aux2", "initialize hash value with function");
 
     var a = [ aux0, aux1, aux2 ];
     f = a[0];
-    test.is_string(f(), "aux0", "initialize array value with function");
+    is(f(), "aux0", "initialize array value with function");
 }
 
 namespace Foo
@@ -214,7 +134,7 @@ class SomeClass
 {
 }
 
-function test_switchcase(test)
+function test_switchcase()
 {
     int i = 42;
     int result = 0;
@@ -226,10 +146,10 @@ function test_switchcase(test)
         // Make sure the previous break skip this
         result = 0;
     }
-    test.is(result, 1, "switchcase");
+    is(result, 1, "switchcase");
 }
 
-function test_try(test)
+function test_try()
 {
     int result = 1;
     try {
@@ -239,7 +159,7 @@ function test_try(test)
     catch () {
         result = 42;
     }
-    test.is(result, 42, "try - catch");
+    is(result, 42, "try - catch");
 
     result = 1;
     try {
@@ -249,7 +169,7 @@ function test_try(test)
     catch (e) {
         result = e.type;
     }
-    test.is(result, 42, "try - catch, use exception");
+    is(result, 42, "try - catch, use exception");
 }
 
 //**********************************************************************
@@ -271,7 +191,7 @@ class Bar
 
 //**********************************************************************
 
-function miscellaneous(test, int runit)
+function miscellaneous(int runit)
 {
     // Just do a full syntax check, do not execute.
     // The variable condition is used to avoid being optimized out.
@@ -282,13 +202,13 @@ function miscellaneous(test, int runit)
 
     string s = "abc\n";
     string sc = chomp(s);
-    test.ok(length(s) == 4 && length(sc) == 3, "chomp - yes \\n");
+    ok(length(s) == 4 && length(sc) == 3, "chomp - yes \\n");
     s = "abc\t";
     sc = chomp(s);
-    test.ok(length(s) == 4 && length(sc) == 4, "chomp - no \\t");
+    ok(length(s) == 4 && length(sc) == 4, "chomp - no \\t");
     s = "abc\r";
     sc = chomp(s);
-    test.ok(length(s) == 4 && length(sc) == 4, "chomp - no \\r");
+    ok(length(s) == 4 && length(sc) == 4, "chomp - no \\r");
 
     int t = time();
     float ft1 = floattime();
@@ -297,185 +217,183 @@ function miscellaneous(test, int runit)
     float diff = ft2 - ft1;
 
     // Should work except unless system exceptionally slow.
-    test.ok(diff >= 0.1 && diff < 0.5 && t <= ft2 + 1.0,
+    ok(diff >= 0.1 && diff < 0.5 && t <= ft2 + 1.0,
         "time and floattime with sleep results looks reasonable");
 
-    test.ok(1, "some syntax checks");
+    ok(1, "some syntax checks");
 }
 
 //**********************************************************************
 
 function main [main] (args)
 {
-    var test = new Test();
-
-    test.ok(1, "compiled and started");
+    ok(1, "compiled and started");
 
     // No debug mode yet, just ensure this can be compiled
     __ASSERT__(1 == 1);
 
     int i = 1;
-    test.ok(i == 1, "int initialization");
+    ok(i == 1, "int initialization");
 
     string str = "hi";
-    test.is_string(str, "hi", "string initialization");
+    is(str, "hi", "string initialization");
     str = "hello";
-    test.is_string(str, "hello", "string assign");
+    is(str, "hello", "string assign");
     str = i;
-    test.is_string(str, "1", "string assign from int");
+    is(str, "1", "string assign from int");
     str = 42;
     i = str;
-    test.is(i, 42, "int assign from string");
+    is(i, 42, "int assign from string");
     i = "44";
-    test.is(i, 44, "int assign from string literal");
+    is(i, 44, "int assign from string literal");
 
     float n = 4.5;
     str = n;
-    test.is_string(str, "4.5", "string assign from float");
+    is(str, "4.5", "string assign from float");
     str = "2.5";
     n = str;
-    test.is_float(n, 2.5, "float assign from string");
+    is(n, 2.5, "float assign from string");
 
     string stri = 42;
-    test.is_string(stri, "42", "string initialization from int");
+    is(stri, "42", "string initialization from int");
 
     string strn = 4.5;
-    test.is_string(strn, "4.5", "string initialization from float");
+    is(strn, "4.5", "string initialization from float");
 
     var nothing = null;
-    test.ok(nothing == null, "var null initialization");
+    ok(nothing == null, "var null initialization");
 
     var vi1 = 42;
-    test.is(vi1, 42, "var initialized with int");
-    test.ok(vi1 != null, "var initialized with int is not null");
+    is(vi1, 42, "var initialized with int");
+    ok(vi1 != null, "var initialized with int is not null");
 
     var vn1 = 8.5;
-    test.is_float(vn1, 8.5, "var initialized with float");
+    is(vn1, 8.5, "var initialized with float");
 
-    test.is(int(vi1), 42, "int cast from string");
-    test.is(int(n), 2, "int cast from float");
-    test.is_string(string(i), "44", "string cast from int");
+    is(int(vi1), 42, "int cast from string");
+    is(int(n), 2, "int cast from float");
+    is(string(i), "44", "string cast from int");
 
     i = 42;
-    test.ok(i == vi1, "operator == int var - true");
-    test.ok(vi1 == i, "operator == var int - true");
+    ok(i == vi1, "operator == int var - true");
+    ok(vi1 == i, "operator == var int - true");
     i = 44;
-    test.nok(i == vi1, "operator == int var - false");
-    test.nok(vi1 == i, "operator == var int - false");
+    nok(i == vi1, "operator == int var - false");
+    nok(vi1 == i, "operator == var int - false");
 
-    test.ok(i != vi1, "operator != int var - true");
-    test.ok(vi1 != i, "operator != var int - true");
+    ok(i != vi1, "operator != int var - true");
+    ok(vi1 != i, "operator != var int - true");
     i = 42;
-    test.nok(i != vi1, "operator != int var - false");
-    test.nok(vi1 != i, "operator != var int - false");
+    nok(i != vi1, "operator != int var - false");
+    nok(vi1 != i, "operator != var int - false");
 
     i = 1;
-    test.is(i == 1 ? vi1 : 44, 42, "conditional operator var - int");
-    test.is(i != 1 ? 44 : vi1, 42, "conditional operator int - var");
+    is(i == 1 ? vi1 : 44, 42, "conditional operator var - int");
+    is(i != 1 ? 44 : vi1, 42, "conditional operator int - var");
 
     i = -i;
-    test.is(i, -1, "unary minus");
+    is(i, -1, "unary minus");
 
     var vi2 = 42;
     var vi3 = 7;
-    test.ok(vi1 == vi2, "operator == : x == same class, same value");
-    test.nok(vi1 == vi3, "operator == : x == same class, not same value");
-    test.nok(vi1 != vi2, "operator != : x != same class, same value");
+    ok(vi1 == vi2, "operator == : x == same class, same value");
+    nok(vi1 == vi3, "operator == : x == same class, not same value");
+    nok(vi1 != vi2, "operator != : x != same class, same value");
 
-    test.ok(test === test, "operator === : x === x");
-    test.nok(test !== test, "operator !== : x !== x");
-    test.nok(vi1 === vi2, "operator === : x === same class");
-    test.ok(vi1 !== vi2, "operator !== : x !== same class");
-    test.nok(vi1 === test, "operator === : x === other class");
-    test.ok(vi1 !== test, "operator !== : x !== other class");
+    ok(vi1 === vi1, "operator === : x === x");
+    nok(vi1 !== vi1, "operator !== : x !== x");
+    nok(vi1 === vi2, "operator === : x === same class");
+    ok(vi1 !== vi2, "operator !== : x !== same class");
+    nok(vi1 === vn1, "operator === : x === other class");
+    ok(vi1 !== vn1, "operator !== : x !== other class");
 
     ++vi1;
-    test.is(vi1, 43, "var preincrement");
+    is(vi1, 43, "var preincrement");
     i = ++vi1;
-    test.is(i, 44, "var preincrement with assignment");
+    is(i, 44, "var preincrement with assignment");
     --vi1;
-    test.is(vi1, 43, "var peedecrement");
+    is(vi1, 43, "var peedecrement");
     i = --vi1;
-    test.is(i, 42, "var predecrement with assignment");
+    is(i, 42, "var predecrement with assignment");
 
-    test.is(i + 2, 44, "int + int");
-    test.is(i + vi1, 84, "int + var");
-    test.is(vi1 + i, 84, "var + int");
+    is(i + 2, 44, "int + int");
+    is(i + vi1, 84, "int + var");
+    is(vi1 + i, 84, "var + int");
 
-    test.is_float(n + 0.1, 2.6, "float + float");
-    test.is_float(n + i, 44.5, "float + int");
-    test.is_float(i + n, 44.5, "int + float");
+    is(n + 0.1, 2.6, "float + float");
+    is(n + i, 44.5, "float + int");
+    is(i + n, 44.5, "int + float");
 
-    test.is_string(str + i, "2.542", "string + int");
-    test.is_string(i + str, "422.5", "int + string");
-    test.is_string(str + vi1, "2.542", "string + var");
-    test.is_string(vi1 + str, "422.5", "var + string");
+    is(str + i, "2.542", "string + int");
+    is(i + str, "422.5", "int + string");
+    is(str + vi1, "2.542", "string + var");
+    is(vi1 + str, "422.5", "var + string");
 
-    test.is(i - 2, 40, "int - int");
-    test.is(i - vi1, 0, "int - var");
-    test.is(vi1 - i, 0, "var - int");
+    is(i - 2, 40, "int - int");
+    is(i - vi1, 0, "int - var");
+    is(vi1 - i, 0, "var - int");
 
     string s = "abc";
-    test.is_string(s * 3, "abcabcabc", "repeat string");
+    is(s * 3, "abcabcabc", "repeat string");
 
     vi1 = 7;
     vi2 = vi1;
     vi2 =: 1;
-    test.ok(vi1 === vi2, "var =: int does not create a new object");
+    ok(vi1 === vi2, "var =: int does not create a new object");
     vi2 = 1;
-    test.ok(vi1 !== vi2, "var = int create a new object");
+    ok(vi1 !== vi2, "var = int create a new object");
 
     i = 1;
 
-    test.is(~i, -2, "bitwise not");
+    is(~i, -2, "bitwise not");
 
-    test.is(i | 2, 3, "bitwise or");
+    is(i | 2, 3, "bitwise or");
 
-    test.is(i ^ 3, 2, "bitwise xor");
+    is(i ^ 3, 2, "bitwise xor");
 
-    test.is(i << 2, 4, "shift left");
+    is(i << 2, 4, "shift left");
     i = 8;
-    test.is(i >> 2, 2, "shift right");
+    is(i >> 2, 2, "shift right");
 
-    test.is_string(s[1], "b", "string indexing");
+    is(s[1], "b", "string indexing");
 
     int j = 12;
     for (i = 0; i < 10; ++i)
         --j;
-    test.is(j, 2, "for loop, inc and dec operators");
+    is(j, 2, "for loop, inc and dec operators");
 
     j = 0;
     for (i in [ 1, 3, 5, 7 ])
         j += i;
-    test.is(j, 16, "for in");
+    is(j, 16, "for in");
 
-    test_string_misc(test);
-    test_string_iter(test);
-    test_array(test);
-    test_hash(test);
-    test_func(test);
+    test_string_misc();
+    test_string_iter();
+    test_array();
+    test_hash();
+    test_func();
 
-    test.is_string(Foo.bar(), "Foo.bar", "call function in namespace");
-    test.is_string(bar(), "bar", "call function out of namespace with same name");
+    is(Foo.bar(), "Foo.bar", "call function in namespace");
+    is(bar(), "bar", "call function out of namespace with same name");
 
-    test_switchcase(test);
-    test_try(test);
+    test_switchcase();
+    test_try();
 
     var obj = new SomeClass;
-    test.ok(obj instanceof SomeClass, "new and instanceof by identifier");
+    ok(obj instanceof SomeClass, "new and instanceof by identifier");
 
     var cl = new Cl;
     cl.foo = "Cl_foo";
     s = "foo";
     s = cl.*s;
-    test.is_string(s, "Cl_foo", "indirect get attribute");
+    is(s, "Cl_foo", "indirect get attribute");
 
     var fbar = new Bar();
-    test.is_string(fbar.get(), "class Bar", "constructor");
+    is(fbar.get(), "class Bar", "constructor");
 
-    miscellaneous(test, false);
+    miscellaneous(false);
 
-    test.done_testing();
+    done_testing();
 }
 
 // End
