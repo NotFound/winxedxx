@@ -17,6 +17,8 @@ public:
 
     void * get_pointer();
     void set_pointer(void *ptr);
+    WxxObjectPtr call_method
+        (const std::string &methname, WxxObjectArray &args);
 private:
     void *p;
 };
