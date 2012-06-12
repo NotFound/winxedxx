@@ -2177,6 +2177,7 @@ function emit_classst(out, clst)
 static WxxClass * init_class()
 {
     WxxClass *cl = new WxxClass("%s");
+    cl->incref();
 CLINIT:>>
         , argname ));
 
