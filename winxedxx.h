@@ -49,35 +49,35 @@ protected:
 
 
 template<typename NciParam>
-NciParam getarg(WxxObjectArray &args, int i);
+inline NciParam getarg(WxxObjectArray &args, int i);
 
 // Integer types:
 template<>
-int getarg(WxxObjectArray &args, int i)
+inline int getarg(WxxObjectArray &args, int i)
 { return args.get_integer_keyed(i); }
 template<>
-short getarg(WxxObjectArray &args, int i)
+inline short getarg(WxxObjectArray &args, int i)
 { return args.get_integer_keyed(i); }
 template<>
-long getarg(WxxObjectArray &args, int i)
+inline long getarg(WxxObjectArray &args, int i)
 { return args.get_integer_keyed(i); }
 
 // Number types:
 template<>
-double getarg(WxxObjectArray &args, int i)
+inline double getarg(WxxObjectArray &args, int i)
 { return args.get_number_keyed(i); }
 template<>
-float getarg(WxxObjectArray &args, int i)
+inline float getarg(WxxObjectArray &args, int i)
 { return args.get_number_keyed(i); }
 
 // string types - unfinished
 template<>
-std::string getarg(WxxObjectArray &args, int i)
+inline std::string getarg(WxxObjectArray &args, int i)
 { return args.get_string_keyed(i); }
 
 // Raw pointer
 template<>
-void * getarg(WxxObjectArray &args, int i)
+inline void * getarg(WxxObjectArray &args, int i)
 { return args[i].get_pointer(); }
 
 
