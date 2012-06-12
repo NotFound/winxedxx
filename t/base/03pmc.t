@@ -7,7 +7,24 @@ using extern Test.More plan, ok, is;
 
 function main [main] (var args)
 {
-    plan(5);
+    plan(10);
+
+    var pmc;
+
+    pmc = new [ "Integer" ];
+    ok(pmc != null && (pmc instanceof "Integer"), "Integer instantiated");
+
+    pmc = new [ "Float" ];
+    ok(pmc != null && (pmc instanceof "Float"), "Float instantiated");
+
+    pmc = new [ "String" ];
+    ok(pmc != null && (pmc instanceof "String"), "String instantiated");
+
+    pmc = new [ "Hash" ];
+    ok(pmc != null && (pmc instanceof "Hash"), "Hash instantiated");
+
+    pmc = new [ "FileHandle" ];
+    ok(pmc != null && (pmc instanceof "FileHandle"), "FileHandle instantiated");
 
     var sh = new ["StringHandle"];
     sh.open("test", "w");
