@@ -16,6 +16,7 @@ public:
 
     int elements() const;
     WxxByteBuffer & set(int i);
+    WxxByteBuffer & set(const std::string & s);
     int get_integer_keyed(int i);
     WxxObjectPtr get_pmc_keyed(int i);
     void set_integer_native(int i);
@@ -25,7 +26,7 @@ public:
     void * get_pointer();
     void set_pointer(void *ptr);
 private:
-    void *p;
+    unsigned char *p;
     size_t allocated_size;
     size_t size;
 };

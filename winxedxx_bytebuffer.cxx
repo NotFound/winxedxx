@@ -31,6 +31,16 @@ WxxByteBuffer & WxxByteBuffer::set(int i)
     return *this;
 }
 
+WxxByteBuffer & WxxByteBuffer::set(const std::string & s)
+{
+    const int len = s.size();
+    set_integer_native(len + 1);
+    set_integer_native(len);
+    for (int i = 0; i < len; ++i)
+        p[i] = (unsigned char)s[i];
+    return *this;
+}
+
 void WxxByteBuffer::set_integer_native(int i)
 {
     if (allocated_size) {
@@ -69,9 +79,8 @@ int WxxByteBuffer::get_integer_keyed(int i)
 {
     if (i < 0 || (size_t)i >= size)
         return 0;
-    else {
-        return ((unsigned char *)get_pointer())[i];
-    }
+    else
+        return p[i];
 }
 
 WxxObjectPtr WxxByteBuffer::get_pmc_keyed(int i)
@@ -82,7 +91,7 @@ WxxObjectPtr WxxByteBuffer::get_pmc_keyed(int i)
 void WxxByteBuffer::set_integer_keyed(int i, int value)
 {
     if (i >= 0 && (size_t)i < size)
-        ((char *)get_pointer())[i] = value;
+        p[i] = value;
 }
 
 void WxxByteBuffer::set_pmc_keyed(int i, const WxxObjectPtr &value)
@@ -97,7 +106,7 @@ void * WxxByteBuffer::get_pointer()
 
 void WxxByteBuffer::set_pointer(void *ptr)
 {
-    p = ptr;
+    p = (unsigned char *)ptr;
 }
 
 } // namespace WinxedXX
