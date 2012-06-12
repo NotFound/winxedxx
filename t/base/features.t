@@ -316,14 +316,6 @@ function main [main] (args)
     i = --vi1;
     is(i, 42, "var predecrement with assignment");
 
-    is(i + 2, 44, "int + int");
-    is(i + vi1, 84, "int + var");
-    is(vi1 + i, 84, "var + int");
-
-    is(n + 0.1, 2.6, "float + float");
-    is(n + i, 44.5, "float + int");
-    is(i + n, 44.5, "int + float");
-
     is(str + i, "2.542", "string + int");
     is(i + str, "422.5", "int + string");
     is(str + vi1, "2.542", "string + var");
