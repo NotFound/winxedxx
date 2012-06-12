@@ -7,7 +7,7 @@ using extern Test.More plan, ok, is;
 
 function main [main] (var args)
 {
-    plan(3);
+    plan(5);
 
     var sh = new ["StringHandle"];
     sh.open("test", "w");
@@ -19,6 +19,13 @@ function main [main] (var args)
     is(s, "he", "StringHandle open and read");
     sh.read(3);
     ok(sh.eof(), "StringHandle eof");
+
+    var bb = new ["ByteBuffer"];
+    bb =: "hello";
+    is(elements(bb), 5, "ByteBuffer set string");
+    bb[5] = ord("!");
+    int c = bb[5];
+    is(chr(c), "!", "ByteBuffer set and get keyed int");
 }
 
 // End
