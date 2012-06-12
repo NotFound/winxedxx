@@ -90,8 +90,11 @@ WxxObjectPtr WxxByteBuffer::get_pmc_keyed(int i)
 
 void WxxByteBuffer::set_integer_keyed(int i, int value)
 {
-    if (i >= 0 && (size_t)i < size)
+    if (i >= 0) {
+        if ((size_t)i >= size)
+            set_integer_native(i + 1);
         p[i] = value;
+    }
 }
 
 void WxxByteBuffer::set_pmc_keyed(int i, const WxxObjectPtr &value)
