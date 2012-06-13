@@ -310,9 +310,13 @@ public:
     WxxInstance(WxxClass &cassobjl);
     std::string class_name() const;
     WxxObjectPtr get_class();
+    WxxObjectPtr & get_attr_str(const std::string &s);
+    void set_attr_str(const std::string &s, const WxxObjectPtr &value);
     WxxObjectPtr call_method(const std::string &methname, WxxObjectArray &args);
 private:
+    friend WxxObjectPtr WxxClass::instantiate();
     WxxClass *cl;
+    std::map<std::string, WxxObjectPtr> attributes;
 };
 
 class WxxLibrary : public WxxDefault

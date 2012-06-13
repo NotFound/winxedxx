@@ -218,7 +218,12 @@ WxxObjectPtr WxxClass::get_class()
 
 WxxObjectPtr WxxClass::instantiate()
 {
-    return new WxxInstance(*this);
+    WxxInstance *instance = new WxxInstance(*this);
+    for (std::vector<std::string>::const_iterator it = attrs.begin();
+            it != attrs.end();
+            ++it)
+        instance->attributes.insert(std::make_pair(*it, winxedxxnull));
+    return instance;
 }
 
 WxxObjectPtr WxxClass::call_method(const std::string &methname, WxxObjectArray &args)
@@ -253,6 +258,24 @@ std::string WxxInstance::class_name() const
 WxxObjectPtr WxxInstance::get_class()
 {
     return cl;
+}
+
+WxxObjectPtr & WxxInstance::get_attr_str(const std::string &s)
+{
+    std::map<std::string, WxxObjectPtr>::iterator attr = attributes.find(s);
+    if (attr == attributes.end())
+        throw wxx_error("No such attribute '" + s + "'");
+    else
+        return attr->second;
+}
+
+void WxxInstance::set_attr_str(const std::string &s, const WxxObjectPtr &value)
+{
+    std::map<std::string, WxxObjectPtr>::iterator attr = attributes.find(s);
+    if (attr == attributes.end())
+        throw wxx_error("No such attribute '" + s + "'");
+    else
+        attr->second = value;
 }
 
 WxxObjectPtr WxxInstance::call_method(const std::string &methname, WxxObjectArray &args)

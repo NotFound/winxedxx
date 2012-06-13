@@ -194,7 +194,10 @@ WxxObjectPtr & WxxDefault::get_attr_str(const std::string &s)
 
 void WxxDefault::set_attr_str(const std::string &s, const WxxObjectPtr &value)
 {
-    attributes.insert(std::make_pair(s, value));
+    std::pair <std::map<std::string, WxxObjectPtr>::iterator, bool> found =
+        attributes.insert(std::make_pair(s, value));
+    if (! found.second)
+        found.first->second = value;
 }
 
 WxxObjectPtr WxxDefault::get_iter()
