@@ -1993,7 +1993,7 @@ function emit_define_local(out, funst, string dataname)
             "::operator() (const ", Type_PMCArray, " & wxx_fun_args)\n");
 
     out.print("{\n" );
-    var emitlocal = new EmitFunction(funst);
+    :EmitFunction emitlocal(funst);
     emitlocal.emit_params(out);
 
     var usedlexicals = funst.usedlexicals;
@@ -2082,7 +2082,7 @@ class EmitFunction
 
 function emit_FunctionStatement(out, funst, string prefix[optional])
 {
-    var emitfun = new EmitFunction(funst);
+    :EmitFunction emitfun(funst);
 
     string name = funst.name;
     int ismethod = funst.ismethod();
@@ -2303,7 +2303,7 @@ class NamespaceGen
                     push(genitems, item);
                 }
                 else if (item instanceof NamespaceStatement) {
-                    var child = new ChildNamespaceGen(item);
+                    :ChildNamespaceGen child(item);
                     push(genchilds, child);
                     push(genitems, child);
                 }
@@ -2578,7 +2578,7 @@ INITIALIZEREND:>>
 
         self.print(HEADER);
 
-        var nsgen = new RootNamespaceGen(ns);
+        :RootNamespaceGen nsgen(ns);
         self.nsgen = nsgen;
         nsgen.emit_declare(self);
         nsgen.emit_declare_subid(self);
