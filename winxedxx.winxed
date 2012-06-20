@@ -1472,38 +1472,23 @@ function emit_expr(out, expr)
     out.print(")");
 }
 
-function emit_exprst(out, exprst)
+//**********************************************************************
+//                 Statements in functions
+//**********************************************************************
+
+function emitStatement(var out, :EmptyStatement st)
+{
+    // Do nothing
+}
+
+function emitStatement(var out, :ExprStatement exprst)
 {
     for (var expr in exprst.expr)
         emit_expr(out, expr);
 }
 
-function emit_conststatement(out, st)
+function emitStatement(var out, :ConstStatement st)
 {
-}
-
-function emit_VarStatement(out, st)
-{
-    string name = st.name;
-    var init = st.init;
-
-    var local = st.owner.getvar(name);
-    int is_lex = local != null && (local.getflags() & VAR_is_lexical);
-
-    // If lexical, declare a reference to the data struct
-    // Else, declare plain var
-    out.print(Type_PMC, " ");
-    if (is_lex)
-        out.print("&");
-    out.print(st.name);
-    if (is_lex) {
-        out.print(" = ", DATA, "->", st.name);
-    }
-
-    if (init != null) {
-        out.print(" = ");
-        emit_expr(out, init);
-    }
 }
 
 function emit_nativetypestatement(out, st, string type, string nullinit)
@@ -1558,28 +1543,82 @@ function emit_nativearraystatement(out, st, string arraytype)
     out.print("))");
 }
 
-function emit_labelstatement(out, labelst)
+function emitStatement(var out, :IntStatement st)
+{
+    emit_nativetypestatement(out, st, REGint, "0");
+}
+
+function emitStatement(var out, :FloatStatement st)
+{
+    emit_nativetypestatement(out, st, REGfloat, "0.0");
+}
+
+function emitStatement(var out, :StringStatement st)
+{
+    emit_nativetypestatement(out, st, REGstring, "\"\"");
+}
+
+function emitStatement(var out, :IntArrayStatement st)
+{
+    emit_nativearraystatement(out, st, "Integer");
+}
+
+function emitStatement(var out, :FloatArrayStatement st)
+{
+    emit_nativearraystatement(out, st, "Float");
+}
+
+function emitStatement(var out, :StringArrayStatement st)
+{
+    emit_nativearraystatement(out, st, "String");
+}
+
+function emitStatement(var out, :VarStatement st)
+{
+    string name = st.name;
+    var init = st.init;
+
+    var local = st.owner.getvar(name);
+    int is_lex = local != null && (local.getflags() & VAR_is_lexical);
+
+    // If lexical, declare a reference to the data struct
+    // Else, declare plain var
+    out.print(Type_PMC, " ");
+    if (is_lex)
+        out.print("&");
+    out.print(st.name);
+    if (is_lex) {
+        out.print(" = ", DATA, "->", st.name);
+    }
+
+    if (init != null) {
+        out.print(" = ");
+        emit_expr(out, init);
+    }
+}
+
+function emitStatement(var out, :LabelStatement labelst)
 {
     out.print(labelst.name);
     out.print(":\n");
 }
 
-function emit_breakstatement(out, gotost)
+function emitStatement(var out, :BreakStatement st)
 {
     out.print("break");
 }
 
-function emit_ContinueStatement(out, gotost)
+function emitStatement(var out, :ContinueStatement st)
 {
     out.print("continue");
 }
 
-function emit_gotostatement(out, gotost)
+function emitStatement(var out, :GotoStatement gotost)
 {
     out.print("goto ", gotost.label);
 }
 
-function emit_ifstatement(out, ifst)
+function emitStatement(var out, :IfStatement ifst)
 {
     var truebranch = ifst.truebranch;
     var falsebranch = ifst.falsebranch;
@@ -1595,7 +1634,7 @@ function emit_ifstatement(out, ifst)
     out.print("}\n");
 }
 
-function emit_switchstatement(out, switchst)
+function emitStatement(var out, :SwitchStatement switchst)
 {
     var case_value = switchst.case_value;
     var case_st = switchst.case_st;
@@ -1624,7 +1663,7 @@ function emit_switchstatement(out, switchst)
     out.print("} while (false)\n");
 }
 
-function emit_SwitchCaseStatement(out, switchst)
+function emitStatement(var out, :SwitchCaseStatement switchst)
 {
     var case_value = switchst.case_value;
     var case_st = switchst.case_st;
@@ -1652,7 +1691,7 @@ function emit_SwitchCaseStatement(out, switchst)
     out.print("} while (false)\n");
 }
 
-function emit_whilestatement(out, whilest)
+function emitStatement(var out, :WhileStatement whilest)
 {
     out.print("while ");
     emit_expr(out, whilest.condexpr);
@@ -1661,7 +1700,7 @@ function emit_whilestatement(out, whilest)
     out.print("}\n");
 }
 
-function emit_dostatement(out, dost)
+function emitStatement(var out, :DoStatement dost)
 {
     out.print("do {\n");
     emit_statement(out, dost.body);
@@ -1669,7 +1708,7 @@ function emit_dostatement(out, dost)
     emit_expr(out, dost.condexpr);
 }
 
-function emit_trystatement(out, tryst)
+function emitStatement(var out, :TryStatement tryst)
 {
     out.print("try\n{\n");
     emit_statement(out, tryst.stry);
@@ -1684,7 +1723,7 @@ function emit_trystatement(out, tryst)
     out.print("}\n");
 }
 
-function emit_throwstatement(out, throwst)
+function emitStatement(var out, :ThrowStatement throwst)
 {
     var excep = throwst.excep;
     out.print("throw ");
@@ -1697,7 +1736,7 @@ function emit_throwstatement(out, throwst)
         emit_expr(out, excep);
 }
 
-function emit_forstatement(out, forst)
+function emitStatement(var out, :ForStatement forst)
 {
     var initializer = forst.initializer;
     var condexpr = forst.condexpr;
@@ -1719,7 +1758,7 @@ function emit_forstatement(out, forst)
     out.print("}\n");
 }
 
-function emit_foreachstatement(out, forst)
+function emitStatement(var out, :ForeachStatement forst)
 {
     var varname = forst.varname;
     var container = forst.container;
@@ -1743,7 +1782,7 @@ function emit_foreachstatement(out, forst)
     out.print("}\n}\n");
 }
 
-function emit_ReturnStatement(out, returnst)
+function emitStatement(var out, :ReturnStatement returnst)
 {
     var values = returnst.values;
     int nargs = values == null ? 0 : int(values.numargs());
@@ -1766,19 +1805,19 @@ function emit_ReturnStatement(out, returnst)
     }
 }
 
-function emit_compoundstatement(out, compound)
+function emitStatement(var out, :CompoundStatement compound)
 {
     out.print("{\n");
     for_each(compound.statements, bindfirst(emit_statement, out));
     out.print("}\n");
 }
 
-function emit_multistatement(out, mst)
+function emitStatement(var out, :MultiStatement mst)
 {
     for_each(mst.statements, bindfirst(emit_statement, out));
 }
 
-function emit_UsingStatement(out, st)
+function emitStatement(var out, :UsingStatement st)
 {
     if (st.subid != null) {
         var path = st.path;
@@ -1788,76 +1827,29 @@ function emit_UsingStatement(out, st)
     }
 }
 
-function emit_statement(out, st)
+function emitStatement(var out, var st)
 {
-    if (st instanceof MultiStatement)
-        emit_multistatement(out, st);
-    else if (st instanceof CompoundStatement)
-        emit_compoundstatement(out, st);
-    else if (st instanceof ConstStatement)
-        emit_conststatement(out, st);
-    else if (st instanceof IntStatement)
-        emit_nativetypestatement(out, st, REGint, "0");
-    else if (st instanceof FloatStatement)
-        emit_nativetypestatement(out, st, REGfloat, "0.0");
-    else if (st instanceof StringStatement)
-        emit_nativetypestatement(out, st, REGstring, "\"\"");
-    else if (st instanceof IntArrayStatement)
-        emit_nativearraystatement(out, st, "Integer");
-    else if (st instanceof FloatArrayStatement)
-        emit_nativearraystatement(out, st, "Float");
-    else if (st instanceof StringArrayStatement)
-        emit_nativearraystatement(out, st, "String");
-    else if (st instanceof VarStatement)
-        emit_VarStatement(out, st);
-    else if (st instanceof LabelStatement)
-        emit_labelstatement(out, st);
-    else if (st instanceof BreakStatement)
-        emit_breakstatement(out, st);
-    else if (st instanceof ContinueStatement)
-        emit_ContinueStatement(out, st);
-    else if (st instanceof GotoStatement)
-        emit_gotostatement(out, st);
-    else if (st instanceof IfStatement)
-        emit_ifstatement(out, st);
-    else if (st instanceof SwitchStatement)
-        emit_switchstatement(out, st);
-    else if (st instanceof SwitchCaseStatement)
-        emit_SwitchCaseStatement(out, st);
-    else if (st instanceof WhileStatement)
-        emit_whilestatement(out, st);
-    else if (st instanceof DoStatement)
-        emit_dostatement(out, st);
-    else if (st instanceof TryStatement)
-        emit_trystatement(out, st);
-    else if (st instanceof ThrowStatement)
-        emit_throwstatement(out, st);
-    else if (st instanceof ForStatement)
-        emit_forstatement(out, st);
-    else if (st instanceof ForeachStatement)
-        emit_foreachstatement(out, st);
-    else if (st instanceof ReturnStatement)
-        emit_ReturnStatement(out, st);
-    else if (st instanceof ExprStatement)
-        emit_exprst(out, st);
-    else if (st instanceof EmptyStatement)
-        /* Do nothing */ ;
-    else if (st instanceof ExternStatement)
-        /* Do nothing */ ;
-    else if (st instanceof StaticStatement)
-        /* Do nothing */ ;
-    else if (st instanceof UsingStatement)
-        emit_UsingStatement(out, st);
-    else if (st instanceof UsingNamespaceStatement)
-        /* Do nothing */ ;
-    else {
+    switch {
+      case st instanceof ExternStatement:
+      case st instanceof StaticStatement:
+      case st instanceof UsingNamespaceStatement:
+        // Do nothing
+        break;
+      default:
         if (__DEBUG__) cry("In " + __FUNCTION__);
         throw WxxUnsupported(st);
     }
+}
+
+function emit_statement(out, st)
+{
+    emitStatement(out, st);
 
     if (! (st instanceof CompoundStatement))
         out.print(";\n");
 }
+
+//**********************************************************************
 
 function emit_declare_function(out, funst)
 {
