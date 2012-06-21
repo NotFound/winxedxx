@@ -709,6 +709,12 @@ function emitExpr(var out, :IdentifierExpr expr)
         out.print(name);
 }
 
+function emitExpr(var out, :LexicalVolatileExpr expr)
+{
+    string name = expr.start.getidentifier();
+    out.print(name);
+}
+
 function emitExpr(var out, :NullExpr expr)
 {
     out.print("winxedxxnull");
@@ -1471,23 +1477,27 @@ function emit_nativetypestatement(out, st, string type, string nullinit)
     string name = st.name;
     var init = st.init;
 
-    out.print(generatedType(type), " ", name, " = ");
-    if (init == null) {
+    int flags = 0;
+    string lexname = null;
+    var local = st.owner.getvar(name);
+    if (local != null) {
+        flags = local.getflags();
+        lexname = local.getlex();
+    }
+    int is_lex = (flags & VAR_is_lexical) || lexname != null;
+    // If lexical, declare a reference to the data struct
+    // Else, declare plain var
+    out.print(generatedType(type), " ");
+    if (is_lex)
+        out.print("&", name, " = ", DATA, "->", name);
+    else
+        out.print(name);
+
+    out.print(" = ");
+    if (init == null)
         out.print(nullinit);
-    }
-    else {
-        switch (type) {
-          case REGint:
-            emit_intexpr(out, init);
-            break;
-          case REGfloat:
-            emit_numexpr(out, init);
-            break;
-          case REGstring:
-            emit_stringexpr(out, init);
-            break;
-        }
-    }
+    else
+        emit_typedexpr(out, init, type);
 }
 
 function emit_nativearraystatement(out, st, string arraytype)
@@ -1566,11 +1576,9 @@ function emitStatement(var out, :VarStatement st)
     // Else, declare plain var
     out.print(Type_PMC, " ");
     if (is_lex)
-        out.print("&");
-    out.print(st.name);
-    if (is_lex) {
-        out.print(" = ", DATA, "->", st.name);
-    }
+        out.print("&", name, " = ", DATA, "->", name);
+    else
+        out.print(name);
 
     if (init != null) {
         out.print(" = ");
