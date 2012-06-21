@@ -1931,9 +1931,7 @@ function getArgValue(out, string type, int i)
 
 function setDataVarFromArg(out, string name, string type, int i)
 {
-    out.print(DATA + "->", name, " = ");
-    if (type == REGstring)
-        out.print(Type_String);
+    out.print(DATA + "->", name);
     getArgValue(out, type, i);
 }
 
