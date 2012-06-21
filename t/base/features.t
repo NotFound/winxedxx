@@ -321,10 +321,6 @@ function main [main] (args)
     is(str + vi1, "2.542", "string + var");
     is(vi1 + str, "422.5", "var + string");
 
-    is(i - 2, 40, "int - int");
-    is(i - vi1, 0, "int - var");
-    is(vi1 - i, 0, "var - int");
-
     string s = "abc";
     is(s * 3, "abcabcabc", "repeat string");
 
