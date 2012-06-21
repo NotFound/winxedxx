@@ -34,6 +34,7 @@ class CastExpr;
 class VarCastExpr;
 
 class IdentifierExpr;
+class LexicalVolatileExpr;
 class MemberExpr;
 class MemberRefExpr;
 class IndexExpr;
@@ -972,27 +973,14 @@ function emitExpr(var out, :OpAssignExpr assignexpr)
     var lexpr = assignexpr.lexpr;
     var rexpr = assignexpr.rexpr;
     string ltype = lexpr.checkresult();
-    string rtype = rexpr.checkresult();
     switch {
       case lexpr instanceof IdentifierExpr:
         out.print(lexpr.name, " = ");
-        switch {
-          case ltype == REGint:
-            emit_intexpr(out, rexpr);
-            break;
-          case ltype == REGstring:
-            emit_stringexpr(out, rexpr);
-            break;
-          case ltype == REGfloat:
-            emit_numexpr(out, rexpr);
-            break;
-          case ltype == REGvar && rtype == REGvar:
-            emit_expr(out, rexpr); // Nothing in particular
-            break;
-          default:
-            out.print(generatedType(ltype));
-            emit_expr(out, rexpr);
-        }
+        emit_typedexpr(out, rexpr, ltype);
+        break;
+      case lexpr instanceof LexicalVolatileExpr:
+        out.print(lexpr.start.getidentifier(), " = ");
+        emit_typedexpr(out, rexpr, ltype);
         break;
       case lexpr instanceof MemberExpr:
         emit_expr(out, lexpr.left);
@@ -1442,6 +1430,23 @@ function emit_varexpr(out, expr)
     emit_expr(out, expr);
 }
 
+function emit_typedexpr(out, expr, string type)
+{
+    switch (type) {
+      case REGint:
+        emit_intexpr(out, expr);
+        break;
+      case REGstring:
+        emit_stringexpr(out, expr);
+        break;
+      case REGfloat:
+        emit_numexpr(out, expr);
+        break;
+      default:
+        emit_varexpr(out, expr);
+    }
+}
+
 //**********************************************************************
 //                 Statements in functions
 //**********************************************************************
@@ -1548,8 +1553,14 @@ function emitStatement(var out, :VarStatement st)
     string name = st.name;
     var init = st.init;
 
+    int flags = 0;
+    string lexname = null;
     var local = st.owner.getvar(name);
-    int is_lex = local != null && (local.getflags() & VAR_is_lexical);
+    if (local != null) {
+        flags = local.getflags();
+        lexname = local.getlex();
+    }
+    int is_lex = (flags & VAR_is_lexical) || lexname != null;
 
     // If lexical, declare a reference to the data struct
     // Else, declare plain var

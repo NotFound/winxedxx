@@ -116,6 +116,7 @@ TESTS = t/base/00test.t \
 	t/base/02varcast.t \
 	t/base/03pmc.t t/base/03class.t \
 	t/base/06localfunctions.t \
+	t/base/10closure.t \
 	t/base/features.t
 
 test: winxedxx.pbc $(FRONTEND) winxedxx.h $(LIB)
