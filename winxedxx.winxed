@@ -109,6 +109,7 @@ class IntArrayStatement;
 class FloatArrayStatement;
 class StringArrayStatement;
 class ConstStatement;
+class MultiAssignStatement;
 class ReturnStatement;
 class LabelStatement;
 class BreakStatement;
@@ -1586,6 +1587,20 @@ function emitStatement(var out, :VarStatement st)
     }
 }
 
+function emitStatement(var out, :MultiAssignStatement st)
+{
+    out.print("{\n  WxxObjectPtr __m_1 = ");
+    emit_expr(out, st.expr);
+    out.print(";\n");
+    var params = st.params.params;
+    int i = 0;
+    for (var param in params) {
+        var data = param.getvar();
+        out.print("    ", param.name, " = __m_1.get_pmc_keyed(", i++, ");\n");
+    }
+    out.print("}\n");
+}
+
 function emitStatement(var out, :LabelStatement labelst)
 {
     out.print(labelst.name);
@@ -1785,12 +1800,15 @@ function emitStatement(var out, :ReturnStatement returnst)
         emit_expr(out, expr);
         break;
       default:
-        out.print(Type_PMCArray, "()");
+        out.print(Type_PMC, "(&((new ", Type_PMCArray, "())->");
         for (int i = 0; i < nargs; ++i) {
-            out.print(".push(");
+            if (i)
+                out.print(".");
+            out.print("push(");
             emit_expr(out, values.getfreearg(i));
             out.print(")");
         }
+        out.print("))");
     }
 }
 
