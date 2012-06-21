@@ -1,10 +1,7 @@
 // winxedxx_util.cxx
 // (C) 2011-2012 Julián Albo
 
-#include "winxedxx_types.h"
-#include "winxedxx_object.h"
-#include "winxedxx_default.h"
-#include "winxedxx_integer.h"
+#include "winxedxx.h"
 #include "winxedxx_handle.h"
 #include "winxedxx_ptr.h"
 #include "winxedxx_bytebuffer.h"
@@ -112,6 +109,58 @@ std::string wxx_repeat_string(std::string s, int n)
     for (int i = 0; i < n; ++i)
         result += s;
     return result;
+}
+
+//*********** operators ++ and -- prefix ****************
+
+int & wxx_preinc(int &i)
+{
+    return ++i;
+}
+
+WxxObjectPtr & wxx_preinc(WxxObjectPtr &o)
+{
+    return o.increment();
+}
+
+int & wxx_predec(int &i)
+{
+    return --i;
+}
+
+WxxObjectPtr & wxx_predec(WxxObjectPtr &o)
+{
+    return o.decrement();
+}
+
+//*********** operators ++ and -- postfix ****************
+
+// Incorrect implementation for object ptr, but enough for some uses.
+// It must modify in place the content pointed by the operand,
+// this makes it point to a new object.
+
+int wxx_postinc(int &i)
+{
+    return i++;
+}
+
+WxxObjectPtr wxx_postinc(WxxObjectPtr &o)
+{
+    WxxObjectPtr r(o);
+    o = wxx_add(r, 1);
+    return r;
+}
+
+int wxx_postdec(int &i)
+{
+    return i--;
+}
+
+WxxObjectPtr wxx_postdec(WxxObjectPtr &o)
+{
+    WxxObjectPtr r(o);
+    o = wxx_sub(r, 1);
+    return r;
 }
 
 //*********** operator + ****************

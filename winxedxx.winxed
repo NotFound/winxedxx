@@ -756,6 +756,26 @@ function emitExpr(var out, :VarCastExpr expr)
     }
 }
 
+function emitExpr(var out, :OpPreIncExpr expr)
+{
+    emit_plainfun1(out, "wxx_preinc", expr.subexpr);
+}
+
+function emitExpr(var out, :OpPreDecExpr expr)
+{
+    emit_plainfun1(out, "wxx_predec", expr.subexpr);
+}
+
+function emitExpr(var out, :OpPostIncExpr expr)
+{
+    emit_plainfun1(out, "wxx_postinc", expr.subexpr);
+}
+
+function emitExpr(var out, :OpPostDecExpr expr)
+{
+    emit_plainfun1(out, "wxx_postdec", expr.subexpr);
+}
+
 //**********************************************************************
 
 function emit_callargs(out, args)
@@ -1329,21 +1349,6 @@ function emitExpr(var out, var expr)
       case expr instanceof OpNotExpr:
         emit_OpNotExpr(out, expr);
         break;
-      case expr instanceof OpPreIncExpr:
-        out.print("++");
-        emit_expr(out, expr.subexpr);
-        break;
-      case expr instanceof OpPreDecExpr:
-        out.print("--");
-        emit_expr(out, expr.subexpr);
-        break;
-      case expr instanceof OpPostIncExpr:
-        emit_expr(out, expr.subexpr);
-        out.print("++");
-        break;
-      case expr instanceof OpPostDecExpr:
-        emit_expr(out, expr.subexpr);
-        out.print("--");
       case expr instanceof OpUnaryMinusExpr:
         out.print("-");
         emit_expr(out, expr.subexpr);

@@ -549,6 +549,22 @@ inline int operator <= (int i, const WxxObjectPtr &obj)
     return i <= int(obj);
 }
 
+//*********** operators ++ and -- prefix ****************
+
+int & wxx_preinc(int &i);
+WxxObjectPtr & wxx_preinc(WxxObjectPtr &o);
+
+int & wxx_predec(int &i);
+WxxObjectPtr & wxx_predec(WxxObjectPtr &o);
+
+//*********** operators ++ and -- postfix ****************
+
+int wxx_postinc(int &i);
+WxxObjectPtr wxx_postinc(WxxObjectPtr &o);
+
+int wxx_postdec(int &i);
+WxxObjectPtr wxx_postdec(WxxObjectPtr &o);
+
 //*********** operator + ****************
 
 int wxx_add(int i1, int i2);
