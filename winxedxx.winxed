@@ -31,6 +31,7 @@ class ClassSpecifierId;
 
 class NullExpr;
 class CastExpr;
+class VarCastExpr;
 
 class IdentifierExpr;
 class MemberExpr;
@@ -728,6 +729,22 @@ function emitExpr(var out, :CastExpr expr)
         break;
       default:
         throw WxxError("unexpected cast");
+    }
+}
+
+function emitExpr(var out, :VarCastExpr expr)
+{
+    var arg = expr.arg;
+    switch {
+      case arg instanceof MemberExpr:
+        string key[];
+        arg.buildkey(key);
+        string name = key.pop();
+        emit_namespacefromroot(out, key);
+        out.print(".get(\"", name, "\")");
+        break;
+      default:
+        throw WxxUnsupported(expr);
     }
 }
 
