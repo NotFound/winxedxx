@@ -31,8 +31,10 @@ class ClassSpecifierId;
 
 class NullExpr;
 class CastExpr;
+class VarCastExpr;
 
 class IdentifierExpr;
+class LexicalVolatileExpr;
 class MemberExpr;
 class MemberRefExpr;
 class IndexExpr;
@@ -107,6 +109,7 @@ class IntArrayStatement;
 class FloatArrayStatement;
 class StringArrayStatement;
 class ConstStatement;
+class MultiAssignStatement;
 class ReturnStatement;
 class LabelStatement;
 class BreakStatement;
@@ -519,7 +522,7 @@ function emit_builtin_indexof(out, args)
 
 //**********************************************
 
-function emit_CallBuiltinExpr(out, expr)
+function emitExpr(var out, :CallBuiltinExpr expr)
 {
     var builtin = expr.builtin;
     string name = builtin.name;
@@ -681,12 +684,44 @@ function emit_CallBuiltinExpr(out, expr)
 
 //**********************************************************************
 
-function emit_NullExpr(out, expr)
+function emitExpr(var out, :IntegerLiteral expr)
+{
+    out.print(expr.getIntegerValue());
+}
+
+function emitExpr(var out, :FloatLiteral expr)
+{
+    out.print(expr.numval);
+}
+
+function emitExpr(var out, :StringLiteral expr)
+{
+    out.print(Type_String + "(\"");
+    out.print(stringtoxx(expr));
+    out.print("\")");
+}
+
+function emitExpr(var out, :IdentifierExpr expr)
+{
+    string name = expr.name;
+    if (name == "null")
+        out.print("winxedxxnull");
+    else
+        out.print(name);
+}
+
+function emitExpr(var out, :LexicalVolatileExpr expr)
+{
+    string name = expr.start.getidentifier();
+    out.print(name);
+}
+
+function emitExpr(var out, :NullExpr expr)
 {
     out.print("winxedxxnull");
 }
 
-function emit_CastExpr(out, expr)
+function emitExpr(var out, :CastExpr expr)
 {
     var arg = expr.arg;
     string type = expr.type;
@@ -705,6 +740,42 @@ function emit_CastExpr(out, expr)
     }
 }
 
+function emitExpr(var out, :VarCastExpr expr)
+{
+    var arg = expr.arg;
+    switch {
+      case arg instanceof MemberExpr:
+        string key[];
+        arg.buildkey(key);
+        string name = key.pop();
+        emit_namespacefromroot(out, key);
+        out.print(".get(\"", name, "\")");
+        break;
+      default:
+        throw WxxUnsupported(expr);
+    }
+}
+
+function emitExpr(var out, :OpPreIncExpr expr)
+{
+    emit_plainfun1(out, "wxx_preinc", expr.subexpr);
+}
+
+function emitExpr(var out, :OpPreDecExpr expr)
+{
+    emit_plainfun1(out, "wxx_predec", expr.subexpr);
+}
+
+function emitExpr(var out, :OpPostIncExpr expr)
+{
+    emit_plainfun1(out, "wxx_postinc", expr.subexpr);
+}
+
+function emitExpr(var out, :OpPostDecExpr expr)
+{
+    emit_plainfun1(out, "wxx_postdec", expr.subexpr);
+}
+
 //**********************************************************************
 
 function emit_callargs(out, args)
@@ -719,14 +790,14 @@ function emit_callargs(out, args)
     }
 }
 
-function emit_CallSubid(out, callexpr)
+function emitExpr(var out, :CallSubid callexpr)
 {
     out.print(callexpr.subid, "(");
     emit_callargs(out, callexpr.args);
     out.print(")");
 }
 
-function emit_CallMemberExpr(out, callexpr)
+function emitExpr(var out, :CallMemberExpr callexpr)
 {
     var funref = callexpr.funref;
     var args = callexpr.args;
@@ -747,7 +818,7 @@ function emit_CallMemberExpr(out, callexpr)
     out.print(")");
 }
 
-function emit_CallExpr(out, callexpr)
+function emitExpr(var out, :CallExpr callexpr)
 {
     var funref = callexpr.funref;
     var args = callexpr.args;
@@ -787,7 +858,7 @@ function emit_CallExpr(out, callexpr)
     out.print(")");
 }
 
-function emit_ArrayExpr(out, expr)
+function emitExpr(var out, :ArrayExpr expr)
 {
     var values = expr.values;
     int nvalues = values == null ? 0 : elements(values);
@@ -800,7 +871,7 @@ function emit_ArrayExpr(out, expr)
     out.print("))");
 }
 
-function emit_HashExpr(out, expr)
+function emitExpr(var out, :HashExpr expr)
 {
     var keys = expr.keys;
     var values = expr.values;
@@ -817,18 +888,18 @@ function emit_HashExpr(out, expr)
     out.print("))");
 }
 
-function emit_FunctionExpr(out, expr)
+function emitExpr(var out, :FunctionExpr expr)
 {
     var funst = expr.fn;
     out.print("new ", funst.name, "(* ", DATA, ")");
 }
 
-function emit_FunctionId(out, funid)
+function emitExpr(var out, :FunctionId funid)
 {
     out.print(funid.subid);
 }
 
-function emit_NewExpr(out, expr)
+function emitExpr(var out, :NewExpr expr)
 {
     var initializer = expr.initializer;
     int numinits = initializer == null ? -1 : initializer.numargs();
@@ -874,7 +945,7 @@ function emit_NewExpr(out, expr)
     }
 }
 
-function emit_NewIndexedExpr(out, expr)
+function emitExpr(var out, :NewIndexedExpr expr)
 {
     var key = expr.nskey.key;
     if (elements(key) != 1)
@@ -898,7 +969,7 @@ function emit_NewIndexedExpr(out, expr)
     out.print(")");
 }
 
-function emit_NewQualifiedExpr(out, expr)
+function emitExpr(var out, :NewQualifiedExpr expr)
 {
     var newkey = expr.nskey;
     var nskey = newkey.checknskey(expr);
@@ -924,32 +995,19 @@ function emit_NewQualifiedExpr(out, expr)
     out.print(")");
 }
 
-function emit_OpAssignExpr(out, assignexpr)
+function emitExpr(var out, :OpAssignExpr assignexpr)
 {
     var lexpr = assignexpr.lexpr;
     var rexpr = assignexpr.rexpr;
     string ltype = lexpr.checkresult();
-    string rtype = rexpr.checkresult();
     switch {
       case lexpr instanceof IdentifierExpr:
         out.print(lexpr.name, " = ");
-        switch {
-          case ltype == REGint:
-            emit_intexpr(out, rexpr);
-            break;
-          case ltype == REGstring:
-            emit_stringexpr(out, rexpr);
-            break;
-          case ltype == REGfloat:
-            emit_numexpr(out, rexpr);
-            break;
-          case ltype == REGvar && rtype == REGvar:
-            emit_expr(out, rexpr); // Nothing in particular
-            break;
-          default:
-            out.print(generatedType(ltype));
-            emit_expr(out, rexpr);
-        }
+        emit_typedexpr(out, rexpr, ltype);
+        break;
+      case lexpr instanceof LexicalVolatileExpr:
+        out.print(lexpr.start.getidentifier(), " = ");
+        emit_typedexpr(out, rexpr, ltype);
         break;
       case lexpr instanceof MemberExpr:
         emit_expr(out, lexpr.left);
@@ -982,7 +1040,7 @@ function emit_OpAssignExpr(out, assignexpr)
     }
 }
 
-function emit_OpAssignToExpr(out, expr)
+function emitExpr(var out, :OpAssignToExpr expr)
 {
     var lexpr = expr.lexpr;
     var rexpr = expr.rexpr;
@@ -1006,7 +1064,7 @@ function emit_OpAssignToExpr(out, expr)
     }
 }
 
-function emit_InstanceOfExpr(out, instanceofexpr)
+function emitExpr(var out, :OpInstanceOfExpr instanceofexpr)
 {
     var lexpr = instanceofexpr.lexpr;
     var checked = instanceofexpr.checked;
@@ -1022,7 +1080,7 @@ function emit_InstanceOfExpr(out, instanceofexpr)
     out.print(")");
 }
 
-function emit_OpAddToExpr(out, assignexpr)
+function emitExpr(var out, :OpAddToExpr assignexpr)
 {
     var lexpr = assignexpr.lexpr;
     if (lexpr instanceof IdentifierExpr) {
@@ -1067,17 +1125,17 @@ function emit_OpMulToExpr(out, assignexpr)
     }
 }
 
-function emit_OpAddExpr(out, expr)
+function emitExpr(var out, :OpAddExpr expr)
 {
     emit_plainfun2(out, "wxx_add", expr.lexpr, expr.rexpr);
 }
 
-function emit_OpSubExpr(out, expr)
+function emitExpr(var out, :OpSubExpr expr)
 {
     emit_plainfun2(out, "wxx_sub", expr.lexpr, expr.rexpr);
 }
 
-function emit_RepeatString(out, expr)
+function emitExpr(var out, :RepeatString expr)
 {
     out.print("wxx_repeat_string(");
     emit_expr(out, expr.lexpr);
@@ -1086,17 +1144,17 @@ function emit_RepeatString(out, expr)
     out.print(")");
 }
 
-function emit_OpMulExpr(out, expr)
+function emitExpr(var out, :OpMulExpr expr)
 {
     emit_plainfun2(out, "wxx_mul", expr.lexpr, expr.rexpr);
 }
 
-function emit_OpDivExpr(out, expr)
+function emitExpr(var out, :OpDivExpr expr)
 {
     emit_plainfun2(out, "wxx_div", expr.lexpr, expr.rexpr);
 }
 
-function emit_ConcatString(out, concatstr)
+function emitExpr(var out, :ConcatString concatstr)
 {
     var values = concatstr.values;
     emit_stringexpr(out, values[0]);
@@ -1107,7 +1165,7 @@ function emit_ConcatString(out, concatstr)
     }
 }
 
-function emit_NullCheckerExpr(out, expr)
+function emitExpr(var out, :NullCheckerExpr expr)
 {
     if (! expr.positive)
         out.print("!");
@@ -1120,20 +1178,30 @@ function emit_OpNotExpr(out, expr)
     emit_expr(out, expr.subexpr);
 }
 
-function emit_OpBinNotExpr(out, expr)
+function emitExpr(var out, :OpBinNotExpr expr)
 {
     out.print("~");
     emit_expr(out, expr.subexpr);
 }
 
-function emit_ZeroCheckerExpr(out, expr)
+function emitExpr(var out, :OpBinOrExpr expr)
+{
+    emit_commonop(out, expr, "|");
+}
+
+function emitExpr(var out, :OpBinAndExpr expr)
+{
+    emit_commonop(out, expr, "&");
+}
+
+function emitExpr(var out, :ZeroCheckerExpr expr)
 {
     out.print("(");
     emit_expr(out, expr.expr);
     out.print(expr.positive ? "=" : "!", "= 0)");
 }
 
-function emit_OpEqualExpr(out, expr)
+function emitExpr(var out, :OpEqualExpr expr)
 {
     var lexpr = expr.lexpr;
     var rexpr = expr.rexpr;
@@ -1150,7 +1218,7 @@ function emit_OpEqualExpr(out, expr)
         emit_commonop(out, expr, expr.positive ? "==" : "!=");
 }
 
-function emit_OpSameExpr(out, expr)
+function emitExpr(var out, :OpSameExpr expr)
 {
     var lexpr = expr.lexpr;
     var rexpr = expr.rexpr;
@@ -1172,7 +1240,7 @@ function emit_commonop(out, expr, string opstr)
     emit_expr(out, expr.rexpr);
 }
 
-function emit_OpBoolOrExpr(out, lessexpr)
+function emitExpr(var out, :OpBoolOrExpr lessexpr)
 {
     out.print("wxx_boolor(");
     emit_expr(out, lessexpr.lexpr);
@@ -1181,7 +1249,7 @@ function emit_OpBoolOrExpr(out, lessexpr)
     out.print(")");
 }
 
-function emit_OpBoolAndExpr(out, lessexpr)
+function emitExpr(var out, :OpBoolAndExpr lessexpr)
 {
     out.print("wxx_booland(");
     emit_expr(out, lessexpr.lexpr);
@@ -1190,7 +1258,7 @@ function emit_OpBoolAndExpr(out, lessexpr)
     out.print(")");
 }
 
-function emit_OpConditionalExpr(out, expr)
+function emitExpr(var out, :OpConditionalExpr expr)
 {
     emit_expr(out, expr.condition.condexpr);
     out.print(" ? ");
@@ -1204,16 +1272,7 @@ function emit_OpConditionalExpr(out, expr)
     out.print(")");
 }
 
-function emit_IdentifierExpr(out, expr)
-{
-    string name = expr.name;
-    if (name == "null")
-        out.print("winxedxxnull");
-    else
-        out.print(name);
-}
-
-function emit_IndexExpr(out, expr)
+function emitExpr(var out, :IndexExpr expr)
 {
     var left = expr.left;
     emit_expr(out, left);
@@ -1229,7 +1288,7 @@ function emit_IndexExpr(out, expr)
     }
 }
 
-function emit_StringIndexExpr(out, expr)
+function emitExpr(var out, :StringIndexExpr expr)
 {
     var left = expr.left;
     emit_expr(out, left);
@@ -1239,7 +1298,7 @@ function emit_StringIndexExpr(out, expr)
     out.print(", 1)");
 }
 
-function emit_OpExistsExpr(out, expr)
+function emitExpr(var out, :OpExistsExpr expr)
 {
     var subexpr = expr.subexpr;
     if (! (subexpr instanceof IndexExpr) || expr.checkresult() == REGstring)
@@ -1252,13 +1311,13 @@ function emit_OpExistsExpr(out, expr)
     emit_expr(out, arg);
 }
 
-function emit_MemberExpr(out, expr)
+function emitExpr(var out, :MemberExpr expr)
 {
     emit_expr(out, expr.left);
     out.print(".get_attr_str(\"", expr.right.getidentifier(), "\")");
 }
 
-function emit_MemberRefExpr(out, expr)
+function emitExpr(var out, :MemberRefExpr expr)
 {
     emit_expr(out, expr.left);
     out.print(".get_attr_str(");
@@ -1266,7 +1325,7 @@ function emit_MemberRefExpr(out, expr)
     out.print(")");
 }
 
-function emit_OpNamespaceExpr(out, expr)
+function emitExpr(var out, :OpNamespaceExpr expr)
 {
     var owner = expr.owner;
     var sym = owner.scopesearch(expr.key, SEARCH_NAMESPACE);
@@ -1276,6 +1335,62 @@ function emit_OpNamespaceExpr(out, expr)
     out.print("WxxObjectPtr(& (");
     emit_namespacefromroot(out, path);
     out.print("))");
+}
+
+function emitExpr(var out, var expr)
+{
+    switch {
+      case expr instanceof OpSubToExpr:
+        emit_OpSubToExpr(out, expr);
+        break;
+      case expr instanceof OpMulToExpr:
+        emit_OpMulToExpr(out, expr);
+        break;
+      case expr instanceof OpNotExpr:
+        emit_OpNotExpr(out, expr);
+        break;
+      case expr instanceof OpUnaryMinusExpr:
+        out.print("-");
+        emit_expr(out, expr.subexpr);
+        break;
+      case expr instanceof OpLessEqualExpr:
+        emit_commonop(out, expr, "<=");
+        break;
+      case expr instanceof OpLessExpr:
+        emit_commonop(out, expr, "<");
+        break;
+      case expr instanceof OpGreaterExpr:
+        emit_commonop(out, expr, ">");
+        break;
+      case expr instanceof OpGreaterEqualExpr:
+        emit_commonop(out, expr, ">=");
+        break;
+      case expr instanceof OpBinXorExpr:
+        emit_commonop(out, expr, "^");
+        break;
+      case expr instanceof OpShiftrightExpr:
+        emit_commonop(out, expr, ">>");
+        break;
+      case expr instanceof OpShiftleftExpr:
+        emit_commonop(out, expr, "<<");
+        break;
+      case expr instanceof OpModExpr:
+        emit_commonop(out, expr, "%");
+        break;
+      case expr instanceof OpCModExpr:
+        emit_commonop(out, expr, "%");
+        break;
+      default:
+        if (__DEBUG__) cry("In " + __FUNCTION__);
+        throw WxxUnsupported(expr);
+    }
+}
+
+function emit_expr(out, expr)
+{
+    out.print("(");
+    emitExpr(out, expr);
+    out.print(")");
 }
 
 function emit_intexpr(out, expr)
@@ -1327,183 +1442,40 @@ function emit_varexpr(out, expr)
     emit_expr(out, expr);
 }
 
-function emit_expr(out, expr)
+function emit_typedexpr(out, expr, string type)
 {
-    out.print("(");
-
-    if (expr instanceof CallBuiltinExpr)
-        emit_CallBuiltinExpr(out, expr);
-    else if (expr instanceof NullExpr)
-        emit_NullExpr(out, expr);
-    else if (expr instanceof CastExpr)
-        emit_CastExpr(out, expr);
-    else if (expr instanceof CallSubid)
-        emit_CallSubid(out, expr);
-    else if (expr instanceof CallMemberExpr)
-        emit_CallMemberExpr(out, expr);
-    else if (expr instanceof CallExpr)
-        emit_CallExpr(out, expr);
-    else if (expr instanceof OpAssignExpr)
-        emit_OpAssignExpr(out, expr);
-    else if (expr instanceof OpAssignToExpr)
-        emit_OpAssignToExpr(out, expr);
-    else if (expr instanceof OpAddToExpr)
-        emit_OpAddToExpr(out, expr);
-    else if (expr instanceof OpSubToExpr)
-        emit_OpSubToExpr(out, expr);
-    else if (expr instanceof OpMulToExpr)
-        emit_OpMulToExpr(out, expr);
-    else if (expr instanceof IdentifierExpr)
-        emit_IdentifierExpr(out, expr);
-    else if (expr instanceof IntegerLiteral)
-        out.print(expr.getIntegerValue());
-    else if (expr instanceof FloatLiteral)
-        out.print(expr.numval);
-    else if (expr instanceof StringLiteral) {
-        out.print(Type_String + "(\"");
-        out.print(stringtoxx(expr));
-        out.print("\")");
+    switch (type) {
+      case REGint:
+        emit_intexpr(out, expr);
+        break;
+      case REGstring:
+        emit_stringexpr(out, expr);
+        break;
+      case REGfloat:
+        emit_numexpr(out, expr);
+        break;
+      default:
+        emit_varexpr(out, expr);
     }
-    else if (expr instanceof NewExpr)
-        emit_NewExpr(out, expr);
-    else if (expr instanceof NewIndexedExpr)
-        emit_NewIndexedExpr(out, expr);
-    else if (expr instanceof NewQualifiedExpr)
-        emit_NewQualifiedExpr(out, expr);
-    else if (expr instanceof ArrayExpr)
-        emit_ArrayExpr(out, expr);
-    else if (expr instanceof HashExpr)
-        emit_HashExpr(out, expr);
-    else if (expr instanceof FunctionExpr)
-        emit_FunctionExpr(out, expr);
-    else if (expr instanceof FunctionId)
-        emit_FunctionId(out, expr);
-    else if (expr instanceof OpNotExpr)
-        emit_OpNotExpr(out, expr);
-    else if (expr instanceof OpBinNotExpr)
-        emit_OpBinNotExpr(out, expr);
-    else if (expr instanceof NullCheckerExpr)
-        emit_NullCheckerExpr(out, expr);
-    else if (expr instanceof OpInstanceOfExpr)
-        emit_InstanceOfExpr(out, expr);
-    else if (expr instanceof OpPreIncExpr) {
-        out.print("++");
-        emit_expr(out, expr.subexpr);
-    }
-    else if (expr instanceof OpPreDecExpr) {
-        out.print("--");
-        emit_expr(out, expr.subexpr);
-    }
-    else if (expr instanceof OpPostIncExpr) {
-        emit_expr(out, expr.subexpr);
-        out.print("++");
-    }
-    else if (expr instanceof OpPostDecExpr) {
-        emit_expr(out, expr.subexpr);
-        out.print("--");
-    }
-    else if (expr instanceof OpUnaryMinusExpr) {
-        out.print("-");
-        emit_expr(out, expr.subexpr);
-    }
-    else if (expr instanceof OpAddExpr)
-        emit_OpAddExpr(out, expr);
-    else if (expr instanceof OpSubExpr)
-        emit_OpSubExpr(out, expr);
-    else if (expr instanceof RepeatString)
-        emit_RepeatString(out, expr);
-    else if (expr instanceof OpMulExpr)
-        emit_OpMulExpr(out, expr);
-    else if (expr instanceof OpDivExpr)
-        emit_OpDivExpr(out, expr);
-    else if (expr instanceof ConcatString)
-        emit_ConcatString(out, expr);
-    else if (expr instanceof ZeroCheckerExpr)
-        emit_ZeroCheckerExpr(out, expr);
-    else if (expr instanceof OpEqualExpr)
-        emit_OpEqualExpr(out, expr);
-    else if (expr instanceof OpSameExpr)
-        emit_OpSameExpr(out, expr);
-    else if (expr instanceof OpLessEqualExpr)
-        emit_commonop(out, expr, "<=");
-    else if (expr instanceof OpLessExpr)
-        emit_commonop(out, expr, "<");
-    else if (expr instanceof OpGreaterExpr)
-        emit_commonop(out, expr, ">");
-    else if (expr instanceof OpGreaterEqualExpr)
-        emit_commonop(out, expr, ">=");
-    else if (expr instanceof OpBoolOrExpr)
-        emit_OpBoolOrExpr(out, expr);
-    else if (expr instanceof OpBoolAndExpr)
-        emit_OpBoolAndExpr(out, expr);
-    else if (expr instanceof OpBinOrExpr)
-        emit_commonop(out, expr, "|");
-    else if (expr instanceof OpBinAndExpr)
-        emit_commonop(out, expr, "&");
-    else if (expr instanceof OpBinXorExpr)
-        emit_commonop(out, expr, "^");
-    else if (expr instanceof OpShiftrightExpr)
-        emit_commonop(out, expr, ">>");
-    else if (expr instanceof OpShiftleftExpr)
-        emit_commonop(out, expr, "<<");
-    else if (expr instanceof OpModExpr)
-        emit_commonop(out, expr, "%");
-    else if (expr instanceof OpCModExpr)
-        emit_commonop(out, expr, "%");
-    else if (expr instanceof OpConditionalExpr)
-        emit_OpConditionalExpr(out, expr);
-    else if (expr instanceof MemberExpr)
-        emit_MemberExpr(out, expr);
-    else if (expr instanceof MemberRefExpr) {
-        emit_MemberRefExpr(out, expr);
-    }
-    else if (expr instanceof IndexExpr)
-        emit_IndexExpr(out, expr);
-    else if (expr instanceof StringIndexExpr)
-        emit_StringIndexExpr(out, expr);
-    else if (expr instanceof OpExistsExpr)
-        emit_OpExistsExpr(out, expr);
-    else if (expr instanceof OpNamespaceExpr)
-        emit_OpNamespaceExpr(out, expr);
-    else {
-        if (__DEBUG__) cry("In " + __FUNCTION__);
-        throw WxxUnsupported(expr);
-    }
-    out.print(")");
 }
 
-function emit_exprst(out, exprst)
+//**********************************************************************
+//                 Statements in functions
+//**********************************************************************
+
+function emitStatement(var out, :EmptyStatement st)
+{
+    // Do nothing
+}
+
+function emitStatement(var out, :ExprStatement exprst)
 {
     for (var expr in exprst.expr)
         emit_expr(out, expr);
 }
 
-function emit_conststatement(out, st)
+function emitStatement(var out, :ConstStatement st)
 {
-}
-
-function emit_VarStatement(out, st)
-{
-    string name = st.name;
-    var init = st.init;
-
-    var local = st.owner.getvar(name);
-    int is_lex = local != null && (local.getflags() & VAR_is_lexical);
-
-    // If lexical, declare a reference to the data struct
-    // Else, declare plain var
-    out.print(Type_PMC, " ");
-    if (is_lex)
-        out.print("&");
-    out.print(st.name);
-    if (is_lex) {
-        out.print(" = ", DATA, "->", st.name);
-    }
-
-    if (init != null) {
-        out.print(" = ");
-        emit_expr(out, init);
-    }
 }
 
 function emit_nativetypestatement(out, st, string type, string nullinit)
@@ -1511,23 +1483,27 @@ function emit_nativetypestatement(out, st, string type, string nullinit)
     string name = st.name;
     var init = st.init;
 
-    out.print(generatedType(type), " ", name, " = ");
-    if (init == null) {
+    int flags = 0;
+    string lexname = null;
+    var local = st.owner.getvar(name);
+    if (local != null) {
+        flags = local.getflags();
+        lexname = local.getlex();
+    }
+    int is_lex = (flags & VAR_is_lexical) || lexname != null;
+    // If lexical, declare a reference to the data struct
+    // Else, declare plain var
+    out.print(generatedType(type), " ");
+    if (is_lex)
+        out.print("&", name, " = ", DATA, "->", name);
+    else
+        out.print(name);
+
+    out.print(" = ");
+    if (init == null)
         out.print(nullinit);
-    }
-    else {
-        switch (type) {
-          case REGint:
-            emit_intexpr(out, init);
-            break;
-          case REGfloat:
-            emit_numexpr(out, init);
-            break;
-          case REGstring:
-            emit_stringexpr(out, init);
-            break;
-        }
-    }
+    else
+        emit_typedexpr(out, init, type);
 }
 
 function emit_nativearraystatement(out, st, string arraytype)
@@ -1558,28 +1534,100 @@ function emit_nativearraystatement(out, st, string arraytype)
     out.print("))");
 }
 
-function emit_labelstatement(out, labelst)
+function emitStatement(var out, :IntStatement st)
+{
+    emit_nativetypestatement(out, st, REGint, "0");
+}
+
+function emitStatement(var out, :FloatStatement st)
+{
+    emit_nativetypestatement(out, st, REGfloat, "0.0");
+}
+
+function emitStatement(var out, :StringStatement st)
+{
+    emit_nativetypestatement(out, st, REGstring, "\"\"");
+}
+
+function emitStatement(var out, :IntArrayStatement st)
+{
+    emit_nativearraystatement(out, st, "Integer");
+}
+
+function emitStatement(var out, :FloatArrayStatement st)
+{
+    emit_nativearraystatement(out, st, "Float");
+}
+
+function emitStatement(var out, :StringArrayStatement st)
+{
+    emit_nativearraystatement(out, st, "String");
+}
+
+function emitStatement(var out, :VarStatement st)
+{
+    string name = st.name;
+    var init = st.init;
+
+    int flags = 0;
+    string lexname = null;
+    var local = st.owner.getvar(name);
+    if (local != null) {
+        flags = local.getflags();
+        lexname = local.getlex();
+    }
+    int is_lex = (flags & VAR_is_lexical) || lexname != null;
+
+    // If lexical, declare a reference to the data struct
+    // Else, declare plain var
+    out.print(Type_PMC, " ");
+    if (is_lex)
+        out.print("&", name, " = ", DATA, "->", name);
+    else
+        out.print(name);
+
+    if (init != null) {
+        out.print(" = ");
+        emit_expr(out, init);
+    }
+}
+
+function emitStatement(var out, :MultiAssignStatement st)
+{
+    out.print("{\n  WxxObjectPtr __m_1 = ");
+    emit_expr(out, st.expr);
+    out.print(";\n");
+    var params = st.params.params;
+    int i = 0;
+    for (var param in params) {
+        var data = param.getvar();
+        out.print("    ", param.name, " = __m_1.get_pmc_keyed(", i++, ");\n");
+    }
+    out.print("}\n");
+}
+
+function emitStatement(var out, :LabelStatement labelst)
 {
     out.print(labelst.name);
     out.print(":\n");
 }
 
-function emit_breakstatement(out, gotost)
+function emitStatement(var out, :BreakStatement st)
 {
     out.print("break");
 }
 
-function emit_ContinueStatement(out, gotost)
+function emitStatement(var out, :ContinueStatement st)
 {
     out.print("continue");
 }
 
-function emit_gotostatement(out, gotost)
+function emitStatement(var out, :GotoStatement gotost)
 {
     out.print("goto ", gotost.label);
 }
 
-function emit_ifstatement(out, ifst)
+function emitStatement(var out, :IfStatement ifst)
 {
     var truebranch = ifst.truebranch;
     var falsebranch = ifst.falsebranch;
@@ -1595,7 +1643,7 @@ function emit_ifstatement(out, ifst)
     out.print("}\n");
 }
 
-function emit_switchstatement(out, switchst)
+function emitStatement(var out, :SwitchStatement switchst)
 {
     var case_value = switchst.case_value;
     var case_st = switchst.case_st;
@@ -1624,7 +1672,7 @@ function emit_switchstatement(out, switchst)
     out.print("} while (false)\n");
 }
 
-function emit_SwitchCaseStatement(out, switchst)
+function emitStatement(var out, :SwitchCaseStatement switchst)
 {
     var case_value = switchst.case_value;
     var case_st = switchst.case_st;
@@ -1652,7 +1700,7 @@ function emit_SwitchCaseStatement(out, switchst)
     out.print("} while (false)\n");
 }
 
-function emit_whilestatement(out, whilest)
+function emitStatement(var out, :WhileStatement whilest)
 {
     out.print("while ");
     emit_expr(out, whilest.condexpr);
@@ -1661,7 +1709,7 @@ function emit_whilestatement(out, whilest)
     out.print("}\n");
 }
 
-function emit_dostatement(out, dost)
+function emitStatement(var out, :DoStatement dost)
 {
     out.print("do {\n");
     emit_statement(out, dost.body);
@@ -1669,7 +1717,7 @@ function emit_dostatement(out, dost)
     emit_expr(out, dost.condexpr);
 }
 
-function emit_trystatement(out, tryst)
+function emitStatement(var out, :TryStatement tryst)
 {
     out.print("try\n{\n");
     emit_statement(out, tryst.stry);
@@ -1684,7 +1732,7 @@ function emit_trystatement(out, tryst)
     out.print("}\n");
 }
 
-function emit_throwstatement(out, throwst)
+function emitStatement(var out, :ThrowStatement throwst)
 {
     var excep = throwst.excep;
     out.print("throw ");
@@ -1697,7 +1745,7 @@ function emit_throwstatement(out, throwst)
         emit_expr(out, excep);
 }
 
-function emit_forstatement(out, forst)
+function emitStatement(var out, :ForStatement forst)
 {
     var initializer = forst.initializer;
     var condexpr = forst.condexpr;
@@ -1719,7 +1767,7 @@ function emit_forstatement(out, forst)
     out.print("}\n");
 }
 
-function emit_foreachstatement(out, forst)
+function emitStatement(var out, :ForeachStatement forst)
 {
     var varname = forst.varname;
     var container = forst.container;
@@ -1743,7 +1791,7 @@ function emit_foreachstatement(out, forst)
     out.print("}\n}\n");
 }
 
-function emit_ReturnStatement(out, returnst)
+function emitStatement(var out, :ReturnStatement returnst)
 {
     var values = returnst.values;
     int nargs = values == null ? 0 : int(values.numargs());
@@ -1757,28 +1805,31 @@ function emit_ReturnStatement(out, returnst)
         emit_expr(out, expr);
         break;
       default:
-        out.print(Type_PMCArray, "()");
+        out.print(Type_PMC, "(&((new ", Type_PMCArray, "())->");
         for (int i = 0; i < nargs; ++i) {
-            out.print(".push(");
+            if (i)
+                out.print(".");
+            out.print("push(");
             emit_expr(out, values.getfreearg(i));
             out.print(")");
         }
+        out.print("))");
     }
 }
 
-function emit_compoundstatement(out, compound)
+function emitStatement(var out, :CompoundStatement compound)
 {
     out.print("{\n");
     for_each(compound.statements, bindfirst(emit_statement, out));
     out.print("}\n");
 }
 
-function emit_multistatement(out, mst)
+function emitStatement(var out, :MultiStatement mst)
 {
     for_each(mst.statements, bindfirst(emit_statement, out));
 }
 
-function emit_UsingStatement(out, st)
+function emitStatement(var out, :UsingStatement st)
 {
     if (st.subid != null) {
         var path = st.path;
@@ -1788,76 +1839,29 @@ function emit_UsingStatement(out, st)
     }
 }
 
-function emit_statement(out, st)
+function emitStatement(var out, var st)
 {
-    if (st instanceof MultiStatement)
-        emit_multistatement(out, st);
-    else if (st instanceof CompoundStatement)
-        emit_compoundstatement(out, st);
-    else if (st instanceof ConstStatement)
-        emit_conststatement(out, st);
-    else if (st instanceof IntStatement)
-        emit_nativetypestatement(out, st, REGint, "0");
-    else if (st instanceof FloatStatement)
-        emit_nativetypestatement(out, st, REGfloat, "0.0");
-    else if (st instanceof StringStatement)
-        emit_nativetypestatement(out, st, REGstring, "\"\"");
-    else if (st instanceof IntArrayStatement)
-        emit_nativearraystatement(out, st, "Integer");
-    else if (st instanceof FloatArrayStatement)
-        emit_nativearraystatement(out, st, "Float");
-    else if (st instanceof StringArrayStatement)
-        emit_nativearraystatement(out, st, "String");
-    else if (st instanceof VarStatement)
-        emit_VarStatement(out, st);
-    else if (st instanceof LabelStatement)
-        emit_labelstatement(out, st);
-    else if (st instanceof BreakStatement)
-        emit_breakstatement(out, st);
-    else if (st instanceof ContinueStatement)
-        emit_ContinueStatement(out, st);
-    else if (st instanceof GotoStatement)
-        emit_gotostatement(out, st);
-    else if (st instanceof IfStatement)
-        emit_ifstatement(out, st);
-    else if (st instanceof SwitchStatement)
-        emit_switchstatement(out, st);
-    else if (st instanceof SwitchCaseStatement)
-        emit_SwitchCaseStatement(out, st);
-    else if (st instanceof WhileStatement)
-        emit_whilestatement(out, st);
-    else if (st instanceof DoStatement)
-        emit_dostatement(out, st);
-    else if (st instanceof TryStatement)
-        emit_trystatement(out, st);
-    else if (st instanceof ThrowStatement)
-        emit_throwstatement(out, st);
-    else if (st instanceof ForStatement)
-        emit_forstatement(out, st);
-    else if (st instanceof ForeachStatement)
-        emit_foreachstatement(out, st);
-    else if (st instanceof ReturnStatement)
-        emit_ReturnStatement(out, st);
-    else if (st instanceof ExprStatement)
-        emit_exprst(out, st);
-    else if (st instanceof EmptyStatement)
-        /* Do nothing */ ;
-    else if (st instanceof ExternStatement)
-        /* Do nothing */ ;
-    else if (st instanceof StaticStatement)
-        /* Do nothing */ ;
-    else if (st instanceof UsingStatement)
-        emit_UsingStatement(out, st);
-    else if (st instanceof UsingNamespaceStatement)
-        /* Do nothing */ ;
-    else {
+    switch {
+      case st instanceof ExternStatement:
+      case st instanceof StaticStatement:
+      case st instanceof UsingNamespaceStatement:
+        // Do nothing
+        break;
+      default:
         if (__DEBUG__) cry("In " + __FUNCTION__);
         throw WxxUnsupported(st);
     }
+}
+
+function emit_statement(out, st)
+{
+    emitStatement(out, st);
 
     if (! (st instanceof CompoundStatement))
         out.print(";\n");
 }
+
+//**********************************************************************
 
 function emit_declare_function(out, funst)
 {
@@ -1939,9 +1943,7 @@ function getArgValue(out, string type, int i)
 
 function setDataVarFromArg(out, string name, string type, int i)
 {
-    out.print(DATA + "->", name, " = ");
-    if (type == REGstring)
-        out.print(Type_String);
+    out.print(DATA + "->", name);
     getArgValue(out, type, i);
 }
 
@@ -1993,7 +1995,7 @@ function emit_define_local(out, funst, string dataname)
             "::operator() (const ", Type_PMCArray, " & wxx_fun_args)\n");
 
     out.print("{\n" );
-    var emitlocal = new EmitFunction(funst);
+    :EmitFunction emitlocal(funst);
     emitlocal.emit_params(out);
 
     var usedlexicals = funst.usedlexicals;
@@ -2082,7 +2084,7 @@ class EmitFunction
 
 function emit_FunctionStatement(out, funst, string prefix[optional])
 {
-    var emitfun = new EmitFunction(funst);
+    :EmitFunction emitfun(funst);
 
     string name = funst.name;
     int ismethod = funst.ismethod();
@@ -2303,7 +2305,7 @@ class NamespaceGen
                     push(genitems, item);
                 }
                 else if (item instanceof NamespaceStatement) {
-                    var child = new ChildNamespaceGen(item);
+                    :ChildNamespaceGen child(item);
                     push(genchilds, child);
                     push(genitems, child);
                 }
@@ -2578,7 +2580,7 @@ INITIALIZEREND:>>
 
         self.print(HEADER);
 
-        var nsgen = new RootNamespaceGen(ns);
+        :RootNamespaceGen nsgen(ns);
         self.nsgen = nsgen;
         nsgen.emit_declare(self);
         nsgen.emit_declare_subid(self);

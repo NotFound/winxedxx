@@ -146,7 +146,7 @@ class WinxedCompiler
         var parsed = self.winxed.compile_from_file(sourcefile,
                 "parse":[named("target")]
         );
-        var output = new WinxedXX.Output(outhandle);
+        :WinxedXX.Output output(outhandle);
         output.emit(parsed);
     }
 }
@@ -277,7 +277,7 @@ function main [main](var argv)
 {
     using namespace WinxedXC;
 
-    var cloptions = new Options(argv);
+    :Options cloptions(argv);
     string target  = cloptions.getstring("target", "run");
     string outfile = cloptions.getstring("o");
     string stage   = cloptions.getstring("stage");
@@ -376,7 +376,7 @@ function main [main](var argv)
     //--------------------------------------------------
     // Compile the generated C++ to obj.
     var cxxconfig = config["cxx"];
-    var cxx = new CompilerCxx(cxxconfig);
+    :CompilerCxx cxx(cxxconfig);
     for (string cxxfile in cxxfiles) {
         if (verbose)
             say("Compiling C++: ", cxxfile);

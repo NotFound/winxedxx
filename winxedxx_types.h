@@ -73,8 +73,8 @@ public:
     operator bool() const;
     operator double() const;
     operator std::string() const;
-    WxxObjectPtr & operator++();
-    WxxObjectPtr & operator--();
+    WxxObjectPtr & increment();
+    WxxObjectPtr & decrement();
     int is_null() const;
     int instanceof(const std::string &type) const;
     std::string get_string() const;

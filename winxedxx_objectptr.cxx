@@ -158,13 +158,13 @@ WxxObjectPtr::operator std::string () const
     return object->get_string();
 }
 
-WxxObjectPtr & WxxObjectPtr::operator++()
+WxxObjectPtr & WxxObjectPtr::increment()
 {
     object->increment();
     return *this;
 }
 
-WxxObjectPtr & WxxObjectPtr::operator--()
+WxxObjectPtr & WxxObjectPtr::decrement()
 {
     object->decrement();
     return *this;

@@ -307,23 +307,11 @@ function main [main] (args)
     nok(vi1 === vn1, "operator === : x === other class");
     ok(vi1 !== vn1, "operator !== : x !== other class");
 
-    ++vi1;
-    is(vi1, 43, "var preincrement");
-    i = ++vi1;
-    is(i, 44, "var preincrement with assignment");
-    --vi1;
-    is(vi1, 43, "var peedecrement");
-    i = --vi1;
-    is(i, 42, "var predecrement with assignment");
-
+    i = 42;
     is(str + i, "2.542", "string + int");
     is(i + str, "422.5", "int + string");
     is(str + vi1, "2.542", "string + var");
     is(vi1 + str, "422.5", "var + string");
-
-    is(i - 2, 40, "int - int");
-    is(i - vi1, 0, "int - var");
-    is(vi1 - i, 0, "var - int");
 
     string s = "abc";
     is(s * 3, "abcabcabc", "repeat string");
@@ -336,10 +324,6 @@ function main [main] (args)
     ok(vi1 !== vi2, "var = int create a new object");
 
     i = 1;
-
-    is(~i, -2, "bitwise not");
-
-    is(i | 2, 3, "bitwise or");
 
     is(i ^ 3, 2, "bitwise xor");
 
